@@ -18,6 +18,16 @@ class ClaudeTier(str, Enum):
     SONNET = "claude-sonnet-4-6-20250514"
     OPUS = "claude-opus-4-6-20250514"
 
+    @classmethod
+    def resolve(cls, model_id: str) -> str:
+        """Return the model_id, applying any fallback mapping for older API keys."""
+        return _MODEL_FALLBACKS.get(model_id, model_id)
+
+
+# Fallback mapping for API keys that don't have access to latest models.
+# Set FERTILITY_SENSE_MODEL_FALLBACK=true to use these.
+_MODEL_FALLBACKS: dict[str, str] = {}
+
 
 ROLE_TIER_MAP: dict[AgentRole, ClaudeTier] = {
     AgentRole.EXECUTOR: ClaudeTier.HAIKU,

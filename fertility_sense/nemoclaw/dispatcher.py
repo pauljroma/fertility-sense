@@ -35,9 +35,11 @@ class AgentDispatcher:
         self,
         client: ClaudeClient | None = None,
         agents_dir: Path | None = None,
+        model_override: str = "",
     ) -> None:
         self._client = client
         self._agents_dir = agents_dir or Path("agents")
+        self._model_override = model_override
         # Cache: agent_name -> system prompt body (markdown without frontmatter)
         self._prompt_cache: dict[str, str] = {}
 
@@ -69,9 +71,12 @@ class AgentDispatcher:
         """Determine which Claude model to use.
 
         Priority:
+        0. Global model override (from config, for API key limitations)
         1. Skill-level tier override
         2. Agent default tier (role-based)
         """
+        if self._model_override:
+            return self._model_override
         if skill_name:
             for skill in agent.skills:
                 if skill.name == skill_name and skill.tier_override is not None:

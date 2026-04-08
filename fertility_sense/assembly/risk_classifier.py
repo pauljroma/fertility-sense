@@ -14,10 +14,21 @@ RED_KEYWORDS = {
     "placenta previa", "preterm labor", "emergency", "bleeding",
 }
 
-BLACK_KEYWORDS = {
-    "should i take", "how much", "what dose", "am i having a miscarriage",
-    "is this an emergency", "should i go to the er", "diagnose",
+# BLACK keywords — always escalate to BLACK regardless of topic
+BLACK_ALWAYS = {
+    "am i having a miscarriage",
+    "is this an emergency",
+    "should i go to the er",
+    "diagnose",
     "can you tell me if i have",
+}
+
+# BLACK keywords that only apply to GREEN topics — on YELLOW/RED topics
+# these are expected clinical questions that should stay at their tier
+BLACK_ON_GREEN_ONLY = {
+    "should i take",
+    "how much",
+    "what dose",
 }
 
 
@@ -32,15 +43,27 @@ def classify_risk(
     1. The topic's intrinsic risk tier
     2. Risk escalation from query keywords
     3. Risk escalation from active safety alerts
+
+    Topic-aware BLACK keywords: "should I take" on a YELLOW prenatal-vitamins
+    topic is a reasonable question (escalate to RED, not BLACK). On a GREEN
+    fertility-diet topic, it's a dosage question (escalate to BLACK).
     """
     query_lower = query.lower()
 
     # Start with topic's intrinsic tier
     tier = topic.risk_tier
 
-    # Check for BLACK keyword escalation
-    if any(kw in query_lower for kw in BLACK_KEYWORDS):
+    # Always-BLACK keywords — regardless of topic tier
+    if any(kw in query_lower for kw in BLACK_ALWAYS):
         return RiskTier.BLACK
+
+    # Topic-aware BLACK: only escalate to BLACK on GREEN topics
+    # On YELLOW/RED topics, these are expected questions → escalate to RED instead
+    if any(kw in query_lower for kw in BLACK_ON_GREEN_ONLY):
+        if tier == RiskTier.GREEN:
+            return RiskTier.BLACK
+        # For YELLOW/RED, escalate to RED (not BLACK)
+        return RiskTier.RED
 
     # Check for RED keyword escalation
     if tier in (RiskTier.GREEN, RiskTier.YELLOW):

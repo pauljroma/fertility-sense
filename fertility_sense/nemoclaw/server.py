@@ -40,6 +40,7 @@ class FertilitySenseServer:
         self.dispatcher = AgentDispatcher(
             client=self._client,
             agents_dir=agents_dir,
+            model_override=self.config.model_override,
         )
 
         # Orchestrator wired to dispatcher

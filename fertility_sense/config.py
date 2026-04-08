@@ -53,5 +53,9 @@ class FertilitySenseConfig(BaseSettings):
     reddit_client_secret: str = ""
     reddit_user_agent: str = "fertility-sense/0.1.0"
 
+    # Model override — use when API key only accesses older models
+    # e.g. "claude-3-haiku-20240307" routes all tiers through one model
+    model_override: str = Field(default="", description="Force all agents to use this model ID")
+
     # CORS
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])

@@ -697,8 +697,8 @@ pregnancy:
     prenatal-vitamins:
       display_name: "Prenatal Vitamins"
       journey_stage: pregnancy_t1
-      intent: act
-      risk_tier: green
+      intent: decide
+      risk_tier: yellow
       monetization_class: commerce
       aliases:
         - "prenatal vitamins"
