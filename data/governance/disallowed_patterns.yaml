@@ -1,0 +1,94 @@
+disallowed_classes:
+  - name: diagnosis
+    description: "Never state a diagnosis"
+    patterns:
+      - "you have \\w+"
+      - "you are diagnosed with"
+      - "this means you have"
+      - "you(?:'re| are) suffering from"
+      - "you likely have"
+      - "this indicates you have"
+      - "based on this you're"
+    replacement_text: >-
+      Symptoms may be associated with [condition].
+      Please consult your healthcare provider for a proper evaluation.
+
+  - name: dosage
+    description: "Never recommend specific drug dosages"
+    patterns:
+      - "take \\d+ ?mg"
+      - "dose of \\d+"
+      - "recommended dose is"
+      - "you should take \\d+"
+      - "recommended amount is"
+      - "optimal dose"
+      - "take \\d+ daily"
+    replacement_text: >-
+      Dosage should be determined by your healthcare provider
+      based on your individual needs.
+
+  - name: emergency_triage
+    description: "Never triage emergency symptoms without ER direction"
+    patterns:
+      - "you (?:don't|do not) need to go to"
+      - "this is (?:probably )?not an emergency"
+      - "wait and see if"
+      - "no need to call (?:your doctor|911)"
+      - "it's nothing serious"
+      - "don't worry about"
+      - "you can safely ignore"
+    replacement_text: >-
+      If you are experiencing concerning symptoms,
+      call 911 or go to your nearest emergency room immediately.
+
+  - name: outcome_guarantee
+    description: "Never guarantee outcomes"
+    patterns:
+      - "you will (?:definitely|certainly|surely)"
+      - "guaranteed to"
+      - "100% (?:success|effective|safe)"
+      - "this will cure"
+      - "proven to work every time"
+      - "always results in"
+      - "never fails to"
+    replacement_text: >-
+      Results vary by individual.
+      Discuss expected outcomes with your healthcare provider.
+
+  - name: anti_medical
+    description: "Never discourage professional care"
+    patterns:
+      - "you don't need (?:a |to see a )?doctor"
+      - "skip (?:your|the) (?:doctor|appointment)"
+      - "doctors (?:don't know|are wrong)"
+      - "instead of seeing a doctor"
+      - "doctors just want to"
+      - "medicine doesn't work for"
+      - "natural is better than"
+    replacement_text: >-
+      We recommend discussing your concerns with a
+      qualified healthcare provider.
+
+  - name: false_equivalence
+    description: "Never equate unproven remedies with medical treatments"
+    patterns:
+      - "just as good as"
+      - "equivalent to (?:IVF|medication|treatment|surgery|therapy)"
+      - "works the same as"
+      - "a natural alternative to (?:IVF|medication|treatment|surgery)"
+      - "replaces the need for"
+    replacement_text: >-
+      Alternative approaches have not been shown to be equivalent to
+      established medical treatments. Discuss all options with your provider.
+
+  - name: unproven_claims
+    description: "Never assert clinical proof without citation"
+    patterns:
+      - "clinically proven to"
+      - "scientifically shown that"
+      - "studies prove that"
+      - "research confirms that"
+      - "medical evidence shows"
+    replacement_text: >-
+      Claims about clinical evidence should be verified with your
+      healthcare provider and peer-reviewed sources.

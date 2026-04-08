@@ -6,9 +6,9 @@ Monitors fertility-related subreddits via PRAW and converts posts into
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import logging
-import os
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -19,10 +19,15 @@ try:
 except ImportError:
     praw = None  # type: ignore[assignment]
 
+from fertility_sense.config import FertilitySenseConfig
 from fertility_sense.feeds.base import BaseFeed
 from fertility_sense.models.signal import SignalEvent, SignalSource
 
 logger = logging.getLogger(__name__)
+
+# Reddit allows 60 requests/min. We add a small delay between subreddit
+# fetches to stay comfortably under the limit.
+_RATE_LIMIT_DELAY_SECONDS = 1.2
 
 DEFAULT_SUBREDDITS: list[str] = [
     "TryingForABaby",
@@ -89,11 +94,9 @@ class RedditFeed(BaseFeed):
 
     def __init__(
         self,
+        config: FertilitySenseConfig | None = None,
         subreddits: list[str] | None = None,
         limit_per_sub: int = 100,
-        client_id: str | None = None,
-        client_secret: str | None = None,
-        user_agent: str | None = None,
     ) -> None:
         super().__init__(
             name="reddit",
@@ -101,21 +104,36 @@ class RedditFeed(BaseFeed):
             cadence=timedelta(hours=4),
             feed_type="demand",
         )
+        if config is None:
+            config = FertilitySenseConfig()
+
+        if not config.reddit_client_id:
+            raise ValueError(
+                "Reddit client ID is required. "
+                "Set FERTILITY_SENSE_REDDIT_CLIENT_ID env var or config.reddit_client_id."
+            )
+        if not config.reddit_client_secret:
+            raise ValueError(
+                "Reddit client secret is required. "
+                "Set FERTILITY_SENSE_REDDIT_CLIENT_SECRET env var or config.reddit_client_secret."
+            )
+
         self.subreddits = subreddits or DEFAULT_SUBREDDITS
         self.limit_per_sub = limit_per_sub
-        self._client_id = client_id or os.environ.get("REDDIT_CLIENT_ID", "")
-        self._client_secret = client_secret or os.environ.get("REDDIT_CLIENT_SECRET", "")
-        self._user_agent = user_agent or os.environ.get(
-            "REDDIT_USER_AGENT", "fertility-sense:v0.1 (by /u/fertility_sense_bot)"
-        )
+        self._client_id = config.reddit_client_id
+        self._client_secret = config.reddit_client_secret
+        self._user_agent = config.reddit_user_agent
+        self._cached_reddit: praw.Reddit | None = None
 
     def _reddit(self) -> praw.Reddit:
-        """Lazily construct a PRAW Reddit instance."""
-        return praw.Reddit(
-            client_id=self._client_id,
-            client_secret=self._client_secret,
-            user_agent=self._user_agent,
-        )
+        """Lazily construct and cache a PRAW Reddit instance."""
+        if self._cached_reddit is None:
+            self._cached_reddit = praw.Reddit(
+                client_id=self._client_id,
+                client_secret=self._client_secret,
+                user_agent=self._user_agent,
+            )
+        return self._cached_reddit
 
     # ------------------------------------------------------------------
     # Fetch
@@ -130,8 +148,9 @@ class RedditFeed(BaseFeed):
         reddit = self._reddit()
         since_ts = since.timestamp()
         raw: list[dict[str, Any]] = []
+        failed_subs: list[str] = []
 
-        for sub_name in self.subreddits:
+        for sub_idx, sub_name in enumerate(self.subreddits):
             try:
                 subreddit = reddit.subreddit(sub_name)
                 for post in subreddit.new(limit=self.limit_per_sub):
@@ -154,9 +173,26 @@ class RedditFeed(BaseFeed):
                         }
                     )
             except Exception:
-                logger.exception("Failed to fetch r/%s", sub_name)
+                failed_subs.append(sub_name)
+                logger.exception("Failed to fetch r/%s — continuing with remaining subs", sub_name)
 
-        logger.info("Reddit: fetched %d relevant posts across %d subs", len(raw), len(self.subreddits))
+            # Rate-limit between subreddits to respect Reddit's 60 req/min.
+            if sub_idx < len(self.subreddits) - 1:
+                await asyncio.sleep(_RATE_LIMIT_DELAY_SECONDS)
+
+        if failed_subs:
+            logger.warning(
+                "Reddit: %d/%d subs failed: %s",
+                len(failed_subs),
+                len(self.subreddits),
+                ", ".join(failed_subs),
+            )
+        logger.info(
+            "Reddit: fetched %d relevant posts across %d subs (%d failed)",
+            len(raw),
+            len(self.subreddits),
+            len(failed_subs),
+        )
         return raw
 
     # ------------------------------------------------------------------

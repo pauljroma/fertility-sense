@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    image: fertility-sense:latest
+    ports:
+      - "9300:9300"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  # -----------------------------------------------------------
+  # Uncomment for M1 migration to a local Postgres instance
+  # -----------------------------------------------------------
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: fertility
+  #     POSTGRES_PASSWORD: fertility
+  #     POSTGRES_DB: fertility_sense
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U fertility"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+# volumes:
+#   pgdata:

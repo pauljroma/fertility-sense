@@ -1,4 +1,4 @@
-.PHONY: test-smoke test-unit test-integration test-property test-e2e test-coverage lint typecheck build
+.PHONY: test-smoke test-unit test-integration test-property test-e2e test-coverage lint typecheck build docker-build docker-run docker-test
 
 # Test tiers (fast → slow)
 test-smoke:          ## <200ms — 5-test heartbeat, pre-commit gate
@@ -30,3 +30,13 @@ typecheck:           ## mypy strict
 # Build
 build:               ## install in editable mode
 	pip install -e ".[feeds,test,dev]" --quiet
+
+# Docker
+docker-build:        ## build Docker image
+	docker build -t fertility-sense .
+
+docker-run:          ## run with docker-compose
+	docker-compose up
+
+docker-test:         ## run smoke tests inside Docker
+	docker run fertility-sense python -m pytest -m smoke

@@ -1,0 +1,13 @@
+.git
+.venv
+.pytest_cache
+__pycache__
+*.egg-info
+.env
+node_modules
+.nx
+tests
+.github
+.mypy_cache
+.ruff_cache
+tasks

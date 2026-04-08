@@ -5,7 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from fertility_sense.nemoclaw.dispatcher import AgentDispatcher
 
 
 class PipelinePhase(str, Enum):
@@ -55,8 +58,9 @@ class FertilityOrchestrator:
     This implementation provides the orchestration skeleton.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, dispatcher: AgentDispatcher | None = None) -> None:
         self._runs: list[PipelineRun] = []
+        self._dispatcher = dispatcher
 
     def execute_pipeline(self, run_id: str) -> PipelineRun:
         """Execute the full pipeline sequentially through all phases."""
@@ -79,7 +83,12 @@ class FertilityOrchestrator:
         return self._execute_phase(phase)
 
     def _execute_phase(self, phase: PipelinePhase) -> PhaseResult:
-        """Execute a single phase — placeholder for agent-backed execution."""
+        """Execute a single phase.
+
+        When a dispatcher is available, each agent in the phase is called via
+        Claude.  Otherwise falls back to the original stub behaviour so that
+        existing tests continue to pass.
+        """
         agents = PHASE_AGENTS[phase]
         result = PhaseResult(
             phase=phase,
@@ -87,13 +96,35 @@ class FertilityOrchestrator:
             status="completed",
         )
 
-        # In production: for each agent in phase, dispatch task via Claude
-        # For now, record the phase structure
-        for agent_name in agents:
-            result.outputs[agent_name] = {
-                "status": "completed",
-                "message": f"Agent {agent_name} executed for phase {phase.value}",
-            }
+        if self._dispatcher is None:
+            # Stub mode — no dispatcher attached
+            for agent_name in agents:
+                result.outputs[agent_name] = {
+                    "status": "completed",
+                    "message": f"Agent {agent_name} executed for phase {phase.value}",
+                }
+        else:
+            # Dispatcher mode — call each agent
+            for agent_name in agents:
+                prompt = f"Execute {phase.value} phase tasks."
+                dispatch_result = self._dispatcher.dispatch(
+                    agent_name=agent_name,
+                    prompt=prompt,
+                )
+                result.outputs[agent_name] = {
+                    "status": dispatch_result.status,
+                    "model": dispatch_result.model_used,
+                    "output": dispatch_result.output[:500],
+                    "error": dispatch_result.error,
+                }
+                if dispatch_result.status == "failed":
+                    result.errors.append(
+                        f"{agent_name}: {dispatch_result.error}"
+                    )
+
+            # Mark phase failed if any agent failed hard
+            if result.errors:
+                result.status = "failed"
 
         result.completed_at = datetime.utcnow()
         return result

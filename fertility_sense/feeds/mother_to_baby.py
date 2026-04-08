@@ -7,6 +7,7 @@ into ``EvidenceRecord`` and ``SafetyAlert`` models.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import logging
 import re
@@ -21,6 +22,9 @@ from fertility_sense.models.evidence import EvidenceGrade, EvidenceRecord
 from fertility_sense.models.safety import SafetyAlert, SafetySeverity
 
 logger = logging.getLogger(__name__)
+
+# Be polite: max 2 requests/second to avoid overloading the site.
+_SCRAPE_DELAY_SECONDS = 0.5
 
 # The public fact-sheet listing endpoint.
 _BASE_URL = "https://mothertobaby.org"
@@ -148,7 +152,7 @@ class MotherToBabyFeed(BaseFeed):
         raw_sheets: list[dict[str, Any]] = []
 
         async with httpx.AsyncClient(
-            timeout=30.0,
+            timeout=httpx.Timeout(connect=10.0, read=30.0, write=10.0, pool=10.0),
             follow_redirects=True,
             headers={"User-Agent": "FertilitySense/0.1 (+https://fertilitysense.dev)"},
         ) as client:
@@ -179,14 +183,20 @@ class MotherToBabyFeed(BaseFeed):
 
             logger.info("MotherToBaby: found %d fact-sheet links", len(unique_links))
 
-            # Step 2: Fetch each detail page.
-            for link in unique_links:
+            # Step 2: Fetch each detail page with rate limiting.
+            failed_sheets = 0
+            for sheet_idx, link in enumerate(unique_links):
                 url = f"{_BASE_URL}{link}" if link.startswith("/") else link
                 try:
                     detail_resp = await client.get(url)
                     detail_resp.raise_for_status()
                 except httpx.HTTPError:
+                    failed_sheets += 1
                     logger.warning("Failed to fetch fact sheet: %s", url)
+                    continue
+                except Exception:
+                    failed_sheets += 1
+                    logger.warning("Unexpected error fetching fact sheet: %s", url)
                     continue
 
                 html = detail_resp.text
@@ -205,6 +215,17 @@ class MotherToBabyFeed(BaseFeed):
                         "url": url,
                         "body": body[:10000],  # Cap at 10k chars to limit memory.
                     }
+                )
+
+                # Rate-limit to be polite (max 2 req/sec).
+                if sheet_idx < len(unique_links) - 1:
+                    await asyncio.sleep(_SCRAPE_DELAY_SECONDS)
+
+            if failed_sheets:
+                logger.warning(
+                    "MotherToBaby: %d/%d fact sheets failed to fetch",
+                    failed_sheets,
+                    len(unique_links),
                 )
 
         logger.info("MotherToBaby: fetched %d fact sheets", len(raw_sheets))

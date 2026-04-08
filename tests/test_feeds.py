@@ -5,6 +5,13 @@ from datetime import timedelta
 
 from fertility_sense.feeds.base import BaseFeed, FeedHealth
 
+try:
+    from pytrends.request import TrendReq
+
+    _has_pytrends = True
+except ImportError:
+    _has_pytrends = False
+
 
 @pytest.mark.unit
 def test_feed_health_model():
@@ -18,6 +25,7 @@ def test_feed_health_model():
 
 
 @pytest.mark.unit
+@pytest.mark.skipif(not _has_pytrends, reason="pytrends not installed")
 def test_google_trends_feed_init():
     from fertility_sense.feeds.google_trends import GoogleTrendsFeed
 
@@ -28,10 +36,22 @@ def test_google_trends_feed_init():
 
 
 @pytest.mark.unit
+def test_google_trends_feed_import_error():
+    """GoogleTrendsFeed raises ImportError when pytrends is missing."""
+    from fertility_sense.feeds.google_trends import GoogleTrendsFeed, TrendReq
+
+    if TrendReq is None:
+        with pytest.raises(ImportError, match="pytrends"):
+            GoogleTrendsFeed()
+
+
+@pytest.mark.unit
 def test_reddit_feed_init():
+    from fertility_sense.config import FertilitySenseConfig
     from fertility_sense.feeds.reddit import RedditFeed
 
-    feed = RedditFeed()
+    cfg = FertilitySenseConfig(reddit_client_id="test-id", reddit_client_secret="test-secret")
+    feed = RedditFeed(config=cfg)
     assert feed.name == "reddit"
     assert feed.feed_type == "demand"
 
@@ -46,6 +66,7 @@ def test_mother_to_baby_feed_init():
 
 
 @pytest.mark.unit
+@pytest.mark.skipif(not _has_pytrends, reason="pytrends not installed")
 def test_feed_registry():
     from fertility_sense.feeds.registry import FeedRegistry
     from fertility_sense.feeds.google_trends import GoogleTrendsFeed
@@ -61,6 +82,7 @@ def test_feed_registry():
 
 
 @pytest.mark.unit
+@pytest.mark.skipif(not _has_pytrends, reason="pytrends not installed")
 def test_feed_health_report():
     from fertility_sense.feeds.registry import FeedRegistry
     from fertility_sense.feeds.google_trends import GoogleTrendsFeed

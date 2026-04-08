@@ -6,6 +6,7 @@ keyword interest over time, converts results to ``SignalEvent`` records.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import logging
 from datetime import datetime, timedelta, timezone
@@ -22,6 +23,10 @@ from fertility_sense.feeds.base import BaseFeed
 from fertility_sense.models.signal import SignalEvent, SignalSource
 
 logger = logging.getLogger(__name__)
+
+# Google rate-limits at roughly 30 requests/min.  Delay between batches
+# to stay under the limit.
+_RATE_LIMIT_DELAY_SECONDS = 2.5
 
 # Google Trends API allows at most 5 keywords per request.
 _BATCH_SIZE = 5
@@ -75,6 +80,11 @@ class GoogleTrendsFeed(BaseFeed):
         geo: str = "US",
         hl: str = "en-US",
     ) -> None:
+        if TrendReq is None:
+            raise ImportError(
+                "pytrends is required for GoogleTrendsFeed. "
+                "Install it with: pip install 'fertility-sense[feeds]' or pip install pytrends"
+            )
         super().__init__(
             name="google_trends",
             source_url="https://trends.google.com",
@@ -84,6 +94,8 @@ class GoogleTrendsFeed(BaseFeed):
         self.keywords = keywords or DEFAULT_KEYWORDS
         self.geo = geo
         self.hl = hl
+        # Cache the TrendReq client — reuse across fetches.
+        self._pytrends: TrendReq = TrendReq(hl=self.hl, tz=0)
 
     # ------------------------------------------------------------------
     # Fetch
@@ -100,10 +112,11 @@ class GoogleTrendsFeed(BaseFeed):
         end_str = now.strftime("%Y-%m-%d")
         timeframe = f"{start_str} {end_str}"
 
-        pytrends = TrendReq(hl=self.hl, tz=0)
+        pytrends = self._pytrends
         raw_records: list[dict[str, Any]] = []
 
-        for batch in _batches(self.keywords, _BATCH_SIZE):
+        batches = _batches(self.keywords, _BATCH_SIZE)
+        for batch_idx, batch in enumerate(batches):
             try:
                 pytrends.build_payload(
                     kw_list=batch,
@@ -120,7 +133,7 @@ class GoogleTrendsFeed(BaseFeed):
                 if "isPartial" in iot.columns:
                     iot = iot.drop(columns=["isPartial"])
 
-                # Convert DataFrame → list of row dicts.
+                # Convert DataFrame -> list of row dicts.
                 for ts, row in iot.iterrows():
                     for keyword in batch:
                         if keyword not in row.index:
@@ -135,6 +148,10 @@ class GoogleTrendsFeed(BaseFeed):
                         )
             except Exception:
                 logger.exception("Google Trends batch failed: %s", batch)
+
+            # Rate-limit between batches to avoid Google blocking.
+            if batch_idx < len(batches) - 1:
+                await asyncio.sleep(_RATE_LIMIT_DELAY_SECONDS)
 
         logger.info("GoogleTrends: fetched %d raw data-points", len(raw_records))
         return raw_records
