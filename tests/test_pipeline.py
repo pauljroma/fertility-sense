@@ -33,13 +33,21 @@ class TestPipelineInit:
         assert health["feeds"] >= 1
 
 
+def _find_seed_topic(pipeline) -> str:
+    """Find a topic ID that exists in both the evidence store AND the ontology."""
+    for r in pipeline.evidence_store.all_records():
+        for tid in r.topics:
+            if pipeline.graph.get_topic(tid) is not None:
+                return tid
+    return ""
+
+
 @pytest.mark.unit
 class TestPipelineScore:
     def test_score_all_returns_ranked_list(self, pipeline):
         scores = pipeline.score(top_n=10)
         assert len(scores) > 0
         assert len(scores) <= 10
-        # Should be sorted descending
         for i in range(len(scores) - 1):
             assert scores[i].composite_tos >= scores[i + 1].composite_tos
 
@@ -49,11 +57,9 @@ class TestPipelineScore:
         assert scores[-1].rank == len(scores)
 
     def test_score_single_topic(self, pipeline):
-        # Find a topic that has seed evidence
-        all_records = pipeline.evidence_store.all_records()
-        if not all_records:
-            pytest.skip("No seed evidence loaded")
-        topic_id = all_records[0].topics[0]
+        topic_id = _find_seed_topic(pipeline)
+        if not topic_id:
+            pytest.skip("No seed evidence with ontology match")
         scores = pipeline.score(topic_id=topic_id)
         assert len(scores) == 1
         assert scores[0].topic_id == topic_id
@@ -76,11 +82,9 @@ class TestPipelineScore:
 @pytest.mark.unit
 class TestPipelineAnswer:
     def test_answer_with_evidence(self, pipeline):
-        # Find a topic with seed evidence
-        all_records = pipeline.evidence_store.all_records()
-        if not all_records:
-            pytest.skip("No seed evidence loaded")
-        topic_id = all_records[0].topics[0]
+        topic_id = _find_seed_topic(pipeline)
+        if not topic_id:
+            pytest.skip("No seed evidence with ontology match")
         result = pipeline.answer(topic_id, f"tell me about {topic_id}")
         assert result.topic_id == topic_id
         assert result.provenance is not None
@@ -88,10 +92,9 @@ class TestPipelineAnswer:
         assert result.governance_status in ("published", "pending_review", "escalated")
 
     def test_answer_has_sections(self, pipeline):
-        all_records = pipeline.evidence_store.all_records()
-        if not all_records:
-            pytest.skip("No seed evidence loaded")
-        topic_id = all_records[0].topics[0]
+        topic_id = _find_seed_topic(pipeline)
+        if not topic_id:
+            pytest.skip("No seed evidence with ontology match")
         result = pipeline.answer(topic_id, "what should I know")
         assert len(result.sections) > 0
 
@@ -100,11 +103,9 @@ class TestPipelineAnswer:
             pipeline.answer("nonexistent-topic-xyz", "test query")
 
     def test_answer_black_query_escalates(self, pipeline):
-        all_records = pipeline.evidence_store.all_records()
-        if not all_records:
-            pytest.skip("No seed evidence loaded")
-        topic_id = all_records[0].topics[0]
-        # BLACK keywords trigger escalation
+        topic_id = _find_seed_topic(pipeline)
+        if not topic_id:
+            pytest.skip("No seed evidence with ontology match")
         result = pipeline.answer(topic_id, "am i having a miscarriage")
         assert result.risk_tier == RiskTier.BLACK
         assert "escalation_message" in result.sections

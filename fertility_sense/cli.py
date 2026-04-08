@@ -164,6 +164,21 @@ def report(top: int, as_json: bool) -> None:
 
 
 @main.command()
+@click.option("--top", default=5, type=int, help="Top N signals to campaign on")
+@click.option("--channel", multiple=True, help="Channels (reddit, blog, email, social, forum)")
+@click.option("--json-output", "as_json", is_flag=True, help="Output as JSON")
+def campaign(top: int, channel: tuple[str, ...], as_json: bool) -> None:
+    """Generate multi-channel campaign content from demand signals."""
+    from fertility_sense.outreach.campaign import format_campaign_plan, generate_campaign_plan
+
+    pipe = _pipeline()
+    channels = list(channel) if channel else None
+    click.echo(f"Generating campaigns for top {top} signals...")
+    plan = generate_campaign_plan(pipe, top_n=top, channels=channels)
+    click.echo(format_campaign_plan(plan, as_json=as_json))
+
+
+@main.command()
 @click.option("--api-key", envvar="ANTHROPIC_API_KEY", default="", help="Anthropic API key")
 def pipeline(api_key: str) -> None:
     """Run the full intelligence pipeline."""
