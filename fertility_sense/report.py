@@ -1,11 +1,14 @@
-"""Signal report — identifies who is searching, what they're struggling with,
-and what outreach/campaign actions to take.
+"""Signal report — identifies people struggling with fertility and what outreach to run.
 
-This is a demand-sensing report for campaign planning. It answers:
-1. What fertility problems are people actively searching about?
-2. Where is demand accelerating (what's getting worse)?
-3. What are the evidence-backed intervention points?
-4. What outreach/campaign should we run to reach these people?
+This is a FERTILITY demand-sensing report. The audience is men and women
+who are trying to conceive, dealing with infertility, evaluating treatments,
+or optimizing their reproductive health. NOT pregnancy/postpartum.
+
+It answers:
+1. Who is struggling with fertility right now?
+2. What specific fertility problems are accelerating?
+3. Where can we reach them (Reddit, forums, search, email)?
+4. What evidence-backed content should we create and distribute?
 5. What gaps exist where people are searching but we can't help yet?
 """
 
@@ -25,91 +28,142 @@ from fertility_sense.models.topic import (
 )
 from fertility_sense.pipeline import Pipeline
 
-
-# Journey stage labels for human-readable output
-_STAGE_LABELS = {
-    JourneyStage.PRECONCEPTION: "Planning pregnancy",
-    JourneyStage.TRYING: "Actively trying to conceive",
-    JourneyStage.FERTILITY_TREATMENT: "In fertility treatment (IVF/IUI)",
-    JourneyStage.PREGNANCY_T1: "Early pregnancy (T1)",
-    JourneyStage.PREGNANCY_T2: "Mid pregnancy (T2)",
-    JourneyStage.PREGNANCY_T3: "Late pregnancy (T3)",
-    JourneyStage.LABOR_DELIVERY: "Labor & delivery",
-    JourneyStage.POSTPARTUM: "Postpartum recovery",
-    JourneyStage.LACTATION: "Breastfeeding",
+# The fertility-focused journey stages — our core audience
+FERTILITY_STAGES = {
+    JourneyStage.PRECONCEPTION,
+    JourneyStage.TRYING,
+    JourneyStage.FERTILITY_TREATMENT,
 }
 
-# Intent → campaign type mapping
+# Audience labels focused on the fertility struggle
+_STAGE_LABELS = {
+    JourneyStage.PRECONCEPTION: "Optimizing fertility before trying",
+    JourneyStage.TRYING: "Actively trying to conceive (TTC)",
+    JourneyStage.FERTILITY_TREATMENT: "Undergoing fertility treatment (IVF/IUI/ART)",
+}
+
+# Intent → outreach type
 _INTENT_CAMPAIGN = {
-    TopicIntent.LEARN: "Educational content campaign (blog, video, social)",
-    TopicIntent.DECIDE: "Decision-support tool (comparison, quiz, calculator)",
-    TopicIntent.ACT: "Direct action campaign (booking, product, referral)",
+    TopicIntent.LEARN: "Educational outreach (blog, Reddit, social, email)",
+    TopicIntent.DECIDE: "Decision-support tool (comparison, calculator, quiz)",
+    TopicIntent.ACT: "Direct action (clinic referral, product rec, booking)",
     TopicIntent.MONITOR: "Tracking tool or check-in sequence",
-    TopicIntent.COPE: "Community + emotional support campaign",
+    TopicIntent.COPE: "Community support + emotional outreach",
+}
+
+# Where to find this audience online
+_STAGE_CHANNELS = {
+    JourneyStage.PRECONCEPTION: {
+        "subreddits": ["TryingForABaby", "WaitingForBaby", "TTC30", "TTC_PCOS"],
+        "forums": ["WhatToExpect TTC board", "TheBump Getting Pregnant"],
+        "search": ["Google: fertility + trying to conceive keywords"],
+    },
+    JourneyStage.TRYING: {
+        "subreddits": ["TryingForABaby", "TTC30", "stilltrying", "TTC_PCOS", "maleinfertility"],
+        "forums": ["WhatToExpect TTC board", "FertilityFriend community"],
+        "search": ["Google: ovulation, OPK, fertility testing, TWW"],
+    },
+    JourneyStage.FERTILITY_TREATMENT: {
+        "subreddits": ["infertility", "IVF", "InfertilityBabies", "maleinfertility"],
+        "forums": ["FertilityIQ", "RESOLVE forums"],
+        "search": ["Google: IVF cost, IVF success rates, fertility clinic reviews"],
+    },
 }
 
 
 @dataclass
 class AudienceSignal:
-    """A demand signal representing a group of people with a fertility problem."""
+    """A demand signal — people struggling with a specific fertility problem."""
     topic_id: str
     display_name: str
-    who: str  # Who is searching
-    problem: str  # What they're struggling with
+    who: str
+    struggle: str  # What they're dealing with
     journey_stage: str
     intent: str
     demand_score: float
     clinical_importance: float
     evidence_count: int
-    campaign_type: str  # Recommended outreach type
-    campaign_action: str  # Specific action to take
+    outreach_type: str
+    outreach_action: str
+    where_to_find: dict[str, list[str]]  # Channels to reach them
     risk_tier: str
     flags: list[str] = field(default_factory=list)
 
 
 @dataclass
 class SignalReport:
-    """Actionable demand intelligence report for campaign planning."""
+    """Fertility demand intelligence report."""
     generated_at: datetime
     total_topics: int
-    scored_topics: int
+    fertility_topics: int
     audience_signals: list[AudienceSignal]
-    by_journey_stage: dict[str, list[AudienceSignal]]
+    by_struggle: dict[str, list[AudienceSignal]]
     evidence_gaps: list[dict]
-    safety_flags: list[dict]
     summary: str
     campaign_brief: str
 
 
-def _build_audience_signal(
+def _build_signal(
     topic: TopicNode, score: TopicOpportunityScore, evidence_count: int
 ) -> AudienceSignal:
-    """Turn a scored topic into an audience signal with campaign recommendation."""
-    who = _STAGE_LABELS.get(topic.journey_stage, "Fertility audience")
-    problem = f"Searching about {topic.display_name.lower()}"
+    """Turn a scored fertility topic into an audience signal."""
+    who = _STAGE_LABELS.get(topic.journey_stage, "People exploring fertility")
 
-    # Enrich the "who" based on topic characteristics
-    if topic.risk_tier == RiskTier.RED:
-        who += " — need clinical-grade info"
-    elif topic.intent == TopicIntent.COPE:
-        who += " — seeking emotional support"
-    elif topic.intent == TopicIntent.DECIDE:
-        who += " — comparing options"
+    # Build the struggle description — specific to fertility
+    struggle_map = {
+        "cycle-tracking": "Trying to predict ovulation and time intercourse",
+        "irregular-periods": "Dealing with irregular cycles making it hard to predict fertility",
+        "pcos-symptoms": "Struggling with PCOS affecting their ability to conceive",
+        "ovulation": "Trying to understand and detect ovulation",
+        "egg-quality": "Worried about egg quality, especially with age",
+        "sperm-health": "Concerned about male factor fertility (sperm count, motility)",
+        "amh-levels": "Got low AMH results and wondering what it means for fertility",
+        "fertility-diet": "Looking for dietary changes to boost fertility",
+        "fertility-supplements": "Researching supplements (CoQ10, folate, DHEA) for fertility",
+        "opk-testing": "Using OPKs and trying to read results correctly",
+        "bbt-charting": "Tracking basal body temperature to confirm ovulation",
+        "timing-intercourse": "Figuring out the best timing for conception",
+        "fertile-window": "Trying to identify their fertile window each cycle",
+        "ivf": "Considering or going through IVF — overwhelmed by options and costs",
+        "iui": "Evaluating IUI as a treatment option",
+        "egg-freezing": "Considering egg freezing for future fertility",
+        "clomid": "Prescribed Clomid and researching what to expect",
+        "letrozole": "Starting letrozole and looking for others' experiences",
+        "fertility-anxiety": "Dealing with the emotional toll of trying to conceive",
+        "tww-coping": "In the two-week wait and struggling with anxiety",
+        "pregnancy-loss": "Recovering from miscarriage and wondering about next steps",
+        "miscarriage-risk": "Worried about miscarriage risk factors",
+        "fertility-testing": "Getting fertility bloodwork and not sure what results mean",
+        "semen-analysis": "Got semen analysis results and need to understand them",
+        "hsg-test": "Preparing for or interpreting HSG test results",
+        "genetic-screening": "Considering carrier screening before conceiving",
+        "fertility-clinic-selection": "Choosing between fertility clinics",
+    }
+    struggle = struggle_map.get(
+        topic.topic_id,
+        f"Searching for help with {topic.display_name.lower()}"
+    )
 
-    # Campaign type from intent
-    campaign_type = _INTENT_CAMPAIGN.get(topic.intent, "Content campaign")
+    # Outreach type
+    outreach_type = _INTENT_CAMPAIGN.get(topic.intent, "Educational outreach")
 
-    # Specific campaign action
+    # Specific action
     if topic.monetization_class == MonetizationClass.REFERRAL:
-        campaign_action = f"Build referral flow: connect searchers to providers for {topic.display_name.lower()}"
+        action = f"Connect them to fertility specialists for {topic.display_name.lower()}"
     elif topic.monetization_class == MonetizationClass.COMMERCE:
-        campaign_action = f"Product recommendation: curate evidence-backed {topic.display_name.lower()} options"
+        action = f"Recommend evidence-backed products for {topic.display_name.lower()}"
     elif topic.monetization_class == MonetizationClass.TOOL:
-        campaign_action = f"Build interactive tool: {topic.display_name.lower()} calculator or checker"
-    elif evidence_count == 0 and topic.risk_tier != RiskTier.GREEN:
-        campaign_action = f"HOLD — ingest evidence before campaigning on {topic.display_name.lower()}"
+        action = f"Build {topic.display_name.lower()} tool (calculator/tracker/checker)"
+    elif evidence_count == 0:
+        action = f"HOLD — need evidence before outreach on {topic.display_name.lower()}"
     else:
-        campaign_action = f"Create evidence-backed content on {topic.display_name.lower()} and distribute via SEO + social"
+        action = f"Create + distribute content: {topic.display_name.lower()} guide"
+
+    # Where to find them
+    where = _STAGE_CHANNELS.get(topic.journey_stage, {
+        "subreddits": ["TryingForABaby"],
+        "search": ["Google fertility keywords"],
+    })
 
     flags = []
     if score.unsafe_to_serve:
@@ -123,23 +177,27 @@ def _build_audience_signal(
         topic_id=topic.topic_id,
         display_name=topic.display_name,
         who=who,
-        problem=problem,
+        struggle=struggle,
         journey_stage=_STAGE_LABELS.get(topic.journey_stage, topic.journey_stage.value),
         intent=topic.intent.value,
         demand_score=score.demand_score,
         clinical_importance=score.clinical_importance,
         evidence_count=evidence_count,
-        campaign_type=campaign_type,
-        campaign_action=campaign_action,
+        outreach_type=outreach_type,
+        outreach_action=action,
+        where_to_find=where,
         risk_tier=topic.risk_tier.value,
         flags=flags,
     )
 
 
 def generate_report(pipe: Pipeline, top_n: int = 20) -> SignalReport:
-    """Generate an actionable signal report from the pipeline."""
-    scores = pipe.score(top_n=top_n)
-    all_topics = pipe.graph.all_topics()
+    """Generate a fertility-focused demand signal report.
+
+    ONLY includes preconception, trying, and fertility treatment stages.
+    Pregnancy/postpartum/lactation topics are excluded.
+    """
+    all_scores = pipe.score(top_n=200)  # Score all, then filter
     all_evidence = pipe.evidence_store.all_records()
 
     # Evidence count per topic
@@ -148,160 +206,127 @@ def generate_report(pipe: Pipeline, top_n: int = 20) -> SignalReport:
         for tid in r.topics:
             evidence_by_topic[tid] = evidence_by_topic.get(tid, 0) + 1
 
-    # Build audience signals
-    signals: list[AudienceSignal] = []
-    for s in scores:
+    # Filter to fertility-focused stages only
+    fertility_scores = []
+    for s in all_scores:
         topic = pipe.graph.get_topic(s.topic_id)
-        if topic is None:
-            continue
-        ec = evidence_by_topic.get(s.topic_id, 0)
-        signals.append(_build_audience_signal(topic, s, ec))
+        if topic and topic.journey_stage in FERTILITY_STAGES:
+            fertility_scores.append((s, topic))
 
-    # Group by journey stage
-    by_stage: dict[str, list[AudienceSignal]] = {}
+    # Build signals for top N fertility topics
+    signals: list[AudienceSignal] = []
+    for s, topic in fertility_scores[:top_n]:
+        ec = evidence_by_topic.get(s.topic_id, 0)
+        signals.append(_build_signal(topic, s, ec))
+
+    # Group by struggle type (journey stage)
+    by_struggle: dict[str, list[AudienceSignal]] = {}
     for sig in signals:
-        by_stage.setdefault(sig.journey_stage, []).append(sig)
+        by_struggle.setdefault(sig.journey_stage, []).append(sig)
 
     # Evidence gaps
-    evidence_gaps = []
-    for s in scores:
-        topic = pipe.graph.get_topic(s.topic_id)
-        if topic and topic.risk_tier != RiskTier.GREEN:
-            ec = evidence_by_topic.get(s.topic_id, 0)
-            if ec == 0:
-                evidence_gaps.append({
-                    "topic_id": s.topic_id,
-                    "display_name": topic.display_name,
-                    "risk_tier": topic.risk_tier.value,
-                    "tos": s.composite_tos,
-                    "action": "Ingest evidence before outreach",
-                })
-
-    # Safety flags
-    safety_flags = [
+    evidence_gaps = [
         {
-            "alert_id": a.alert_id,
-            "title": a.title,
-            "severity": a.severity.value,
-            "affected_topics": a.affected_topics,
-            "action": a.action_required,
+            "topic_id": s.topic_id,
+            "display_name": topic.display_name,
+            "risk_tier": topic.risk_tier.value,
+            "tos": s.composite_tos,
+            "action": "Need evidence before outreach",
         }
-        for a in pipe._safety_alerts if not a.resolved
+        for s, topic in fertility_scores[:top_n]
+        if evidence_by_topic.get(s.topic_id, 0) == 0 and topic.risk_tier != RiskTier.GREEN
     ]
 
-    # Campaign brief — synthesize the top signals into a brief
+    # Campaign brief
     actionable = [s for s in signals if "BLOCKED" not in s.flags and "NO_EVIDENCE" not in s.flags]
-    content_targets = [s for s in actionable if s.campaign_type.startswith("Educational")]
-    tool_targets = [s for s in actionable if "tool" in s.campaign_type.lower()]
-    referral_targets = [s for s in actionable if "referral" in s.campaign_action.lower()]
+    ttc = [s for s in signals if "trying" in s.journey_stage.lower()]
+    treatment = [s for s in signals if "treatment" in s.journey_stage.lower()]
+    precon = [s for s in signals if "Optimizing" in s.journey_stage]
 
-    brief_parts = [f"Scored {len(signals)} topics across the fertility journey."]
-    if actionable:
-        brief_parts.append(f"{len(actionable)} are ready for outreach.")
-    if content_targets:
-        brief_parts.append(
-            f"Content priority: {', '.join(s.display_name for s in content_targets[:3])}."
-        )
-    if tool_targets:
-        brief_parts.append(
-            f"Tool opportunity: {', '.join(s.display_name for s in tool_targets[:3])}."
-        )
-    if referral_targets:
-        brief_parts.append(
-            f"Referral pipeline: {', '.join(s.display_name for s in referral_targets[:3])}."
-        )
+    brief_parts = [f"{len(signals)} fertility demand signals identified."]
+    if ttc:
+        brief_parts.append(f"TTC audience ({len(ttc)} signals): {', '.join(s.display_name for s in ttc[:3])}.")
+    if treatment:
+        brief_parts.append(f"Treatment audience ({len(treatment)} signals): {', '.join(s.display_name for s in treatment[:3])}.")
+    if precon:
+        brief_parts.append(f"Pre-TTC audience ({len(precon)} signals): {', '.join(s.display_name for s in precon[:3])}.")
     if evidence_gaps:
         brief_parts.append(f"{len(evidence_gaps)} topics need evidence before outreach.")
 
-    # Summary
     summary = (
-        f"{len(signals)} demand signals identified. "
-        f"{len(actionable)} actionable now. "
-        f"{len(evidence_gaps)} need evidence. "
-        f"{len(safety_flags)} safety alerts active."
+        f"{len(signals)} fertility signals. "
+        f"{len(actionable)} ready for outreach. "
+        f"{len(evidence_gaps)} need evidence."
     )
 
     return SignalReport(
         generated_at=datetime.utcnow(),
-        total_topics=len(all_topics),
-        scored_topics=len(scores),
+        total_topics=len(pipe.graph.all_topics()),
+        fertility_topics=len(fertility_scores),
         audience_signals=signals,
-        by_journey_stage=by_stage,
+        by_struggle=by_struggle,
         evidence_gaps=evidence_gaps,
-        safety_flags=safety_flags,
         summary=summary,
         campaign_brief=" ".join(brief_parts),
     )
 
 
 def format_report(report: SignalReport, as_json: bool = False) -> str:
-    """Format a SignalReport for CLI display."""
+    """Format for CLI display."""
     if as_json:
         return json.dumps({
             "generated_at": report.generated_at.isoformat(),
             "summary": report.summary,
             "campaign_brief": report.campaign_brief,
-            "audience_signals": [
+            "fertility_topics": report.fertility_topics,
+            "signals": [
                 {
                     "topic": s.topic_id,
                     "who": s.who,
-                    "problem": s.problem,
+                    "struggle": s.struggle,
                     "demand": s.demand_score,
                     "clinical": s.clinical_importance,
                     "evidence": s.evidence_count,
-                    "campaign": s.campaign_action,
-                    "risk": s.risk_tier,
+                    "action": s.outreach_action,
+                    "where": s.where_to_find,
                     "flags": s.flags,
                 }
                 for s in report.audience_signals
             ],
-            "by_journey_stage": {
-                stage: [s.topic_id for s in sigs]
-                for stage, sigs in report.by_journey_stage.items()
-            },
             "evidence_gaps": report.evidence_gaps,
-            "safety_flags": report.safety_flags,
         }, indent=2)
 
     lines = []
     lines.append("=" * 90)
-    lines.append("FERTILITY-SENSE DEMAND SIGNAL REPORT")
+    lines.append("FERTILITY SENSE — WHO NEEDS HELP RIGHT NOW")
     lines.append(f"Generated: {report.generated_at.strftime('%Y-%m-%d %H:%M UTC')}")
-    lines.append(f"Coverage:  {report.scored_topics} of {report.total_topics} topics scored")
+    lines.append(f"Fertility topics: {report.fertility_topics} of {report.total_topics} total")
     lines.append("=" * 90)
     lines.append("")
     lines.append("CAMPAIGN BRIEF")
     lines.append(report.campaign_brief)
     lines.append("")
 
-    # Audience signals by journey stage
     lines.append("-" * 90)
-    lines.append("WHO IS SEARCHING & WHAT THEY NEED")
+    lines.append("PEOPLE STRUGGLING WITH FERTILITY — BY STAGE")
     lines.append("-" * 90)
-    for stage, sigs in report.by_journey_stage.items():
+    for stage, sigs in report.by_struggle.items():
         lines.append(f"\n  [{stage}]")
         for s in sigs:
             flag_str = f" [{', '.join(s.flags)}]" if s.flags else ""
             lines.append(f"    {s.display_name} (demand={s.demand_score:.0f}, clinical={s.clinical_importance:.0f}){flag_str}")
-            lines.append(f"      -> {s.campaign_action}")
+            lines.append(f"      Struggle: {s.struggle}")
+            lines.append(f"      Action:   {s.outreach_action}")
+            if s.where_to_find.get("subreddits"):
+                lines.append(f"      Reddit:   {', '.join('r/' + sub for sub in s.where_to_find['subreddits'][:3])}")
 
-    # Evidence gaps
     if report.evidence_gaps:
         lines.append("")
         lines.append("-" * 90)
-        lines.append("EVIDENCE GAPS — Cannot campaign until evidence is ingested")
+        lines.append("EVIDENCE GAPS — Cannot reach out until we have clinical backing")
         lines.append("-" * 90)
         for gap in report.evidence_gaps:
             lines.append(f"  ! {gap['display_name']} ({gap['risk_tier']}) — {gap['action']}")
-
-    # Safety flags
-    if report.safety_flags:
-        lines.append("")
-        lines.append("-" * 90)
-        lines.append("SAFETY FLAGS")
-        lines.append("-" * 90)
-        for sf in report.safety_flags:
-            lines.append(f"  ! [{sf['severity']}] {sf['title']}")
 
     lines.append("")
     lines.append("=" * 90)
