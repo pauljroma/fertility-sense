@@ -15,8 +15,8 @@ class AgentRole(str, Enum):
 
 class ClaudeTier(str, Enum):
     HAIKU = "claude-haiku-4-5-20251001"
-    SONNET = "claude-sonnet-4-6-20250514"
-    OPUS = "claude-opus-4-6-20250514"
+    SONNET = "claude-sonnet-4-6"
+    OPUS = "claude-opus-4-6"
 
     @classmethod
     def resolve(cls, model_id: str) -> str:
