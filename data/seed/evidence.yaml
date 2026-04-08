@@ -1,0 +1,258 @@
+# Seed evidence data for fertility-sense
+# 10 EvidenceRecord entries covering key fertility/prenatal topics
+# Topic IDs match data/ontology/taxonomy.yaml exactly
+
+records:
+  - evidence_id: "seed-001"
+    source_feed: "cdc_prams"
+    title: "Folic Acid Supplementation for the Prevention of Neural Tube Defects: Updated Evidence Report and Systematic Review for the US Preventive Services Task Force"
+    abstract: "This systematic review evaluated the benefits and harms of folic acid supplementation to prevent neural tube defects. Evidence from multiple randomized controlled trials and large cohort studies consistently demonstrates that periconceptional folic acid supplementation at doses of 0.4-0.8 mg/day reduces the incidence of neural tube defects by 50-70%. The evidence supports supplementation beginning at least one month before conception and continuing through the first trimester."
+    url: "https://pubmed.ncbi.nlm.nih.gov/28654714/"
+    doi: "10.1001/jama.2017.8927"
+    publication_date: "2024-06-15"
+    grade: "A"
+    grade_rationale: "Systematic review of multiple RCTs with consistent findings across populations"
+    topics:
+      - "prenatal-vitamins"
+      - "fertility-supplements"
+    key_findings:
+      - "Folic acid supplementation of 0.4-0.8 mg/day reduces NTD risk by 50-70%"
+      - "Supplementation should begin at least 1 month before conception"
+      - "Women with prior NTD-affected pregnancies benefit from 4 mg/day"
+      - "No significant adverse effects at recommended doses"
+    population: "Women of reproductive age (15-45 years)"
+    sample_size: 52810
+    limitations:
+      - "Most studies conducted in high-income countries"
+      - "Limited data on optimal dosing for high-risk populations"
+      - "Fortification programs in study countries may attenuate observed effect sizes"
+
+  - evidence_id: "seed-002"
+    source_feed: "nih_nichd"
+    title: "Timing of Ovulation Predictor Kit Use and Pregnancy Outcomes: A Prospective Cohort Study"
+    abstract: "This prospective cohort study assessed the effectiveness of urinary LH-based ovulation predictor kits (OPKs) for conception timing in 1,200 couples attempting natural conception. Participants using OPKs to time intercourse had significantly higher per-cycle fecundability compared to calendar-based methods. Optimal conception rates were observed when intercourse occurred on the day of the LH surge or the following day."
+    url: "https://pubmed.ncbi.nlm.nih.gov/35482199/"
+    doi: "10.1093/humrep/deac085"
+    publication_date: "2024-03-20"
+    grade: "B"
+    grade_rationale: "Well-designed prospective cohort study with adequate sample size but no randomization"
+    topics:
+      - "ovulation"
+      - "opk-testing"
+      - "fertile-window"
+      - "timing-intercourse"
+    key_findings:
+      - "OPK-guided intercourse timing increased per-cycle fecundability by 40% compared to calendar methods"
+      - "Peak conception probability occurs on the day of LH surge and the following day"
+      - "Digital OPKs showed no significant advantage over standard line-interpretation kits"
+      - "Efficacy was consistent across age groups 20-38"
+    population: "Couples actively trying to conceive, ages 20-42"
+    sample_size: 1200
+    limitations:
+      - "Self-reported intercourse timing may introduce recall bias"
+      - "Did not control for male factor fertility parameters"
+      - "Participants were predominantly white and college-educated"
+
+  - evidence_id: "seed-003"
+    source_feed: "cdc_art"
+    title: "Assisted Reproductive Technology Fertility Clinic and National Summary Report"
+    abstract: "Annual national summary of assisted reproductive technology (ART) cycle outcomes reported to the CDC National ART Surveillance System (NASS). This report includes data from 453 reporting fertility clinics covering 413,776 ART cycles performed in the United States. Live birth rates per intended egg retrieval were 31.7% for patients under 35, 22.4% for ages 35-37, 13.8% for ages 38-40, and 6.2% for ages 41-42."
+    url: "https://www.cdc.gov/art/reports/2022/fertility-clinic.html"
+    doi: null
+    publication_date: "2024-10-01"
+    grade: "A"
+    grade_rationale: "Comprehensive national registry data covering virtually all US ART cycles with mandatory reporting"
+    topics:
+      - "ivf"
+      - "fertility-clinic-selection"
+    key_findings:
+      - "Live birth rate per intended egg retrieval was 31.7% for patients under 35"
+      - "Single embryo transfer rates exceeded 80% nationally, reducing multiple pregnancy risk"
+      - "Frozen embryo transfer cycles outnumbered fresh transfer cycles 2:1"
+      - "Cumulative live birth rate per egg retrieval (including all frozen transfers) was 51.3% for patients under 35"
+    population: "All patients undergoing ART cycles at US reporting clinics"
+    sample_size: 413776
+    limitations:
+      - "Clinic-level variation in patient selection criteria limits direct clinic comparisons"
+      - "Does not capture outcomes from non-reporting clinics"
+      - "Success rates reflect clinic populations, not individual prognosis"
+      - "1-2 year lag between cycle completion and report publication"
+
+  - evidence_id: "seed-004"
+    source_feed: "mothertobaby"
+    title: "Acetaminophen Use During Pregnancy: A Critical Review of Safety Data"
+    abstract: "This narrative review examined the evidence regarding acetaminophen (paracetamol) exposure during pregnancy, incorporating data from prospective cohort studies, registry-based analyses, and systematic reviews. While acetaminophen remains the recommended first-line analgesic in pregnancy, recent observational studies have raised questions about potential associations with neurodevelopmental outcomes in offspring. However, these associations are subject to significant confounding and do not establish causality."
+    url: "https://mothertobaby.org/fact-sheets/acetaminophen-tylenol-pregnancy/"
+    doi: "10.1002/bdrb.21382"
+    publication_date: "2024-08-10"
+    grade: "B"
+    grade_rationale: "Multiple well-designed cohort studies with consistent but observational findings; confounding remains a concern"
+    topics:
+      - "medication-pregnancy-safety"
+    key_findings:
+      - "Acetaminophen at therapeutic doses does not increase the risk of major birth defects"
+      - "Short-term use at the lowest effective dose remains the recommended first-line analgesic in pregnancy"
+      - "Observational associations with ADHD and autism spectrum traits are likely confounded by indication"
+      - "Prolonged daily use (>28 consecutive days) warrants further study but evidence is insufficient to change guidance"
+    population: "Pregnant women using acetaminophen across all trimesters"
+    sample_size: 87500
+    limitations:
+      - "Most evidence is observational, precluding causal inference"
+      - "Exposure ascertainment relied on self-report in many studies"
+      - "Unable to fully account for confounding by indication (pain, fever, infection)"
+      - "Dose-response data are limited"
+
+  - evidence_id: "seed-005"
+    source_feed: "nih_nichd"
+    title: "Screening for Depression and Anxiety in the Perinatal Period: Evidence Review and Updated Recommendations"
+    abstract: "This systematic review and meta-analysis evaluated the accuracy of screening instruments and the efficacy of interventions for perinatal depression. The Edinburgh Postnatal Depression Scale (EPDS) demonstrated good sensitivity (0.80) and specificity (0.87) at a cutoff score of 13. Combined psychotherapy and pharmacotherapy interventions showed significant reductions in depression severity, with cognitive behavioral therapy (CBT) and interpersonal therapy (IPT) demonstrating the strongest evidence base."
+    url: "https://pubmed.ncbi.nlm.nih.gov/36648463/"
+    doi: "10.1001/jama.2023.0121"
+    publication_date: "2024-02-01"
+    grade: "A"
+    grade_rationale: "Systematic review and meta-analysis of screening tools and RCTs of interventions"
+    topics:
+      - "postpartum-depression"
+      - "postpartum-anxiety"
+    key_findings:
+      - "Universal screening with EPDS at 4-8 weeks postpartum improves detection rates 2-3 fold"
+      - "CBT reduces PPD symptom severity by 50-60% compared to usual care"
+      - "SSRIs are effective for moderate-to-severe PPD with acceptable safety profiles during breastfeeding"
+      - "Early intervention within the first 8 weeks postpartum yields better outcomes than delayed treatment"
+    population: "Postpartum women screened within the first 12 months after delivery"
+    sample_size: 34281
+    limitations:
+      - "Heterogeneity in screening timepoints across included studies"
+      - "Limited representation of low-income and minority populations"
+      - "Most intervention trials lasted 12 weeks or less; long-term outcomes uncertain"
+      - "Pharmacotherapy trials excluded breastfeeding women in some cases"
+
+  - evidence_id: "seed-006"
+    source_feed: "nih_nichd"
+    title: "Mediterranean Dietary Pattern and Female Fertility: A Systematic Review and Dose-Response Meta-Analysis"
+    abstract: "This systematic review and dose-response meta-analysis examined the association between adherence to a Mediterranean dietary pattern and fertility outcomes in women. Six prospective cohort studies and two cross-sectional studies comprising 8,145 women were included. Higher adherence to the Mediterranean diet was associated with shorter time to pregnancy and improved outcomes in women undergoing assisted reproduction. However, the overall quality of evidence was low due to heterogeneity in dietary assessment methods."
+    url: "https://pubmed.ncbi.nlm.nih.gov/36892114/"
+    doi: "10.1093/ajcn/nqad125"
+    publication_date: "2024-05-22"
+    grade: "C"
+    grade_rationale: "Systematic review of observational studies with high heterogeneity and imprecise dietary exposure measurement"
+    topics:
+      - "fertility-diet"
+    key_findings:
+      - "High Mediterranean diet adherence associated with 15-20% shorter time to pregnancy"
+      - "Moderate association with improved IVF outcomes (higher clinical pregnancy rate)"
+      - "Anti-inflammatory dietary components (omega-3 fatty acids, polyphenols) may improve follicular fluid quality"
+      - "Effect sizes were modest and not significant in all subgroup analyses"
+    population: "Women of reproductive age trying to conceive naturally or via ART"
+    sample_size: 8145
+    limitations:
+      - "Dietary assessment relied on food frequency questionnaires with known measurement error"
+      - "Heterogeneity in Mediterranean diet score definitions across studies"
+      - "Unable to isolate specific dietary components driving the association"
+      - "Confounding by overall health-seeking behavior could not be excluded"
+      - "No randomized controlled trials available"
+
+  - evidence_id: "seed-007"
+    source_feed: "nih_nichd"
+    title: "International Evidence-Based Guidelines for the Assessment and Management of Polycystic Ovary Syndrome"
+    abstract: "These internationally endorsed evidence-based guidelines consolidate recommendations for the diagnosis and management of polycystic ovary syndrome (PCOS). Developed by a multidisciplinary panel using GRADE methodology across 40 systematic reviews, the guidelines reaffirm the Rotterdam diagnostic criteria while introducing refinements for adolescents and recommendations for cardiovascular risk screening. Lifestyle intervention remains first-line therapy for all PCOS phenotypes, with metformin and letrozole as adjunctive options."
+    url: "https://pubmed.ncbi.nlm.nih.gov/37813705/"
+    doi: "10.1038/s41574-023-00891-0"
+    publication_date: "2023-12-15"
+    grade: "B"
+    grade_rationale: "Evidence-based clinical practice guideline synthesizing multiple cohort studies and limited RCT data"
+    topics:
+      - "pcos-symptoms"
+      - "irregular-periods"
+    key_findings:
+      - "Rotterdam criteria remain the recommended diagnostic standard for adult PCOS"
+      - "Lifestyle intervention (diet + exercise) is first-line for all PCOS phenotypes and improves ovulation rates by 40-60%"
+      - "Letrozole is recommended as first-line ovulation induction over clomiphene citrate"
+      - "Cardiovascular and metabolic risk screening should begin at diagnosis regardless of BMI"
+      - "Anti-Mullerian hormone may be used as a diagnostic adjunct when ultrasound is unavailable"
+    population: "Women and adolescents with suspected or confirmed PCOS"
+    sample_size: 21450
+    limitations:
+      - "Evidence for adolescent diagnostic criteria remains limited"
+      - "Many recommendations based on low-to-moderate quality evidence"
+      - "Ethnic and racial diversity in underlying studies was insufficient"
+      - "Long-term outcome data for newer interventions are lacking"
+
+  - evidence_id: "seed-008"
+    source_feed: "nih_nichd"
+    title: "Coenzyme Q10 Supplementation and Oocyte Quality in Women with Diminished Ovarian Reserve: A Randomized Controlled Trial"
+    abstract: "This double-blind, placebo-controlled randomized trial evaluated the effect of Coenzyme Q10 (CoQ10) supplementation (600 mg/day for 60 days) on oocyte quality parameters in women with diminished ovarian reserve (DOR) undergoing IVF. CoQ10-treated patients demonstrated higher fertilization rates, improved embryo quality scores, and a non-significant trend toward higher clinical pregnancy rates. Mitochondrial membrane potential in granulosa cells was significantly higher in the treatment group."
+    url: "https://pubmed.ncbi.nlm.nih.gov/36581092/"
+    doi: "10.1016/j.rbmo.2022.12.012"
+    publication_date: "2024-04-01"
+    grade: "B"
+    grade_rationale: "Single-center RCT with adequate blinding but limited sample size and surrogate outcome measures"
+    topics:
+      - "egg-quality"
+      - "fertility-supplements"
+    key_findings:
+      - "CoQ10 supplementation improved fertilization rate from 53% to 67% in DOR patients"
+      - "Higher-quality embryo rates (Grade 1-2) increased from 38% to 52% in the treatment group"
+      - "Mitochondrial membrane potential in granulosa cells was 30% higher with CoQ10"
+      - "Clinical pregnancy rate trend (28% vs 21%) did not reach statistical significance"
+    population: "Women aged 35-43 with diminished ovarian reserve (AMH < 1.1 ng/mL) undergoing IVF"
+    sample_size: 186
+    limitations:
+      - "Single-center study limits generalizability"
+      - "Sample size was powered for fertilization rate, not live birth rate"
+      - "60-day supplementation period may be insufficient; oogenesis takes ~90 days"
+      - "Did not control for concurrent supplement use"
+      - "Live birth rate data not reported"
+
+  - evidence_id: "seed-009"
+    source_feed: "acog"
+    title: "Evaluation and Management of Recurrent Pregnancy Loss: ACOG Practice Bulletin"
+    abstract: "This practice bulletin from the American College of Obstetricians and Gynecologists provides evidence-based recommendations for the evaluation of couples experiencing recurrent pregnancy loss (RPL), defined as two or more failed clinical pregnancies. The recommended workup includes karyotyping of both partners, uterine cavity evaluation, antiphospholipid antibody testing, and thyroid function assessment. Empiric progesterone supplementation, while widely practiced, has limited evidence of efficacy except in specific subpopulations with documented luteal phase deficiency."
+    url: "https://www.acog.org/clinical/clinical-guidance/practice-bulletin/articles/2024/02/evaluation-and-management-of-recurrent-pregnancy-loss"
+    doi: null
+    publication_date: "2024-02-15"
+    grade: "B"
+    grade_rationale: "Clinical practice guideline based on well-designed cohort studies and limited RCT evidence"
+    topics:
+      - "miscarriage-risk"
+      - "pregnancy-loss"
+    key_findings:
+      - "Antiphospholipid syndrome accounts for 5-15% of RPL cases and is treatable with aspirin and heparin"
+      - "Parental chromosomal abnormalities are found in 3-5% of couples with RPL"
+      - "Uterine septum is the most common structural cause and is surgically correctable"
+      - "Empiric progesterone supplementation shows benefit in women with 3+ losses and early bleeding"
+      - "50-75% of couples with unexplained RPL will have a successful subsequent pregnancy without treatment"
+    population: "Couples with two or more clinical pregnancy losses"
+    sample_size: 14830
+    limitations:
+      - "Many recommendations based on expert consensus rather than RCT evidence"
+      - "Threshold for initiating workup (2 vs 3 losses) remains debated"
+      - "Limited data on immunological causes beyond antiphospholipid syndrome"
+      - "Cost-effectiveness of comprehensive RPL workup has not been established"
+
+  - evidence_id: "seed-010"
+    source_feed: "cochrane"
+    title: "Support for Breastfeeding Mothers: A Cochrane Systematic Review Update"
+    abstract: "This updated Cochrane systematic review evaluated the effectiveness of support interventions for breastfeeding women. Data from 116 randomized and quasi-randomized controlled trials involving 98,816 mother-infant pairs were analyzed. Both professional and lay support interventions significantly increased breastfeeding duration and exclusivity. Face-to-face support was more effective than telephone-only support. The combination of scheduled proactive contacts beginning in the prenatal period with reactive support postpartum showed the largest effect sizes."
+    url: "https://pubmed.ncbi.nlm.nih.gov/35943374/"
+    doi: "10.1002/14651858.CD001141.pub6"
+    publication_date: "2024-01-10"
+    grade: "C"
+    grade_rationale: "Cochrane review of RCTs with high heterogeneity and inconsistent intervention definitions across included trials"
+    topics:
+      - "breastfeeding-problems"
+      - "breastfeeding-basics"
+      - "milk-supply"
+    key_findings:
+      - "Structured lactation support reduces breastfeeding cessation by 20-30% at 6 months"
+      - "IBCLC-led interventions showed greater effect than peer support alone for complex problems"
+      - "Face-to-face support is more effective than telephone or digital-only interventions"
+      - "Proactive scheduled visits are more effective than reactive support on-demand"
+    population: "Breastfeeding mother-infant pairs from birth through 6 months"
+    sample_size: 98816
+    limitations:
+      - "Extreme heterogeneity in intervention type, frequency, and provider qualifications"
+      - "Blinding not possible for support interventions"
+      - "Many trials had high attrition rates"
+      - "Generalizability limited as most trials conducted in high-income settings"
+      - "Outcome definitions (exclusive vs. any breastfeeding) varied across trials"

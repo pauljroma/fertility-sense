@@ -15,22 +15,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from fertility_sense import __version__
 from fertility_sense.auth import require_api_key, set_config
 from fertility_sense.config import FertilitySenseConfig
-from fertility_sense.feeds.registry import FeedRegistry
 from fertility_sense.nemoclaw.agents import ALL_AGENTS
-from fertility_sense.nemoclaw.orchestrator import FertilityOrchestrator
 
 logger = logging.getLogger(__name__)
 
-# Global feed registry — populated on startup, read by /health
-_feed_registry = FeedRegistry()
+# Module-level pipeline (set during lifespan startup)
+_pipeline: "Pipeline | None" = None
 
 # ---------------------------------------------------------------------------
 # Rate limiter (simple in-memory, per-IP)
 # ---------------------------------------------------------------------------
 
 _rate_limit_store: dict[str, list[float]] = defaultdict(list)
-_RATE_LIMIT_WINDOW = 60.0  # seconds
-_RATE_LIMIT_MAX = 60  # requests per window
+_RATE_LIMIT_WINDOW = 60.0
+_RATE_LIMIT_MAX = 60
 
 
 async def _rate_limit(request: Request) -> None:
@@ -38,7 +36,6 @@ async def _rate_limit(request: Request) -> None:
     client_ip = request.client.host if request.client else "unknown"
     now = time.monotonic()
     timestamps = _rate_limit_store[client_ip]
-    # Prune old entries
     _rate_limit_store[client_ip] = [t for t in timestamps if now - t < _RATE_LIMIT_WINDOW]
     if len(_rate_limit_store[client_ip]) >= _RATE_LIMIT_MAX:
         raise HTTPException(
@@ -56,16 +53,35 @@ async def _rate_limit(request: Request) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown hooks."""
+    global _pipeline
     logger.info("fertility-sense %s starting up", __version__)
     try:
-        cfg = FertilitySenseConfig()
-        logger.info("Config validated — port=%s, data_dir=%s", cfg.port, cfg.data_dir)
-    except Exception:
-        logger.warning("Config validation failed (check .env or pydantic-settings)")
+        from fertility_sense.pipeline import Pipeline
 
-    logger.info("Registered %d agent(s), %d feed(s)", len(ALL_AGENTS), len(_feed_registry))
+        cfg = FertilitySenseConfig()
+        _pipeline = Pipeline(cfg)
+        health = _pipeline.health()
+        logger.info(
+            "Pipeline ready — %d topics, %d evidence records, %d feeds, %d agents",
+            health["topics"],
+            health["evidence_records"],
+            health["feeds"],
+            health["agents"],
+        )
+    except Exception:
+        logger.warning("Pipeline initialization failed", exc_info=True)
+
     yield
+
     logger.info("fertility-sense shutting down gracefully")
+    _pipeline = None
+
+
+def _get_pipeline() -> "Pipeline":
+    """Get the pipeline, raising 503 if not initialized."""
+    if _pipeline is None:
+        raise HTTPException(status_code=503, detail="Pipeline not initialized")
+    return _pipeline
 
 
 def create_app(config: FertilitySenseConfig | None = None) -> FastAPI:
@@ -73,7 +89,6 @@ def create_app(config: FertilitySenseConfig | None = None) -> FastAPI:
     if config is None:
         config = FertilitySenseConfig()
 
-    # Inject config into auth module
     set_config(config)
 
     application = FastAPI(
@@ -84,7 +99,6 @@ def create_app(config: FertilitySenseConfig | None = None) -> FastAPI:
         lifespan=lifespan,
     )
 
-    # CORS
     application.add_middleware(
         CORSMiddleware,
         allow_origins=config.cors_origins,
@@ -94,37 +108,22 @@ def create_app(config: FertilitySenseConfig | None = None) -> FastAPI:
     )
 
     # ------------------------------------------------------------------
-    # Routes
+    # Health (no auth)
     # ------------------------------------------------------------------
 
     @application.get("/health")
     def health() -> dict:
-        feed_health = _feed_registry.health_report()
-        agent_count = len(ALL_AGENTS)
-        feed_count = len(_feed_registry)
+        if _pipeline:
+            h = _pipeline.health()
+            return {"status": "ok", "version": __version__, **h}
+        return {"status": "starting", "version": __version__}
 
-        all_ok = all(not fh.is_stale and fh.last_error is None for fh in feed_health)
-        status = "ok" if (all_ok or not feed_health) else "degraded"
-
-        return {
-            "status": status,
-            "version": __version__,
-            "agents": agent_count,
-            "feeds": feed_count,
-            "feed_details": [
-                {
-                    "name": fh.feed_name,
-                    "ok": not fh.is_stale and fh.last_error is None,
-                    "last_success": str(fh.last_success) if fh.last_success else None,
-                    "records_ingested": fh.records_ingested,
-                }
-                for fh in feed_health
-            ],
-        }
+    # ------------------------------------------------------------------
+    # Agents
+    # ------------------------------------------------------------------
 
     @application.get("/agents")
     def list_agents() -> list[dict]:
-        """List all registered agents."""
         return [
             {
                 "name": a.name,
@@ -139,7 +138,6 @@ def create_app(config: FertilitySenseConfig | None = None) -> FastAPI:
 
     @application.get("/agents/{name}")
     def get_agent(name: str) -> dict:
-        """Get agent details by name."""
         from fertility_sense.nemoclaw.agents import AGENT_MAP
 
         agent = AGENT_MAP.get(name)
@@ -158,29 +156,74 @@ def create_app(config: FertilitySenseConfig | None = None) -> FastAPI:
             "max_tokens": agent.max_tokens,
         }
 
+    # ------------------------------------------------------------------
+    # Topics + Scoring
+    # ------------------------------------------------------------------
+
+    @application.get("/topics")
+    def list_topics(
+        top: int = Query(default=20, ge=1, le=200),
+        stage: str | None = Query(default=None),
+    ) -> list[dict]:
+        """Return ranked topics with TOS scores."""
+        pipe = _get_pipeline()
+        scores = pipe.score(top_n=top)
+        return [s.model_dump(mode="json") for s in scores]
+
+    @application.get("/topics/{topic_id}")
+    def get_topic(topic_id: str) -> dict:
+        """Get a single topic with its TOS score."""
+        pipe = _get_pipeline()
+        scores = pipe.score(topic_id=topic_id)
+        if not scores:
+            raise HTTPException(status_code=404, detail=f"Topic '{topic_id}' not found")
+        return scores[0].model_dump(mode="json")
+
+    @application.get("/topics/{topic_id}/answer")
+    def get_answer(
+        topic_id: str,
+        query: str = Query(description="User query about this topic"),
+    ) -> dict:
+        """Assemble a governed answer for a topic."""
+        pipe = _get_pipeline()
+        try:
+            result = pipe.answer(topic_id, query)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        return result.model_dump(mode="json")
+
+    # ------------------------------------------------------------------
+    # Pipeline
+    # ------------------------------------------------------------------
+
     @application.post("/pipeline/run")
     def run_pipeline() -> dict:
-        """Trigger a full pipeline run."""
-        orch = FertilityOrchestrator()
+        """Trigger a full pipeline run via the agent server."""
+        pipe = _get_pipeline()
         run_id = str(uuid.uuid4())[:8]
-        result = orch.execute_pipeline(run_id)
-        return {
-            "run_id": result.run_id,
-            "status": result.status,
-            "phases": [
-                {
-                    "phase": p.phase.value,
-                    "status": p.status,
-                    "agents": p.agents_run,
-                }
-                for p in result.phases
-            ],
-        }
+        return pipe.run_full(run_id)
+
+    # ------------------------------------------------------------------
+    # Feeds
+    # ------------------------------------------------------------------
 
     @application.get("/feeds/health")
     def feeds_health() -> dict:
         """Check feed health status."""
-        return {"status": "no_feeds_configured", "feeds": []}
+        pipe = _get_pipeline()
+        report = pipe.registry.health_report()
+        return {
+            "feeds": len(report),
+            "details": [
+                {
+                    "name": h.feed_name,
+                    "is_stale": h.is_stale,
+                    "records_ingested": h.records_ingested,
+                    "last_success": str(h.last_success) if h.last_success else None,
+                }
+                for h in report
+            ],
+        }
 
     return application
 

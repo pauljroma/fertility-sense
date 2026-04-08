@@ -36,7 +36,7 @@ _FALLBACK_CLASSES: list[DisallowedPattern] = [
         name="diagnosis",
         description="Never state a diagnosis",
         patterns=[
-            r"you have \w+",
+            r"you have (?!questions|concerns|options|access|time|the right)\w+",
             r"you are diagnosed with",
             r"this means you have",
             r"you(?:'re| are) suffering from",

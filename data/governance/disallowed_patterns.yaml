@@ -2,7 +2,7 @@ disallowed_classes:
   - name: diagnosis
     description: "Never state a diagnosis"
     patterns:
-      - "you have \\w+"
+      - "you have (?!questions|concerns|options|access|time|the right)\\w+"
       - "you are diagnosed with"
       - "this means you have"
       - "you(?:'re| are) suffering from"

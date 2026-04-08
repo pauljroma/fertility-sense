@@ -65,7 +65,7 @@ class TestAuth:
         client = _make_client()
         resp = client.get("/health")
         assert resp.status_code == 200
-        assert resp.json()["status"] == "ok"
+        assert resp.json()["status"] in ("ok", "starting")
 
     def test_returns_401_without_token(self):
         client = _make_client()
