@@ -1,0 +1,1086 @@
+# Fertility-Sense Alias Map
+# Maps surface forms (user queries, search terms) to canonical topic IDs
+# ~200 entries
+
+aliases:
+  # --- Cycle & Menstrual Health ---
+  - surface_form: "period tracker"
+    canonical_topic_id: "cycle-tracking"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "track my cycle"
+    canonical_topic_id: "cycle-tracking"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "menstrual cycle app"
+    canonical_topic_id: "cycle-tracking"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "cycle length calculator"
+    canonical_topic_id: "cycle-tracking"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "late period"
+    canonical_topic_id: "irregular-periods"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "period is late"
+    canonical_topic_id: "irregular-periods"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "missed period"
+    canonical_topic_id: "irregular-periods"
+    source: "seed"
+    confidence: 0.8
+  - surface_form: "irregular cycle"
+    canonical_topic_id: "irregular-periods"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "PCOS"
+    canonical_topic_id: "pcos-symptoms"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "polycystic ovary"
+    canonical_topic_id: "pcos-symptoms"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "polycystic ovarian syndrome"
+    canonical_topic_id: "pcos-symptoms"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "do I have PCOS"
+    canonical_topic_id: "pcos-symptoms"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "endo"
+    canonical_topic_id: "endometriosis"
+    source: "seed"
+    confidence: 0.8
+  - surface_form: "endometriosis symptoms"
+    canonical_topic_id: "endometriosis"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "no period for months"
+    canonical_topic_id: "amenorrhea"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "hypothalamic amenorrhea"
+    canonical_topic_id: "amenorrhea"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "HA recovery"
+    canonical_topic_id: "amenorrhea"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "painful periods"
+    canonical_topic_id: "period-pain"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "cramps"
+    canonical_topic_id: "period-pain"
+    source: "seed"
+    confidence: 0.7
+  - surface_form: "dysmenorrhea"
+    canonical_topic_id: "period-pain"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Reproductive Anatomy ---
+  - surface_form: "when do I ovulate"
+    canonical_topic_id: "ovulation"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "ovulation symptoms"
+    canonical_topic_id: "ovulation"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "ovulation pain"
+    canonical_topic_id: "ovulation"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "mittelschmerz"
+    canonical_topic_id: "ovulation"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "egg white discharge"
+    canonical_topic_id: "cervical-mucus"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "EWCM"
+    canonical_topic_id: "cervical-mucus"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "cervical fluid"
+    canonical_topic_id: "cervical-mucus"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "fibroids"
+    canonical_topic_id: "uterine-health"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "uterine polyps"
+    canonical_topic_id: "uterine-health"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "blocked tubes"
+    canonical_topic_id: "fallopian-tubes"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "HSG test"
+    canonical_topic_id: "fallopian-tubes"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "hysterosalpingography"
+    canonical_topic_id: "fallopian-tubes"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Lifestyle Factors ---
+  - surface_form: "what to eat to get pregnant"
+    canonical_topic_id: "fertility-diet"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "fertility food"
+    canonical_topic_id: "fertility-diet"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "Mediterranean diet fertility"
+    canonical_topic_id: "fertility-diet"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "CoQ10"
+    canonical_topic_id: "fertility-supplements"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "CoQ10 for eggs"
+    canonical_topic_id: "fertility-supplements"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "folic acid"
+    canonical_topic_id: "fertility-supplements"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "DHEA supplement"
+    canonical_topic_id: "fertility-supplements"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "vitamin D fertility"
+    canonical_topic_id: "fertility-supplements"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "myo-inositol"
+    canonical_topic_id: "fertility-supplements"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "working out while TTC"
+    canonical_topic_id: "exercise-fertility"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "yoga for fertility"
+    canonical_topic_id: "exercise-fertility"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "BMI and fertility"
+    canonical_topic_id: "weight-fertility"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "overweight trying to conceive"
+    canonical_topic_id: "weight-fertility"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "stress and getting pregnant"
+    canonical_topic_id: "sleep-stress-fertility"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "can stress cause infertility"
+    canonical_topic_id: "sleep-stress-fertility"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "coffee while TTC"
+    canonical_topic_id: "alcohol-caffeine-fertility"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "alcohol while trying to conceive"
+    canonical_topic_id: "alcohol-caffeine-fertility"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "BPA and fertility"
+    canonical_topic_id: "environmental-toxins"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "endocrine disruptors"
+    canonical_topic_id: "environmental-toxins"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Fertility Testing ---
+  - surface_form: "AMH"
+    canonical_topic_id: "amh-levels"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "ovarian reserve"
+    canonical_topic_id: "amh-levels"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "low AMH"
+    canonical_topic_id: "amh-levels"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "anti-Mullerian hormone"
+    canonical_topic_id: "amh-levels"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "FSH"
+    canonical_topic_id: "fsh-testing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "day 3 blood work"
+    canonical_topic_id: "fsh-testing"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "follicle stimulating hormone"
+    canonical_topic_id: "fsh-testing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "fertility blood test"
+    canonical_topic_id: "hormone-panel"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "hormone levels"
+    canonical_topic_id: "hormone-panel"
+    source: "seed"
+    confidence: 0.8
+  - surface_form: "estradiol levels"
+    canonical_topic_id: "hormone-panel"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "progesterone blood test"
+    canonical_topic_id: "hormone-panel"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "thyroid and fertility"
+    canonical_topic_id: "hormone-panel"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "semen analysis"
+    canonical_topic_id: "semen-analysis"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "sperm count"
+    canonical_topic_id: "semen-analysis"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "sperm motility"
+    canonical_topic_id: "semen-analysis"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "SA results"
+    canonical_topic_id: "semen-analysis"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "antral follicle count"
+    canonical_topic_id: "ultrasound-fertility"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "AFC"
+    canonical_topic_id: "ultrasound-fertility"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "baseline scan"
+    canonical_topic_id: "ultrasound-fertility"
+    source: "seed"
+    confidence: 0.9
+
+  # --- Genetic Screening ---
+  - surface_form: "genetic testing before pregnancy"
+    canonical_topic_id: "carrier-screening"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "carrier test"
+    canonical_topic_id: "carrier-screening"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "improve egg quality"
+    canonical_topic_id: "egg-quality"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "egg quality by age"
+    canonical_topic_id: "egg-quality"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "poor egg quality"
+    canonical_topic_id: "egg-quality"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "male fertility"
+    canonical_topic_id: "sperm-health"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "improve sperm"
+    canonical_topic_id: "sperm-health"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "male factor"
+    canonical_topic_id: "sperm-health"
+    source: "seed"
+    confidence: 0.9
+
+  # --- Natural Conception ---
+  - surface_form: "best days to conceive"
+    canonical_topic_id: "fertile-window"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "fertile days"
+    canonical_topic_id: "fertile-window"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "peak fertility days"
+    canonical_topic_id: "fertile-window"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "when to have sex to get pregnant"
+    canonical_topic_id: "timing-intercourse"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "BD timing"
+    canonical_topic_id: "timing-intercourse"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "how often to try TTC"
+    canonical_topic_id: "timing-intercourse"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "SMEP method"
+    canonical_topic_id: "timing-intercourse"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "OPK"
+    canonical_topic_id: "opk-testing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "ovulation test strips"
+    canonical_topic_id: "opk-testing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "LH surge"
+    canonical_topic_id: "opk-testing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "positive ovulation test"
+    canonical_topic_id: "opk-testing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Clearblue advanced"
+    canonical_topic_id: "opk-testing"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "BBT"
+    canonical_topic_id: "bbt-charting"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "basal body temperature"
+    canonical_topic_id: "bbt-charting"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "temping"
+    canonical_topic_id: "bbt-charting"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "temp shift"
+    canonical_topic_id: "bbt-charting"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "TempDrop"
+    canonical_topic_id: "bbt-charting"
+    source: "seed"
+    confidence: 0.8
+  - surface_form: "implantation bleeding"
+    canonical_topic_id: "implantation"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "implantation dip"
+    canonical_topic_id: "implantation"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "implantation cramps"
+    canonical_topic_id: "implantation"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "TWW"
+    canonical_topic_id: "tww-symptoms"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "two week wait"
+    canonical_topic_id: "tww-symptoms"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "DPO symptoms"
+    canonical_topic_id: "tww-symptoms"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "symptom spotting"
+    canonical_topic_id: "tww-symptoms"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "am I pregnant"
+    canonical_topic_id: "tww-symptoms"
+    source: "seed"
+    confidence: 0.8
+  - surface_form: "BFP"
+    canonical_topic_id: "pregnancy-tests"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "BFN"
+    canonical_topic_id: "pregnancy-tests"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "FRER"
+    canonical_topic_id: "pregnancy-tests"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "when to take pregnancy test"
+    canonical_topic_id: "pregnancy-tests"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "faint line pregnancy test"
+    canonical_topic_id: "pregnancy-tests"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "hCG levels early pregnancy"
+    canonical_topic_id: "pregnancy-tests"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "can't conceive second child"
+    canonical_topic_id: "secondary-infertility"
+    source: "seed"
+    confidence: 0.9
+
+  # --- Fertility Treatments ---
+  - surface_form: "IUI"
+    canonical_topic_id: "iui"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "intrauterine insemination"
+    canonical_topic_id: "iui"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "IUI success rate"
+    canonical_topic_id: "iui"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "artificial insemination"
+    canonical_topic_id: "iui"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "IVF"
+    canonical_topic_id: "ivf"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "in vitro"
+    canonical_topic_id: "ivf"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "IVF cost"
+    canonical_topic_id: "ivf"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "IVF success rate"
+    canonical_topic_id: "ivf"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "starting IVF"
+    canonical_topic_id: "ivf"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "freeze my eggs"
+    canonical_topic_id: "egg-freezing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "oocyte cryopreservation"
+    canonical_topic_id: "egg-freezing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "egg freezing age"
+    canonical_topic_id: "egg-freezing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "FET"
+    canonical_topic_id: "embryo-transfer"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "frozen embryo transfer"
+    canonical_topic_id: "embryo-transfer"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "fresh transfer"
+    canonical_topic_id: "embryo-transfer"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "PGT-A"
+    canonical_topic_id: "pgt-testing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "PGS testing"
+    canonical_topic_id: "pgt-testing"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "embryo testing"
+    canonical_topic_id: "pgt-testing"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "donor eggs"
+    canonical_topic_id: "donor-eggs-sperm"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "sperm donor"
+    canonical_topic_id: "donor-eggs-sperm"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "gestational carrier"
+    canonical_topic_id: "surrogacy"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "RE near me"
+    canonical_topic_id: "fertility-clinic-selection"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "find fertility doctor"
+    canonical_topic_id: "fertility-clinic-selection"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "SART data"
+    canonical_topic_id: "fertility-clinic-selection"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Medication ---
+  - surface_form: "Clomid"
+    canonical_topic_id: "clomid"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "clomiphene citrate"
+    canonical_topic_id: "clomid"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Clomid side effects"
+    canonical_topic_id: "clomid"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "letrozole"
+    canonical_topic_id: "letrozole"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Femara"
+    canonical_topic_id: "letrozole"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Gonal-F"
+    canonical_topic_id: "gonadotropins"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Follistim"
+    canonical_topic_id: "gonadotropins"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Menopur"
+    canonical_topic_id: "gonadotropins"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "stim meds"
+    canonical_topic_id: "gonadotropins"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "PIO"
+    canonical_topic_id: "progesterone-support"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "progesterone suppositories"
+    canonical_topic_id: "progesterone-support"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "luteal phase support"
+    canonical_topic_id: "progesterone-support"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Ovidrel"
+    canonical_topic_id: "trigger-shot"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "hCG trigger"
+    canonical_topic_id: "trigger-shot"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Emotional Health ---
+  - surface_form: "TTC stress"
+    canonical_topic_id: "ttc-anxiety"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "fertility burnout"
+    canonical_topic_id: "ttc-anxiety"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "infertility depression"
+    canonical_topic_id: "ttc-anxiety"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "miscarriage"
+    canonical_topic_id: "pregnancy-loss"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "chemical pregnancy"
+    canonical_topic_id: "pregnancy-loss"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "recurrent miscarriage"
+    canonical_topic_id: "pregnancy-loss"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "pregnancy loss support"
+    canonical_topic_id: "pregnancy-loss"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "grieving infertility"
+    canonical_topic_id: "fertility-grief"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "baby shower anxiety"
+    canonical_topic_id: "fertility-grief"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "TTC and relationship"
+    canonical_topic_id: "relationship-strain"
+    source: "seed"
+    confidence: 0.9
+
+  # --- Pregnancy First Trimester ---
+  - surface_form: "first trimester symptoms"
+    canonical_topic_id: "early-pregnancy-symptoms"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "pregnancy nausea"
+    canonical_topic_id: "morning-sickness"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "morning sickness remedies"
+    canonical_topic_id: "morning-sickness"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "hyperemesis"
+    canonical_topic_id: "morning-sickness"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "HG pregnancy"
+    canonical_topic_id: "morning-sickness"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "best prenatal vitamin"
+    canonical_topic_id: "prenatal-vitamins"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "prenatal DHA"
+    canonical_topic_id: "prenatal-vitamins"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "first OB appointment"
+    canonical_topic_id: "first-prenatal-visit"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "dating scan"
+    canonical_topic_id: "first-prenatal-visit"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "spotting early pregnancy"
+    canonical_topic_id: "miscarriage-risk"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "bleeding first trimester"
+    canonical_topic_id: "miscarriage-risk"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "risk of miscarriage by week"
+    canonical_topic_id: "miscarriage-risk"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "ectopic pregnancy symptoms"
+    canonical_topic_id: "ectopic-pregnancy"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "tubal pregnancy"
+    canonical_topic_id: "ectopic-pregnancy"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "NIPT"
+    canonical_topic_id: "first-trimester-screening"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "nuchal translucency"
+    canonical_topic_id: "first-trimester-screening"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "cell-free DNA test"
+    canonical_topic_id: "first-trimester-screening"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "chromosomal screening"
+    canonical_topic_id: "first-trimester-screening"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Pregnancy Second Trimester ---
+  - surface_form: "20 week scan"
+    canonical_topic_id: "anatomy-scan"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "anatomy ultrasound"
+    canonical_topic_id: "anatomy-scan"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "gender scan"
+    canonical_topic_id: "anatomy-scan"
+    source: "seed"
+    confidence: 0.8
+  - surface_form: "glucose test"
+    canonical_topic_id: "gestational-diabetes"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "GDM"
+    canonical_topic_id: "gestational-diabetes"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "gestational diabetes diet"
+    canonical_topic_id: "gestational-diabetes"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "blood sugar pregnancy"
+    canonical_topic_id: "gestational-diabetes"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "kick counts"
+    canonical_topic_id: "baby-movement"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "baby not moving"
+    canonical_topic_id: "baby-movement"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "reduced fetal movement"
+    canonical_topic_id: "baby-movement"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "prenatal yoga"
+    canonical_topic_id: "pregnancy-exercise"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "safe exercise pregnant"
+    canonical_topic_id: "pregnancy-exercise"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "foods to avoid pregnant"
+    canonical_topic_id: "pregnancy-nutrition"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "pregnancy weight gain"
+    canonical_topic_id: "pregnancy-nutrition"
+    source: "seed"
+    confidence: 0.9
+
+  # --- Pregnancy Third Trimester ---
+  - surface_form: "birth plan template"
+    canonical_topic_id: "birth-plan"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "natural birth plan"
+    canonical_topic_id: "birth-plan"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "signs of labor"
+    canonical_topic_id: "labor-signs"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Braxton Hicks"
+    canonical_topic_id: "labor-signs"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "water broke"
+    canonical_topic_id: "labor-signs"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "when to go to hospital"
+    canonical_topic_id: "labor-signs"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "breech position"
+    canonical_topic_id: "breech-baby"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "ECV procedure"
+    canonical_topic_id: "breech-baby"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "C-section"
+    canonical_topic_id: "csection"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "cesarean"
+    canonical_topic_id: "csection"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "VBAC"
+    canonical_topic_id: "csection"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Pitocin"
+    canonical_topic_id: "induction"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "membrane sweep"
+    canonical_topic_id: "induction"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "overdue pregnancy"
+    canonical_topic_id: "induction"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "GBS positive"
+    canonical_topic_id: "group-b-strep"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "Group B Strep"
+    canonical_topic_id: "group-b-strep"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Complications ---
+  - surface_form: "preeclampsia symptoms"
+    canonical_topic_id: "preeclampsia"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "high blood pressure pregnancy"
+    canonical_topic_id: "preeclampsia"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "HELLP syndrome"
+    canonical_topic_id: "preeclampsia"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "low placenta"
+    canonical_topic_id: "placenta-previa"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "premature labor"
+    canonical_topic_id: "preterm-labor"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "preterm contractions"
+    canonical_topic_id: "preterm-labor"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "ICP pregnancy"
+    canonical_topic_id: "cholestasis"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "itching in pregnancy"
+    canonical_topic_id: "cholestasis"
+    source: "seed"
+    confidence: 0.8
+  - surface_form: "nuchal cord"
+    canonical_topic_id: "cord-complications"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Medication Safety ---
+  - surface_form: "Tylenol safe pregnancy"
+    canonical_topic_id: "medication-pregnancy-safety"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "safe meds pregnancy"
+    canonical_topic_id: "medication-pregnancy-safety"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "can I take ibuprofen pregnant"
+    canonical_topic_id: "medication-pregnancy-safety"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "raspberry leaf tea pregnancy"
+    canonical_topic_id: "herbal-remedies-pregnancy"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "ginger for nausea pregnancy"
+    canonical_topic_id: "herbal-remedies-pregnancy"
+    source: "seed"
+    confidence: 0.9
+
+  # --- Postpartum ---
+  - surface_form: "postpartum recovery"
+    canonical_topic_id: "postpartum-recovery"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "lochia"
+    canonical_topic_id: "postpartum-recovery"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "postpartum bleeding"
+    canonical_topic_id: "postpartum-recovery"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "diastasis recti"
+    canonical_topic_id: "postpartum-exercise"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "pelvic floor after birth"
+    canonical_topic_id: "postpartum-exercise"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "C-section scar healing"
+    canonical_topic_id: "csection-recovery"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "postpartum hair loss"
+    canonical_topic_id: "postpartum-hormones"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "PPD"
+    canonical_topic_id: "postpartum-depression"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "baby blues"
+    canonical_topic_id: "postpartum-depression"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "Edinburgh scale"
+    canonical_topic_id: "postpartum-depression"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "PPA"
+    canonical_topic_id: "postpartum-anxiety"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "intrusive thoughts new mom"
+    canonical_topic_id: "postpartum-anxiety"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "postpartum OCD"
+    canonical_topic_id: "postpartum-anxiety"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "mom rage"
+    canonical_topic_id: "postpartum-rage"
+    source: "seed"
+    confidence: 0.9
+
+  # --- Breastfeeding ---
+  - surface_form: "how to breastfeed"
+    canonical_topic_id: "breastfeeding-basics"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "latch problems"
+    canonical_topic_id: "breastfeeding-basics"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "low milk supply"
+    canonical_topic_id: "milk-supply"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "increase milk production"
+    canonical_topic_id: "milk-supply"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "power pumping"
+    canonical_topic_id: "milk-supply"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "galactagogues"
+    canonical_topic_id: "milk-supply"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "mastitis"
+    canonical_topic_id: "breastfeeding-problems"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "clogged milk duct"
+    canonical_topic_id: "breastfeeding-problems"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "tongue tie baby"
+    canonical_topic_id: "breastfeeding-problems"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "nipple pain breastfeeding"
+    canonical_topic_id: "breastfeeding-problems"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "breast pump"
+    canonical_topic_id: "pumping"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "exclusive pumping"
+    canonical_topic_id: "pumping"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "pumping schedule"
+    canonical_topic_id: "pumping"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "milk storage guidelines"
+    canonical_topic_id: "pumping"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "how to wean"
+    canonical_topic_id: "weaning"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "night weaning"
+    canonical_topic_id: "weaning"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "stop breastfeeding"
+    canonical_topic_id: "weaning"
+    source: "seed"
+    confidence: 1.0
+
+  # --- Newborn ---
+  - surface_form: "newborn care"
+    canonical_topic_id: "newborn-care"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "umbilical cord stump"
+    canonical_topic_id: "newborn-care"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "baby sleep"
+    canonical_topic_id: "newborn-sleep"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "safe sleep guidelines"
+    canonical_topic_id: "newborn-sleep"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "swaddling"
+    canonical_topic_id: "newborn-sleep"
+    source: "seed"
+    confidence: 0.9
+  - surface_form: "formula feeding"
+    canonical_topic_id: "newborn-feeding"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "combo feeding"
+    canonical_topic_id: "newborn-feeding"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "supplementing with formula"
+    canonical_topic_id: "newborn-feeding"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "baby jaundice"
+    canonical_topic_id: "jaundice"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "bilirubin levels newborn"
+    canonical_topic_id: "jaundice"
+    source: "seed"
+    confidence: 1.0
+  - surface_form: "phototherapy"
+    canonical_topic_id: "jaundice"
+    source: "seed"
+    confidence: 0.9

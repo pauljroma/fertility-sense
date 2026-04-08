@@ -1,0 +1,26 @@
+agent: evidence-curator
+version: 0.1.0
+
+what_it_does:
+  - Ingest clinical evidence from CDC, NIH, FDA sources
+  - Grade evidence quality using modified GRADE criteria
+  - Extract key findings and structured citations
+  - Link evidence to canonical topic IDs
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense ingest --agent evidence-curator"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: evidence-ingest-v1
+      ingestion: { accuracy: 0.0, n: 0 }
+    - prompt: evidence-grade-v1
+      grading: { accuracy: 0.0, n: 0 }
+
+tier: sonnet
+role: analyst
+fallback_agent: ontology-keeper

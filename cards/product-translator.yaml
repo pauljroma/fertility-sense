@@ -1,0 +1,24 @@
+agent: product-translator
+version: 0.1.0
+
+what_it_does:
+  - Convert ranked topic signals into product recommendations
+  - Generate content briefs with SEO keywords
+  - Specify interactive tools from demand patterns
+  - Map commerce and referral opportunities
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense translate"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: content-brief-v1
+      brief_quality: { accuracy: 0.0, n: 0 }
+
+tier: opus
+role: planner
+fallback_agent: answer-assembler

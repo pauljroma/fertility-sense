@@ -1,0 +1,26 @@
+agent: answer-assembler
+version: 0.1.0
+
+what_it_does:
+  - Retrieve evidence for topic queries
+  - Classify effective risk tier
+  - Select and populate answer templates
+  - Run governance gate before publication
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense answer --topic <topic_id>"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: answer-compose-v1
+      composition: { accuracy: 0.0, n: 0 }
+    - prompt: governance-check-v1
+      governance: { accuracy: 0.0, n: 0 }
+
+tier: sonnet
+role: analyst
+fallback_agent: evidence-curator

@@ -1,0 +1,24 @@
+agent: ops-monitor
+version: 0.1.0
+
+what_it_does:
+  - Monitor feed health and data freshness
+  - Track pipeline throughput and errors
+  - Dispatch alerts when thresholds breached
+  - Produce daily health summaries
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense status"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: feed-health-v1
+      health_check: { accuracy: 0.0, n: 0 }
+
+tier: haiku
+role: executor
+fallback_agent: demand-scout

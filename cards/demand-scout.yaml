@@ -1,0 +1,29 @@
+agent: demand-scout
+version: 0.1.0
+
+what_it_does:
+  - Monitor search trends for fertility/prenatal keywords
+  - Scan Reddit and forums for emerging demand signals
+  - Normalize raw signals into structured SignalEvent objects
+  - Track search velocity and geographic patterns
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense ingest --agent demand-scout"
+  secondary:
+    type: a2a
+    endpoint: "http://127.0.0.1:9300"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: trend-analysis-v1
+      trend_detection: { accuracy: 0.0, n: 0 }
+    - prompt: social-scan-v1
+      social_scan: { accuracy: 0.0, n: 0 }
+
+tier: sonnet
+role: analyst
+fallback_agent: evidence-curator

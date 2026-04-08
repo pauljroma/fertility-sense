@@ -1,0 +1,24 @@
+agent: safety-sentinel
+version: 0.1.0
+
+what_it_does:
+  - Monitor FDA MedWatch for safety alerts
+  - Evaluate medication pregnancy/lactation safety
+  - Classify teratogen exposure risks
+  - Trigger cascading content reviews on CRITICAL alerts
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense ingest --agent safety-sentinel"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: alert-monitor-v1
+      alert_detection: { accuracy: 0.0, n: 0 }
+
+tier: sonnet
+role: analyst
+fallback_agent: evidence-curator

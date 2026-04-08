@@ -1,0 +1,57 @@
+{
+  "name": "fertility-sense",
+  "projectType": "application",
+  "sourceRoot": "fertility_sense",
+  "tags": ["class:product-app", "status:active", "lang:python", "scope:intelligence", "tier:fertility-sense"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pip install -e . --quiet",
+        "cwd": "."
+      }
+    },
+    "test:smoke": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python -m pytest -m smoke -q --tb=short --no-header",
+        "cwd": "."
+      }
+    },
+    "test:unit": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python -m pytest -m unit -q --tb=short --no-header",
+        "cwd": "."
+      }
+    },
+    "test:integration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python -m pytest -m integration -q --tb=short --no-header",
+        "cwd": "."
+      }
+    },
+    "test:property": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python -m pytest -m property -q --tb=short --no-header",
+        "cwd": "."
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ruff check fertility_sense/ tests/",
+        "cwd": "."
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "mypy fertility_sense/",
+        "cwd": "."
+      }
+    }
+  }
+}

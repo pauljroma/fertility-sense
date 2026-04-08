@@ -1,0 +1,1218 @@
+# Fertility-Sense Topic Ontology — Hierarchical Taxonomy
+# ~100 leaf topic nodes across 4 top-level journey categories
+# Each leaf: display_name, journey_stage, intent, risk_tier, monetization_class, aliases
+
+preconception:
+  menstrual-health:
+    cycle-tracking:
+      display_name: "Cycle Tracking"
+      journey_stage: preconception
+      intent: monitor
+      risk_tier: green
+      monetization_class: tool
+      aliases:
+        - "cycle tracking"
+        - "period tracker"
+        - "menstrual cycle tracking"
+        - "track my period"
+        - "cycle length"
+
+    irregular-periods:
+      display_name: "Irregular Periods"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "irregular periods"
+        - "irregular menstrual cycle"
+        - "late period"
+        - "missed period not pregnant"
+        - "period irregularity"
+
+    pcos-symptoms:
+      display_name: "PCOS Symptoms"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "PCOS"
+        - "polycystic ovary syndrome"
+        - "PCOS symptoms"
+        - "PCOS diagnosis"
+        - "polycystic ovaries"
+
+    endometriosis:
+      display_name: "Endometriosis"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "endometriosis"
+        - "endo symptoms"
+        - "endometriosis pain"
+        - "endometriosis fertility"
+
+    amenorrhea:
+      display_name: "Amenorrhea"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "amenorrhea"
+        - "no period"
+        - "absent period"
+        - "hypothalamic amenorrhea"
+        - "HA recovery"
+
+    period-pain:
+      display_name: "Period Pain & Cramps"
+      journey_stage: preconception
+      intent: cope
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "period pain"
+        - "menstrual cramps"
+        - "dysmenorrhea"
+        - "painful periods"
+
+  reproductive-anatomy:
+    ovulation:
+      display_name: "Ovulation"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "ovulation"
+        - "when do I ovulate"
+        - "ovulation signs"
+        - "ovulation symptoms"
+        - "egg release"
+
+    cervical-mucus:
+      display_name: "Cervical Mucus"
+      journey_stage: preconception
+      intent: monitor
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "cervical mucus"
+        - "CM tracking"
+        - "egg white cervical mucus"
+        - "EWCM"
+        - "cervical fluid"
+
+    uterine-health:
+      display_name: "Uterine Health"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "uterine health"
+        - "uterus shape"
+        - "fibroids"
+        - "uterine fibroids"
+        - "polyps uterus"
+
+    fallopian-tubes:
+      display_name: "Fallopian Tubes"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "fallopian tubes"
+        - "blocked tubes"
+        - "tubal health"
+        - "HSG test"
+
+  lifestyle-factors:
+    fertility-diet:
+      display_name: "Fertility Diet"
+      journey_stage: preconception
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "fertility diet"
+        - "foods for fertility"
+        - "diet to conceive"
+        - "Mediterranean diet fertility"
+        - "anti-inflammatory diet fertility"
+
+    fertility-supplements:
+      display_name: "Fertility Supplements"
+      journey_stage: preconception
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "fertility supplements"
+        - "CoQ10 fertility"
+        - "prenatal vitamins before pregnancy"
+        - "folic acid"
+        - "vitamin D fertility"
+        - "DHEA fertility"
+
+    exercise-fertility:
+      display_name: "Exercise & Fertility"
+      journey_stage: preconception
+      intent: act
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "exercise and fertility"
+        - "working out TTC"
+        - "yoga fertility"
+        - "fitness and conception"
+
+    weight-fertility:
+      display_name: "Weight & Fertility"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "weight and fertility"
+        - "BMI fertility"
+        - "underweight fertility"
+        - "overweight fertility"
+        - "obesity and conception"
+
+    sleep-stress-fertility:
+      display_name: "Sleep & Stress"
+      journey_stage: preconception
+      intent: cope
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "stress and fertility"
+        - "sleep fertility"
+        - "cortisol fertility"
+        - "anxiety TTC"
+        - "relaxation fertility"
+
+    alcohol-caffeine-fertility:
+      display_name: "Alcohol & Caffeine"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "alcohol and fertility"
+        - "caffeine and fertility"
+        - "drinking while TTC"
+        - "coffee fertility"
+
+    environmental-toxins:
+      display_name: "Environmental Toxins"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "environmental toxins fertility"
+        - "BPA fertility"
+        - "endocrine disruptors"
+        - "toxins and conception"
+
+  fertility-testing:
+    amh-levels:
+      display_name: "AMH Levels"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "AMH levels"
+        - "anti-Mullerian hormone"
+        - "AMH test"
+        - "ovarian reserve"
+        - "AMH low"
+        - "AMH normal range"
+
+    fsh-testing:
+      display_name: "FSH Testing"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "FSH test"
+        - "follicle stimulating hormone"
+        - "FSH levels"
+        - "day 3 FSH"
+
+    hormone-panel:
+      display_name: "Hormone Panel"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "hormone panel"
+        - "fertility blood work"
+        - "hormone testing"
+        - "estrogen levels"
+        - "progesterone test"
+        - "LH levels"
+        - "thyroid fertility"
+
+    semen-analysis:
+      display_name: "Semen Analysis"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "semen analysis"
+        - "sperm test"
+        - "SA results"
+        - "sperm count"
+        - "sperm motility"
+        - "sperm morphology"
+
+    ultrasound-fertility:
+      display_name: "Fertility Ultrasound"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "fertility ultrasound"
+        - "antral follicle count"
+        - "AFC"
+        - "baseline ultrasound"
+        - "transvaginal ultrasound"
+
+  genetic-screening:
+    carrier-screening:
+      display_name: "Carrier Screening"
+      journey_stage: preconception
+      intent: decide
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "carrier screening"
+        - "genetic carrier test"
+        - "cystic fibrosis carrier"
+        - "sickle cell carrier"
+        - "genetic testing before pregnancy"
+
+    egg-quality:
+      display_name: "Egg Quality"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "egg quality"
+        - "oocyte quality"
+        - "egg health"
+        - "improve egg quality"
+        - "age and egg quality"
+
+    sperm-health:
+      display_name: "Sperm Health"
+      journey_stage: preconception
+      intent: learn
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "sperm health"
+        - "male fertility"
+        - "improve sperm quality"
+        - "sperm supplements"
+        - "male factor infertility"
+
+trying:
+  natural-conception:
+    fertile-window:
+      display_name: "Fertile Window"
+      journey_stage: trying
+      intent: act
+      risk_tier: green
+      monetization_class: tool
+      aliases:
+        - "fertile window"
+        - "fertility window"
+        - "best days to conceive"
+        - "when am I fertile"
+        - "peak fertility"
+
+    timing-intercourse:
+      display_name: "Timing Intercourse"
+      journey_stage: trying
+      intent: act
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "timing intercourse"
+        - "when to have sex TTC"
+        - "baby dance timing"
+        - "BD schedule"
+        - "how often to try"
+
+    opk-testing:
+      display_name: "OPK Testing"
+      journey_stage: trying
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "OPK"
+        - "ovulation predictor kit"
+        - "ovulation test"
+        - "LH surge"
+        - "positive OPK"
+        - "OPK strips"
+
+    bbt-charting:
+      display_name: "BBT Charting"
+      journey_stage: trying
+      intent: monitor
+      risk_tier: green
+      monetization_class: tool
+      aliases:
+        - "BBT charting"
+        - "basal body temperature"
+        - "BBT thermometer"
+        - "temperature tracking"
+        - "BBT chart"
+        - "temp shift"
+
+    implantation:
+      display_name: "Implantation"
+      journey_stage: trying
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "implantation"
+        - "implantation symptoms"
+        - "implantation bleeding"
+        - "implantation dip"
+        - "implantation timing"
+
+    tww-symptoms:
+      display_name: "Two-Week Wait Symptoms"
+      journey_stage: trying
+      intent: monitor
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "two week wait"
+        - "TWW"
+        - "TWW symptoms"
+        - "early pregnancy signs"
+        - "DPO symptoms"
+        - "2WW"
+
+    pregnancy-tests:
+      display_name: "Pregnancy Tests"
+      journey_stage: trying
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "pregnancy test"
+        - "HPT"
+        - "when to test"
+        - "early pregnancy test"
+        - "FRER"
+        - "BFP"
+        - "BFN"
+        - "hCG levels"
+
+    secondary-infertility:
+      display_name: "Secondary Infertility"
+      journey_stage: trying
+      intent: learn
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "secondary infertility"
+        - "trouble conceiving second baby"
+        - "can't get pregnant again"
+
+  fertility-treatments:
+    iui:
+      display_name: "IUI (Intrauterine Insemination)"
+      journey_stage: fertility_treatment
+      intent: decide
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "IUI"
+        - "intrauterine insemination"
+        - "IUI procedure"
+        - "IUI success rate"
+        - "artificial insemination"
+
+    ivf:
+      display_name: "IVF (In Vitro Fertilization)"
+      journey_stage: fertility_treatment
+      intent: decide
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "IVF"
+        - "in vitro fertilization"
+        - "IVF process"
+        - "IVF success rates"
+        - "IVF cost"
+        - "IVF cycle"
+
+    egg-freezing:
+      display_name: "Egg Freezing"
+      journey_stage: fertility_treatment
+      intent: decide
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "egg freezing"
+        - "oocyte cryopreservation"
+        - "freeze eggs"
+        - "egg freezing cost"
+        - "egg freezing age"
+
+    embryo-transfer:
+      display_name: "Embryo Transfer"
+      journey_stage: fertility_treatment
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "embryo transfer"
+        - "FET"
+        - "frozen embryo transfer"
+        - "fresh transfer"
+        - "embryo transfer success"
+
+    pgt-testing:
+      display_name: "PGT (Preimplantation Genetic Testing)"
+      journey_stage: fertility_treatment
+      intent: decide
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "PGT"
+        - "PGT-A"
+        - "PGS"
+        - "preimplantation genetic testing"
+        - "embryo genetic testing"
+
+    donor-eggs-sperm:
+      display_name: "Donor Eggs & Sperm"
+      journey_stage: fertility_treatment
+      intent: decide
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "donor eggs"
+        - "donor sperm"
+        - "egg donor"
+        - "sperm donor"
+        - "donor IVF"
+
+    surrogacy:
+      display_name: "Surrogacy"
+      journey_stage: fertility_treatment
+      intent: decide
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "surrogacy"
+        - "gestational carrier"
+        - "surrogate mother"
+        - "surrogacy process"
+
+    fertility-clinic-selection:
+      display_name: "Fertility Clinic Selection"
+      journey_stage: fertility_treatment
+      intent: decide
+      risk_tier: green
+      monetization_class: referral
+      aliases:
+        - "fertility clinic"
+        - "RE doctor"
+        - "reproductive endocrinologist"
+        - "best fertility clinic"
+        - "SART data"
+
+  medication:
+    clomid:
+      display_name: "Clomid (Clomiphene)"
+      journey_stage: fertility_treatment
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "Clomid"
+        - "clomiphene"
+        - "clomiphene citrate"
+        - "Clomid side effects"
+        - "Clomid success rate"
+
+    letrozole:
+      display_name: "Letrozole (Femara)"
+      journey_stage: fertility_treatment
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "letrozole"
+        - "Femara"
+        - "letrozole fertility"
+        - "letrozole vs Clomid"
+
+    gonadotropins:
+      display_name: "Gonadotropins"
+      journey_stage: fertility_treatment
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "gonadotropins"
+        - "Gonal-F"
+        - "Follistim"
+        - "Menopur"
+        - "injectable fertility drugs"
+        - "stim medications"
+
+    progesterone-support:
+      display_name: "Progesterone Support"
+      journey_stage: fertility_treatment
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "progesterone support"
+        - "progesterone suppositories"
+        - "PIO shots"
+        - "progesterone in oil"
+        - "luteal phase support"
+
+    trigger-shot:
+      display_name: "Trigger Shot"
+      journey_stage: fertility_treatment
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "trigger shot"
+        - "Ovidrel"
+        - "hCG trigger"
+        - "Lupron trigger"
+        - "when to trigger"
+
+  emotional-health:
+    ttc-anxiety:
+      display_name: "TTC Anxiety"
+      journey_stage: trying
+      intent: cope
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "TTC anxiety"
+        - "trying to conceive stress"
+        - "fertility anxiety"
+        - "two week wait anxiety"
+        - "TTC mental health"
+
+    pregnancy-loss:
+      display_name: "Pregnancy Loss & Miscarriage"
+      journey_stage: trying
+      intent: cope
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "miscarriage"
+        - "pregnancy loss"
+        - "chemical pregnancy"
+        - "early miscarriage"
+        - "missed miscarriage"
+        - "recurrent pregnancy loss"
+
+    fertility-grief:
+      display_name: "Fertility Grief"
+      journey_stage: trying
+      intent: cope
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "fertility grief"
+        - "infertility grief"
+        - "TTC depression"
+        - "baby shower anxiety"
+        - "pregnancy announcements"
+
+    relationship-strain:
+      display_name: "Relationship Strain"
+      journey_stage: trying
+      intent: cope
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "TTC relationship"
+        - "fertility relationship strain"
+        - "partner disagreement TTC"
+        - "intimacy TTC"
+
+pregnancy:
+  first-trimester:
+    early-pregnancy-symptoms:
+      display_name: "Early Pregnancy Symptoms"
+      journey_stage: pregnancy_t1
+      intent: monitor
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "early pregnancy symptoms"
+        - "first trimester symptoms"
+        - "pregnancy nausea"
+        - "fatigue first trimester"
+        - "breast tenderness pregnancy"
+
+    morning-sickness:
+      display_name: "Morning Sickness"
+      journey_stage: pregnancy_t1
+      intent: cope
+      risk_tier: yellow
+      monetization_class: commerce
+      aliases:
+        - "morning sickness"
+        - "nausea pregnancy"
+        - "NVP"
+        - "hyperemesis gravidarum"
+        - "HG"
+        - "pregnancy vomiting"
+
+    prenatal-vitamins:
+      display_name: "Prenatal Vitamins"
+      journey_stage: pregnancy_t1
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "prenatal vitamins"
+        - "prenatals"
+        - "best prenatal vitamin"
+        - "prenatal DHA"
+        - "prenatal with folate"
+
+    first-prenatal-visit:
+      display_name: "First Prenatal Visit"
+      journey_stage: pregnancy_t1
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "first prenatal visit"
+        - "first OB appointment"
+        - "first ultrasound"
+        - "dating scan"
+        - "8 week appointment"
+
+    miscarriage-risk:
+      display_name: "Miscarriage Risk"
+      journey_stage: pregnancy_t1
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "miscarriage risk"
+        - "miscarriage chances"
+        - "spotting first trimester"
+        - "bleeding early pregnancy"
+        - "threatened miscarriage"
+
+    ectopic-pregnancy:
+      display_name: "Ectopic Pregnancy"
+      journey_stage: pregnancy_t1
+      intent: learn
+      risk_tier: black
+      monetization_class: none
+      aliases:
+        - "ectopic pregnancy"
+        - "ectopic symptoms"
+        - "tubal pregnancy"
+        - "ectopic pregnancy signs"
+
+    first-trimester-screening:
+      display_name: "First Trimester Screening"
+      journey_stage: pregnancy_t1
+      intent: decide
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "first trimester screening"
+        - "NT scan"
+        - "nuchal translucency"
+        - "NIPT"
+        - "cell-free DNA test"
+        - "chromosomal screening"
+
+  second-trimester:
+    anatomy-scan:
+      display_name: "Anatomy Scan"
+      journey_stage: pregnancy_t2
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "anatomy scan"
+        - "20 week ultrasound"
+        - "mid-pregnancy ultrasound"
+        - "anomaly scan"
+        - "gender reveal ultrasound"
+
+    gestational-diabetes:
+      display_name: "Gestational Diabetes"
+      journey_stage: pregnancy_t2
+      intent: learn
+      risk_tier: red
+      monetization_class: content
+      aliases:
+        - "gestational diabetes"
+        - "GDM"
+        - "glucose test pregnancy"
+        - "gestational diabetes diet"
+        - "blood sugar pregnancy"
+        - "glucose tolerance test"
+
+    baby-movement:
+      display_name: "Baby Movement & Kick Counts"
+      journey_stage: pregnancy_t2
+      intent: monitor
+      risk_tier: yellow
+      monetization_class: tool
+      aliases:
+        - "baby movement"
+        - "kick counts"
+        - "fetal movement"
+        - "baby kicking"
+        - "reduced fetal movement"
+        - "quickening"
+
+    pregnancy-exercise:
+      display_name: "Pregnancy Exercise"
+      journey_stage: pregnancy_t2
+      intent: act
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "pregnancy exercise"
+        - "prenatal workout"
+        - "safe exercise pregnancy"
+        - "prenatal yoga"
+        - "pelvic floor exercises pregnancy"
+
+    pregnancy-nutrition:
+      display_name: "Pregnancy Nutrition"
+      journey_stage: pregnancy_t2
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "pregnancy nutrition"
+        - "pregnancy diet"
+        - "foods to avoid pregnancy"
+        - "pregnancy cravings"
+        - "pregnancy weight gain"
+
+  third-trimester:
+    birth-plan:
+      display_name: "Birth Plan"
+      journey_stage: pregnancy_t3
+      intent: decide
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "birth plan"
+        - "birth preferences"
+        - "labor plan"
+        - "birth plan template"
+        - "birth wishes"
+
+    labor-signs:
+      display_name: "Labor Signs"
+      journey_stage: pregnancy_t3
+      intent: monitor
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "labor signs"
+        - "signs of labor"
+        - "contractions"
+        - "Braxton Hicks"
+        - "mucus plug"
+        - "water breaking"
+        - "when to go to hospital"
+
+    breech-baby:
+      display_name: "Breech Baby"
+      journey_stage: pregnancy_t3
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "breech baby"
+        - "breech position"
+        - "turning breech baby"
+        - "ECV"
+        - "external cephalic version"
+
+    csection:
+      display_name: "C-Section"
+      journey_stage: pregnancy_t3
+      intent: decide
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "C-section"
+        - "cesarean section"
+        - "scheduled C-section"
+        - "C-section recovery"
+        - "VBAC"
+        - "repeat cesarean"
+
+    induction:
+      display_name: "Labor Induction"
+      journey_stage: pregnancy_t3
+      intent: decide
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "labor induction"
+        - "induced labor"
+        - "Pitocin"
+        - "membrane sweep"
+        - "cervical ripening"
+        - "overdue pregnancy"
+
+    group-b-strep:
+      display_name: "Group B Strep (GBS)"
+      journey_stage: pregnancy_t3
+      intent: learn
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "Group B Strep"
+        - "GBS"
+        - "GBS positive"
+        - "GBS test pregnancy"
+        - "strep B"
+
+  complications:
+    preeclampsia:
+      display_name: "Preeclampsia"
+      journey_stage: pregnancy_t3
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "preeclampsia"
+        - "pre-eclampsia"
+        - "toxemia"
+        - "high blood pressure pregnancy"
+        - "preeclampsia symptoms"
+        - "HELLP syndrome"
+
+    placenta-previa:
+      display_name: "Placenta Previa"
+      journey_stage: pregnancy_t2
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "placenta previa"
+        - "low-lying placenta"
+        - "placenta position"
+
+    preterm-labor:
+      display_name: "Preterm Labor"
+      journey_stage: pregnancy_t3
+      intent: learn
+      risk_tier: black
+      monetization_class: none
+      aliases:
+        - "preterm labor"
+        - "premature labor"
+        - "premature birth"
+        - "preterm contractions"
+        - "cervical insufficiency"
+
+    cholestasis:
+      display_name: "Cholestasis of Pregnancy"
+      journey_stage: pregnancy_t3
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "cholestasis"
+        - "intrahepatic cholestasis"
+        - "ICP"
+        - "itching pregnancy"
+        - "bile acid test"
+
+    cord-complications:
+      display_name: "Cord Complications"
+      journey_stage: pregnancy_t3
+      intent: learn
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "cord complications"
+        - "nuchal cord"
+        - "cord prolapse"
+        - "umbilical cord"
+
+  medication-safety:
+    medication-pregnancy-safety:
+      display_name: "Medication Safety in Pregnancy"
+      journey_stage: pregnancy_t1
+      intent: decide
+      risk_tier: red
+      monetization_class: none
+      aliases:
+        - "medication pregnancy safety"
+        - "safe medications pregnancy"
+        - "drugs pregnancy"
+        - "Tylenol pregnancy"
+        - "antibiotics pregnancy"
+        - "pregnancy medication guide"
+
+    herbal-remedies-pregnancy:
+      display_name: "Herbal Remedies in Pregnancy"
+      journey_stage: pregnancy_t1
+      intent: learn
+      risk_tier: yellow
+      monetization_class: none
+      aliases:
+        - "herbal remedies pregnancy"
+        - "herbs safe pregnancy"
+        - "ginger pregnancy"
+        - "raspberry leaf tea"
+        - "natural remedies pregnancy"
+
+postpartum:
+  recovery:
+    postpartum-recovery:
+      display_name: "Postpartum Physical Recovery"
+      journey_stage: postpartum
+      intent: monitor
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "postpartum recovery"
+        - "after birth recovery"
+        - "lochia"
+        - "postpartum bleeding"
+        - "perineal healing"
+
+    postpartum-exercise:
+      display_name: "Postpartum Exercise"
+      journey_stage: postpartum
+      intent: act
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "postpartum exercise"
+        - "postpartum workout"
+        - "diastasis recti"
+        - "pelvic floor recovery"
+        - "return to exercise after birth"
+
+    csection-recovery:
+      display_name: "C-Section Recovery"
+      journey_stage: postpartum
+      intent: monitor
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "C-section recovery"
+        - "cesarean recovery"
+        - "incision care"
+        - "C-section scar"
+
+    postpartum-hormones:
+      display_name: "Postpartum Hormones"
+      journey_stage: postpartum
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "postpartum hormones"
+        - "hormone changes after birth"
+        - "postpartum hair loss"
+        - "postpartum night sweats"
+
+  mental-health:
+    postpartum-depression:
+      display_name: "Postpartum Depression"
+      journey_stage: postpartum
+      intent: cope
+      risk_tier: red
+      monetization_class: referral
+      aliases:
+        - "postpartum depression"
+        - "PPD"
+        - "baby blues"
+        - "postpartum mood"
+        - "Edinburgh scale"
+        - "postnatal depression"
+
+    postpartum-anxiety:
+      display_name: "Postpartum Anxiety"
+      journey_stage: postpartum
+      intent: cope
+      risk_tier: red
+      monetization_class: referral
+      aliases:
+        - "postpartum anxiety"
+        - "PPA"
+        - "intrusive thoughts postpartum"
+        - "postpartum OCD"
+        - "new mom anxiety"
+
+    postpartum-rage:
+      display_name: "Postpartum Rage"
+      journey_stage: postpartum
+      intent: cope
+      risk_tier: yellow
+      monetization_class: content
+      aliases:
+        - "postpartum rage"
+        - "postpartum anger"
+        - "mom rage"
+        - "anger after baby"
+
+  breastfeeding:
+    breastfeeding-basics:
+      display_name: "Breastfeeding Basics"
+      journey_stage: lactation
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "breastfeeding basics"
+        - "how to breastfeed"
+        - "breastfeeding positions"
+        - "latch technique"
+        - "breastfeeding tips"
+
+    milk-supply:
+      display_name: "Milk Supply"
+      journey_stage: lactation
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "milk supply"
+        - "low milk supply"
+        - "increase milk supply"
+        - "milk production"
+        - "galactagogues"
+        - "power pumping"
+
+    breastfeeding-problems:
+      display_name: "Breastfeeding Problems"
+      journey_stage: lactation
+      intent: cope
+      risk_tier: yellow
+      monetization_class: referral
+      aliases:
+        - "breastfeeding problems"
+        - "sore nipples"
+        - "mastitis"
+        - "clogged duct"
+        - "engorgement"
+        - "thrush breastfeeding"
+        - "tongue tie"
+
+    pumping:
+      display_name: "Pumping"
+      journey_stage: lactation
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "pumping"
+        - "breast pump"
+        - "exclusive pumping"
+        - "pumping schedule"
+        - "pump settings"
+        - "milk storage"
+
+    weaning:
+      display_name: "Weaning"
+      journey_stage: lactation
+      intent: act
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "weaning"
+        - "stop breastfeeding"
+        - "weaning schedule"
+        - "weaning emotions"
+        - "night weaning"
+
+  newborn:
+    newborn-care:
+      display_name: "Newborn Care Basics"
+      journey_stage: postpartum
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "newborn care"
+        - "caring for newborn"
+        - "baby basics"
+        - "umbilical cord care"
+        - "newborn bath"
+
+    newborn-sleep:
+      display_name: "Newborn Sleep"
+      journey_stage: postpartum
+      intent: act
+      risk_tier: green
+      monetization_class: commerce
+      aliases:
+        - "newborn sleep"
+        - "baby sleep schedule"
+        - "safe sleep"
+        - "swaddling"
+        - "sleep training newborn"
+
+    newborn-feeding:
+      display_name: "Newborn Feeding"
+      journey_stage: postpartum
+      intent: learn
+      risk_tier: green
+      monetization_class: content
+      aliases:
+        - "newborn feeding"
+        - "formula feeding"
+        - "combo feeding"
+        - "supplementing formula"
+        - "how much to feed newborn"
+
+    jaundice:
+      display_name: "Newborn Jaundice"
+      journey_stage: postpartum
+      intent: learn
+      risk_tier: yellow
+      monetization_class: none
+      aliases:
+        - "newborn jaundice"
+        - "bilirubin levels"
+        - "jaundice treatment"
+        - "phototherapy"
+        - "baby jaundice"

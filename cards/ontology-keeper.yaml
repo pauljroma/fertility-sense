@@ -1,0 +1,24 @@
+agent: ontology-keeper
+version: 0.1.0
+
+what_it_does:
+  - Maintain hierarchical topic taxonomy
+  - Resolve aliases to canonical topic IDs
+  - Classify new topics by journey stage, intent, risk
+  - Propose taxonomy evolution for emerging clusters
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense ontology --agent ontology-keeper"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: topic-classify-v1
+      classification: { accuracy: 0.0, n: 0 }
+
+tier: opus
+role: planner
+fallback_agent: evidence-curator

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nrwl/nx/master/packages/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*"],
+    "production": ["default", "!{projectRoot}/tests/**/*"]
+  },
+  "targetDefaults": {
+    "build": {
+      "inputs": ["production"],
+      "cache": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "inputs": ["default"],
+      "cache": true
+    },
+    "test:smoke": {
+      "dependsOn": ["build"],
+      "inputs": ["default"],
+      "cache": true
+    },
+    "test:unit": {
+      "dependsOn": ["build"],
+      "inputs": ["default"],
+      "cache": true
+    },
+    "test:integration": {
+      "dependsOn": ["build"],
+      "inputs": ["default"],
+      "cache": false
+    },
+    "lint": {
+      "inputs": ["default"],
+      "cache": true
+    },
+    "typecheck": {
+      "inputs": ["default"],
+      "cache": true
+    }
+  },
+  "cacheableOperations": ["build", "test:smoke", "test:unit", "lint", "typecheck"]
+}
