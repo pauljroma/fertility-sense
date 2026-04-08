@@ -57,5 +57,14 @@ class FertilitySenseConfig(BaseSettings):
     # e.g. "claude-3-haiku-20240307" routes all tiers through one model
     model_override: str = Field(default="", description="Force all agents to use this model ID")
 
+    # Email (IONOS SMTP/IMAP)
+    email_address: str = ""
+    email_password: str = ""
+    smtp_host: str = "smtp.ionos.com"
+    smtp_port: int = 587
+    imap_host: str = "imap.ionos.com"
+    imap_port: int = 993
+    email_from_name: str = "Fertility Sense"
+
     # CORS
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])

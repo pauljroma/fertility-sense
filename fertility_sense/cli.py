@@ -178,6 +178,72 @@ def campaign(top: int, channel: tuple[str, ...], as_json: bool) -> None:
     click.echo(format_campaign_plan(plan, as_json=as_json))
 
 
+@main.command("send-email")
+@click.option("--to", required=True, help="Recipient email address")
+@click.option("--top", default=3, type=int, help="Top N signals to include")
+@click.option("--subject", default=None, help="Email subject (auto-generated if omitted)")
+def send_email(to: str, top: int, subject: str | None) -> None:
+    """Send campaign report email to a recipient."""
+    from fertility_sense.outreach.campaign import generate_campaign_plan
+    from fertility_sense.outreach.email_sender import EmailSender, campaign_to_email
+
+    pipe = _pipeline()
+    config = pipe.config
+
+    sender = EmailSender(config)
+    click.echo(f"Connecting to {config.smtp_host}...")
+
+    if not sender.test_connection():
+        click.echo("SMTP connection failed. Check email credentials in .env")
+        return
+
+    plan = generate_campaign_plan(pipe, top_n=top, channels=["email"])
+
+    body_parts = [
+        "Fertility Sense — Demand Signal Report\n",
+        f"{plan.total_content_pieces} campaign emails from top {top} demand signals.\n",
+    ]
+    for i, camp in enumerate(plan.campaigns, 1):
+        sig = camp.signal
+        body_parts.append(f"---\n\n{i}. {sig.display_name}")
+        body_parts.append(f"Audience: {sig.who}")
+        body_parts.append(f"Demand: {sig.demand_score:.0f} | Clinical: {sig.clinical_importance:.0f}\n")
+        for content in camp.content:
+            body_parts.append(content.body)
+        body_parts.append("")
+
+    subj = subject or f"Fertility Sense — Top {top} Campaign Signals"
+    email = campaign_to_email(to=to, subject=subj, body="\n".join(body_parts))
+    result = sender.send(email)
+
+    if result.status == "sent":
+        click.echo(f"Sent to {to} at {result.sent_at}")
+    else:
+        click.echo(f"Failed: {result.error}")
+
+
+@main.command("check-inbox")
+@click.option("--limit", default=10, type=int, help="Number of messages to show")
+def check_inbox(limit: int) -> None:
+    """Check the fertility inbox for replies."""
+    from fertility_sense.outreach.email_sender import EmailSender
+
+    pipe = _pipeline()
+    sender = EmailSender(pipe.config)
+    messages = sender.check_inbox(limit=limit)
+
+    if not messages:
+        click.echo("No messages found.")
+        return
+
+    click.echo(f"=== Inbox ({len(messages)} messages) ===")
+    for msg in messages:
+        click.echo(f"  From: {msg.from_addr}")
+        click.echo(f"  Subject: {msg.subject}")
+        click.echo(f"  Date: {msg.date}")
+        click.echo()
+
+
 @main.command()
 @click.option("--api-key", envvar="ANTHROPIC_API_KEY", default="", help="Anthropic API key")
 def pipeline(api_key: str) -> None:
