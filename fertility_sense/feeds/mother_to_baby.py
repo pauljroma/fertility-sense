@@ -45,6 +45,33 @@ _MEDIUM_RISK_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"more research needed", re.IGNORECASE),
 ]
 
+# Map common substance names to canonical ontology topic IDs.
+_SUBSTANCE_TOPIC_MAP: dict[str, list[str]] = {
+    "acetaminophen": ["medication-pregnancy-safety"],
+    "ibuprofen": ["medication-pregnancy-safety"],
+    "aspirin": ["medication-pregnancy-safety"],
+    "metformin": ["medication-pregnancy-safety", "pcos-symptoms"],
+    "clomiphene": ["medication-pregnancy-safety", "ovulation-induction"],
+    "letrozole": ["medication-pregnancy-safety", "ovulation-induction"],
+    "sertraline": ["medication-pregnancy-safety", "mental-health"],
+    "fluoxetine": ["medication-pregnancy-safety", "mental-health"],
+    "levothyroxine": ["medication-pregnancy-safety", "thyroid-health"],
+    "insulin": ["medication-pregnancy-safety", "gestational-diabetes"],
+    "progesterone": ["medication-pregnancy-safety", "hormone-therapy"],
+    "folic acid": ["prenatal-vitamins", "fertility-supplements"],
+    "vitamin a": ["prenatal-vitamins"],
+    "vitamin d": ["prenatal-vitamins", "fertility-supplements"],
+    "alcohol": ["lifestyle-factors"],
+    "caffeine": ["lifestyle-factors"],
+    "marijuana": ["lifestyle-factors"],
+    "tobacco": ["lifestyle-factors"],
+    "cannabis": ["lifestyle-factors"],
+    "cocaine": ["lifestyle-factors"],
+    "lead": ["environmental-exposures"],
+    "mercury": ["environmental-exposures"],
+    "radiation": ["environmental-exposures"],
+}
+
 
 def _fact_sheet_id(title: str) -> str:
     raw = f"mother_to_baby:{title.lower().strip()}"
@@ -126,13 +153,14 @@ class MotherToBabyFeed(BaseFeed):
     and chemical exposures during pregnancy and breastfeeding.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, max_sheets: int = 20) -> None:
         super().__init__(
             name="mother_to_baby",
             source_url=_BASE_URL,
             cadence=timedelta(days=7),
             feed_type="evidence",  # Also produces safety alerts.
         )
+        self.max_sheets = max_sheets
 
     # ------------------------------------------------------------------
     # Fetch
@@ -166,9 +194,9 @@ class MotherToBabyFeed(BaseFeed):
 
             listing_html = listing_resp.text
 
-            # Extract fact-sheet links — they follow the pattern /fact-sheets/<slug>/
+            # Match both relative and absolute fact-sheet URLs
             links = re.findall(
-                r'href="(/fact-sheets/[a-z0-9_-]+/?)"',
+                r'href="((?:https://mothertobaby\.org)?/fact-sheets/[a-z0-9_-]+/?)"',
                 listing_html,
                 re.IGNORECASE,
             )
@@ -183,10 +211,19 @@ class MotherToBabyFeed(BaseFeed):
 
             logger.info("MotherToBaby: found %d fact-sheet links", len(unique_links))
 
+            # Limit to max_sheets to avoid very long scrape runs.
+            if len(unique_links) > self.max_sheets:
+                logger.info(
+                    "MotherToBaby: limiting to %d of %d sheets",
+                    self.max_sheets,
+                    len(unique_links),
+                )
+                unique_links = unique_links[: self.max_sheets]
+
             # Step 2: Fetch each detail page with rate limiting.
             failed_sheets = 0
             for sheet_idx, link in enumerate(unique_links):
-                url = f"{_BASE_URL}{link}" if link.startswith("/") else link
+                url = link if link.startswith("http") else f"{_BASE_URL}{link}"
                 try:
                     detail_resp = await client.get(url)
                     detail_resp.raise_for_status()
@@ -250,6 +287,22 @@ class MotherToBabyFeed(BaseFeed):
             severity = _classify_severity(body)
             key_findings = _extract_key_findings(body)
 
+            # Resolve topics: use ontology mapping when available, fall back
+            # to slugified substance names.
+            topics: list[str] = []
+            for substance in substances:
+                mapped = _SUBSTANCE_TOPIC_MAP.get(substance.lower())
+                if mapped:
+                    topics.extend(mapped)
+                else:
+                    topics.append(substance.lower().replace(" ", "_"))
+            # Deduplicate while preserving order.
+            seen_topics: list[str] = []
+            for t in topics:
+                if t not in seen_topics:
+                    seen_topics.append(t)
+            topics = seen_topics
+
             # Evidence record.
             records.append(
                 EvidenceRecord(
@@ -260,7 +313,7 @@ class MotherToBabyFeed(BaseFeed):
                     url=url,
                     grade=grade,
                     grade_rationale=f"Auto-graded from MotherToBaby fact sheet text (heuristic: {grade.value})",
-                    topics=[s.lower().replace(" ", "_") for s in substances],
+                    topics=topics,
                     key_findings=key_findings,
                     population="pregnant and lactating individuals",
                 )
@@ -275,7 +328,7 @@ class MotherToBabyFeed(BaseFeed):
                         title=f"Exposure alert: {title}",
                         severity=severity,
                         affected_substances=substances,
-                        affected_topics=[s.lower().replace(" ", "_") for s in substances],
+                        affected_topics=topics,
                         description=body[:300] if body else "See fact sheet for details.",
                         action_required=_action_for_severity(severity),
                         url=url,

@@ -152,6 +152,18 @@ def status(show_all: bool, feeds: bool, agents: bool) -> None:
 
 
 @main.command()
+@click.option("--top", default=20, type=int, help="Top N topics")
+@click.option("--json-output", "as_json", is_flag=True, help="Output as JSON")
+def report(top: int, as_json: bool) -> None:
+    """Generate actionable demand signal report for campaign planning."""
+    from fertility_sense.report import format_report, generate_report
+
+    pipe = _pipeline()
+    rpt = generate_report(pipe, top_n=top)
+    click.echo(format_report(rpt, as_json=as_json))
+
+
+@main.command()
 @click.option("--api-key", envvar="ANTHROPIC_API_KEY", default="", help="Anthropic API key")
 def pipeline(api_key: str) -> None:
     """Run the full intelligence pipeline."""

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from fertility_sense.assembly.governor import (
     GovernanceResult,
@@ -15,6 +17,23 @@ from fertility_sense.assembly.risk_classifier import classify_risk
 from fertility_sense.assembly.template_selector import select_template
 from fertility_sense.models.answer import AnswerTemplate, GovernedAnswer
 from fertility_sense.models.topic import RiskTier, TopicNode
+
+if TYPE_CHECKING:
+    from fertility_sense.nemoclaw.dispatcher import AgentDispatcher
+
+_log = logging.getLogger(__name__)
+
+# Static text blocks
+DISCLAIMER_TEXT = (
+    "This information is for educational purposes only and does not "
+    "constitute medical advice. Please consult your healthcare provider "
+    "for guidance specific to your situation."
+)
+
+DOCTOR_TEXT = (
+    "Talk to your doctor or midwife if you have questions or concerns "
+    "about this topic."
+)
 
 
 class AnswerAssembler:
@@ -28,8 +47,13 @@ class AnswerAssembler:
     5. Run governance gate
     """
 
-    def __init__(self, retriever: EvidenceRetriever) -> None:
+    def __init__(
+        self,
+        retriever: EvidenceRetriever,
+        dispatcher: AgentDispatcher | None = None,
+    ) -> None:
         self._retriever = retriever
+        self._dispatcher = dispatcher
 
     def assemble(
         self,
@@ -103,24 +127,84 @@ class AnswerAssembler:
         retrieval: RetrievalResult,
         query: str,
     ) -> str:
-        """Compose a single section. Placeholder for agent-driven composition."""
+        """Compose a single section, using Claude when a dispatcher is available."""
+        # Static sections — always deterministic
         if section_name == "sources":
             return self._format_sources(retrieval)
 
         if section_name in ("important_disclaimer", "consult_provider"):
-            return (
-                "This information is for educational purposes only and does not "
-                "constitute medical advice. Please consult your healthcare provider "
-                "for guidance specific to your situation."
-            )
+            return DISCLAIMER_TEXT
 
         if section_name == "when_to_see_doctor":
-            return (
-                "Talk to your doctor or midwife if you have questions or concerns "
-                "about this topic."
-            )
+            return DOCTOR_TEXT
 
-        # Summary/evidence sections: cite available evidence
+        if section_name == "escalation_message":
+            # Handled in _compose_sections; should not reach here
+            return ""
+
+        # If dispatcher available, use Claude for rich composition
+        if self._dispatcher:
+            return self._agent_compose(section_name, retrieval, query)
+
+        # Fallback: evidence-based placeholder
+        return self._static_compose(section_name, retrieval)
+
+    # ------------------------------------------------------------------
+    # Agent-driven composition
+    # ------------------------------------------------------------------
+
+    def _agent_compose(
+        self,
+        section_name: str,
+        retrieval: RetrievalResult,
+        query: str,
+    ) -> str:
+        """Use the answer-assembler agent to compose a section via Claude."""
+        evidence_context = "\n".join(
+            f"- [{r.source_feed}, {r.publication_date}] {r.title}: "
+            f"{'; '.join(r.key_findings)}"
+            for r in retrieval.evidence[:5]
+        )
+
+        prompt = (
+            f'Compose the "{section_name}" section of a consumer health answer.\n\n'
+            f"Topic query: {query}\n\n"
+            f"Available evidence:\n{evidence_context}\n\n"
+            "Rules:\n"
+            "- Write 2-4 sentences in consumer-friendly language\n"
+            "- Cite sources inline as [Source, Year]\n"
+            "- Never diagnose, recommend dosages, or guarantee outcomes\n"
+            "- End actionable sections with \"Talk to your doctor about...\"\n"
+            "- Be factual and concise"
+        )
+
+        result = self._dispatcher.dispatch(
+            agent_name="answer-assembler",
+            skill_name="answer-compose",
+            prompt=prompt,
+        )
+        if result.status == "completed":
+            return result.output
+
+        # Any non-completed status — fall back to static
+        _log.warning(
+            "Agent compose failed for section '%s' (status=%s): %s",
+            section_name,
+            result.status,
+            result.error or result.output,
+        )
+        return self._static_compose(section_name, retrieval)
+
+    # ------------------------------------------------------------------
+    # Static / offline composition
+    # ------------------------------------------------------------------
+
+    def _static_compose(
+        self,
+        section_name: str,
+        retrieval: RetrievalResult,
+    ) -> str:
+        """Compose a section from evidence without calling an LLM."""
         if retrieval.evidence:
             findings = []
             for record in retrieval.evidence[:3]:

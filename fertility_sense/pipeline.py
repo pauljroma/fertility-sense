@@ -307,7 +307,7 @@ class Pipeline:
             evidence_records=evidence,
             safety_alerts=alerts,
         )
-        assembler = AnswerAssembler(retriever)
+        assembler = AnswerAssembler(retriever, dispatcher=self.server.dispatcher)
         return assembler.assemble(topic, query)
 
     # ------------------------------------------------------------------
