@@ -1,0 +1,13 @@
+{
+  "email": "paul@romatech.com",
+  "name": "Paul",
+  "journey_stage": "trying",
+  "diagnosis": "",
+  "source": "manual",
+  "tags": [],
+  "sequence": "ttc_nurture",
+  "sequence_step": 0,
+  "last_contact": null,
+  "created_at": "2026-04-09T15:49:36.858669",
+  "engagement_score": 0.0
+}

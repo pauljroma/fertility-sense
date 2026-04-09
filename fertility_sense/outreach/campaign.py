@@ -18,6 +18,7 @@ from fertility_sense.report import AudienceSignal, generate_report
 
 if TYPE_CHECKING:
     from fertility_sense.nemoclaw.dispatcher import AgentDispatcher
+    from fertility_sense.outreach.content_queue import ContentQueue
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +120,40 @@ def generate_campaign_plan(
         total_content_pieces=total_pieces,
         summary=summary,
     )
+
+
+def queue_campaign(plan: CampaignPlan, queue: "ContentQueue") -> int:
+    """Add all campaign content pieces to the review queue.
+
+    Returns the number of items queued.
+    """
+    from fertility_sense.outreach.content_queue import QueueItem
+
+    count = 0
+    for campaign in plan.campaigns:
+        for content in campaign.content:
+            # Determine target: first subreddit for reddit, otherwise generic
+            if content.channel == "reddit" and content.target_subreddits:
+                target = f"r/{content.target_subreddits[0]}"
+            elif content.channel in ("email", "direct_email"):
+                target = "email-list"
+            elif content.channel == "blog":
+                target = campaign.signal.topic_id
+            else:
+                target = content.channel
+
+            item = QueueItem(
+                channel=content.channel,
+                topic_id=campaign.signal.topic_id,
+                title=content.title,
+                body=content.body,
+                target=target,
+                risk_tier=campaign.signal.risk_tier,
+                evidence_count=campaign.signal.evidence_count,
+            )
+            queue.add(item)
+            count += 1
+    return count
 
 
 def format_campaign_plan(plan: CampaignPlan, as_json: bool = False) -> str:

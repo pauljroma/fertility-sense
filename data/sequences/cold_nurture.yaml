@@ -1,0 +1,71 @@
+name: cold_nurture
+description: "Introduce brand, provide value, move to consultation"
+segment: all
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "The fertility guide 95% of clinics won't share"
+    body: |
+      Hi {name},
+
+      You probably have questions about fertility. Most won't get answered until you're in a $300 consultation.
+
+      So we made something free instead: an evidence-backed guide covering the tests you actually need, what they cost, and what results mean.
+
+      This isn't marketing — it's the research we wish someone had given us.
+
+      {cta}
+
+      Not ready yet? No problem. We only send things we'd actually want to read.
+
+  - step: 2
+    delay_days: 3
+    subject: "The {concern} conversation your doctor probably skipped"
+    body: |
+      Hi {name},
+
+      Since you're {stage_description}, here's what the research says about your situation.
+
+      {personalized_insight}
+
+      Most clinics focus on treatment. We focus on helping you make informed decisions *before* you commit.
+
+      Questions? Hit reply. We read every message.
+
+  - step: 3
+    delay_days: 7
+    subject: "3 strategies people in your situation are using"
+    body: |
+      Hi {name},
+
+      We analyzed 200+ studies on {concern}. Here's what actually helps:
+
+      {strategies}
+
+      If you want to go deeper: {resource_link}
+
+  - step: 4
+    delay_days: 14
+    subject: "Ready to talk through your options?"
+    body: |
+      Hi {name},
+
+      You've gotten a lot of info. Now might be a good time to talk to someone who gets this.
+
+      We offer free 20-minute consultations. Not a sales pitch — just a chance to ask the questions you've been Googling at 2 AM.
+
+      {consultation_cta}
+
+      If that doesn't feel right yet, no worries.
+
+  - step: 5
+    delay_days: 21
+    subject: "One thing that might help right now"
+    body: |
+      Hi {name},
+
+      Our {tool_name} is helping people make decisions faster.
+
+      {tool_description}
+
+      Want to try it? {tool_cta}

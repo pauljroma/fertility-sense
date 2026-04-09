@@ -1,0 +1,107 @@
+name: ttc_nurture
+description: "Support for people actively trying to conceive"
+segment: trying
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "You're in the right place"
+    body: |
+      Hi {name},
+
+      Trying to conceive can feel overwhelming — especially when every search sends you down a different rabbit hole.
+
+      We built Fertility Sense to cut through the noise. Everything we share is evidence-backed and reviewed by reproductive health professionals.
+
+      Over the next few weeks, we'll send you the most useful things we've found. No fluff, no sales pitches.
+
+      {cta}
+
+  - step: 2
+    delay_days: 3
+    subject: "OPK timing — what actually matters"
+    body: |
+      Hi {name},
+
+      Ovulation predictor kits are everywhere, but the timing advice online is all over the place. Here's what the data says:
+
+      - Test between 12-3 PM for best accuracy (LH surges mid-morning for most people)
+      - A positive means ovulation is likely within 12-36 hours
+      - The two days BEFORE ovulation have the highest conception rates — not the day of
+
+      {personalized_insight}
+
+      The biggest mistake we see? Waiting for peak fertility to try. The fertile window opens 5 days before ovulation.
+
+      {cta}
+
+  - step: 3
+    delay_days: 7
+    subject: "The two-week wait: what helps (and what doesn't)"
+    body: |
+      Hi {name},
+
+      The two-week wait is the hardest part. Here's what the research says about common questions:
+
+      - Symptom spotting: progesterone causes nearly identical symptoms whether you're pregnant or not. Spotting patterns before 10 DPO are unreliable.
+      - Early testing: most tests are not accurate until 12-14 DPO. Testing earlier mostly causes unnecessary stress.
+      - What helps: the studies are clear that stress reduction during the TWW improves outcomes. Whatever helps you relax is worth doing.
+
+      {personalized_insight}
+
+      Hang in there. We know this part is hard.
+
+  - step: 4
+    delay_days: 14
+    subject: "When to start worrying (and when not to)"
+    body: |
+      Hi {name},
+
+      Here's what the evidence says about timelines:
+
+      - Under 35: it's normal for conception to take up to 12 months. 80% of couples conceive within that window.
+      - 35-39: guidelines suggest seeking evaluation after 6 months.
+      - 40+: evaluation is recommended right away or after 3 months of trying.
+
+      These are averages. Your situation may be different depending on {concern}.
+
+      If you're starting to wonder whether something more is going on, a basic fertility workup is straightforward and covered by most insurance.
+
+      {consultation_cta}
+
+  - step: 5
+    delay_days: 21
+    subject: "Next steps if it's been 6+ months"
+    body: |
+      Hi {name},
+
+      If you've been trying for a while, here are the tests worth asking about:
+
+      - Day 3 bloodwork (FSH, AMH, estradiol) — baseline ovarian reserve
+      - HSG or SHG — checks for tubal blockages
+      - Semen analysis — 40-50% of fertility issues involve the male partner
+      - Thyroid panel — subclinical thyroid issues are a common, fixable cause
+
+      These are not invasive and most can be done by your OB/GYN before a referral to a specialist.
+
+      {personalized_insight}
+
+      We built a tool that helps you figure out which tests to ask for based on your situation: {cta}
+
+  - step: 6
+    delay_days: 35
+    subject: "Your partner's fertility matters too"
+    body: |
+      Hi {name},
+
+      This often gets overlooked: male factor contributes to roughly half of all fertility challenges. A semen analysis is inexpensive, non-invasive, and should be one of the first tests done.
+
+      Key things to know:
+      - Results can vary significantly between samples — one test isn't definitive
+      - Lifestyle factors (heat, alcohol, supplements) can improve parameters in 2-3 months
+      - Many issues are treatable without IVF
+
+      {personalized_insight}
+
+      If your partner hasn't been tested yet, this is the single highest-impact step you can take right now.
+
+      {cta}

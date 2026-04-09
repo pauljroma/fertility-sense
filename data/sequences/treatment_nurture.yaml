@@ -1,0 +1,91 @@
+name: treatment_nurture
+description: "Support and guidance for people undergoing IVF, IUI, or other fertility treatment"
+segment: treatment
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "Navigating treatment — you don't have to figure this out alone"
+    body: |
+      Hi {name},
+
+      Starting fertility treatment is a big step. Whether you're looking at IUI, IVF, or another path, the amount of information (and misinformation) can feel paralyzing.
+
+      We're here to help you sort through it with evidence — not opinions.
+
+      Over the next few weeks, we'll share what the research actually says about treatment decisions. No clinic is going to tell you some of this, because they don't have time.
+
+      {cta}
+
+  - step: 2
+    delay_days: 3
+    subject: "IVF success rates: what the numbers actually mean"
+    body: |
+      Hi {name},
+
+      Clinic success rates are confusing by design. Here's how to read them:
+
+      - "Per cycle" vs "cumulative" rates tell very different stories. A 40% per-cycle rate often means 70%+ cumulative over 3 cycles.
+      - Fresh vs frozen transfer rates have converged. Frozen transfers now match or exceed fresh in many clinics.
+      - Age-specific data matters more than headline numbers. A clinic's overall rate is heavily influenced by their patient demographics.
+
+      {personalized_insight}
+
+      The CDC and SART publish verified data for every U.S. clinic. We've built a tool that helps you compare them meaningfully: {cta}
+
+  - step: 3
+    delay_days: 7
+    subject: "The treatment costs nobody warns you about"
+    body: |
+      Hi {name},
+
+      The sticker price for IVF ($15-25K per cycle) is just the beginning. Here are costs that catch people off guard:
+
+      - Medications: $3-7K per cycle (sometimes more with specific protocols)
+      - Genetic testing (PGT-A): $3-6K per batch
+      - Frozen embryo storage: $500-1,000/year
+      - Monitoring appointments: copays add up if not fully covered
+
+      {personalized_insight}
+
+      There are real ways to reduce costs: multi-cycle packages, shared-risk programs, clinical trials, and employer benefits that many people don't know they have.
+
+      {cta}
+
+  - step: 4
+    delay_days: 14
+    subject: "Questions to ask your RE before your next cycle"
+    body: |
+      Hi {name},
+
+      Your reproductive endocrinologist is busy. These are the questions worth using your limited time on:
+
+      1. What protocol are you recommending and why this one specifically for me?
+      2. Based on my AMH/AFC, what's a realistic egg retrieval expectation?
+      3. What would make you change the protocol mid-cycle?
+      4. Do you recommend PGT-A testing, and what's the evidence for my age group?
+      5. What's your policy on transferring more than one embryo?
+
+      {personalized_insight}
+
+      You deserve to understand your treatment plan. Any good RE will welcome these questions.
+
+      {consultation_cta}
+
+  - step: 5
+    delay_days: 21
+    subject: "What the research says about supplements during treatment"
+    body: |
+      Hi {name},
+
+      Supplements during fertility treatment are a minefield of marketing. Here's what has actual evidence:
+
+      - CoQ10: moderate evidence for egg quality, especially 35+ (typically 400-600mg/day)
+      - Vitamin D: strong association between adequate levels and IVF outcomes
+      - DHEA: some evidence for diminished ovarian reserve — but only under medical supervision
+      - Most "fertility blends": no meaningful evidence
+
+      Important: always check with your RE before adding supplements. Some can interfere with medications.
+
+      {personalized_insight}
+
+      {cta}

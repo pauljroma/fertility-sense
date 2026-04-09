@@ -1,0 +1,49 @@
+name: re_engagement
+description: "Win back prospects who have gone inactive"
+segment: all
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "We noticed you've been quiet — totally okay"
+    body: |
+      Hi {name},
+
+      We haven't heard from you in a while, and that's completely fine. Fertility journeys don't follow a straight line.
+
+      Maybe you're taking a break. Maybe things have changed. Maybe you just got busy.
+
+      Either way, we wanted to check in — not to sell you anything, but because we genuinely care about how you're doing.
+
+      If you want to stay connected, no action needed. If you'd rather not hear from us, just hit reply and say "unsubscribe."
+
+      {cta}
+
+  - step: 2
+    delay_days: 7
+    subject: "3 things that changed since we last talked"
+    body: |
+      Hi {name},
+
+      A few updates since you last engaged with us:
+
+      {personalized_insight}
+
+      We keep building tools and resources because people keep telling us they help. If any of this is relevant to where you are now, we'd love to have you back.
+
+      {cta}
+
+  - step: 3
+    delay_days: 14
+    subject: "Last note from us (unless you want more)"
+    body: |
+      Hi {name},
+
+      This is the last email in this series. We don't want to be noise in your inbox.
+
+      If you'd like to stay on our list, just click below and we'll keep sending you evidence-backed fertility insights:
+
+      {cta}
+
+      If not, we'll stop emailing. No hard feelings.
+
+      Whatever your path looks like right now, we're rooting for you.
