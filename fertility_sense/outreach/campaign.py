@@ -199,7 +199,7 @@ def format_campaign_plan(plan: CampaignPlan, as_json: bool = False) -> str:
         lines.append(f"{'─' * 90}")
         lines.append(f"CAMPAIGN {i}: {sig.display_name}")
         lines.append(f"  Audience:  {sig.who}")
-        lines.append(f"  Problem:   {sig.problem}")
+        lines.append(f"  Struggle:  {sig.struggle}")
         lines.append(f"  Demand:    {sig.demand_score:.0f} | Clinical: {sig.clinical_importance:.0f}")
         lines.append(f"  Evidence:  {sig.evidence_count} record(s)")
         lines.append(f"  Channels:  {', '.join(campaign.channels)}")
