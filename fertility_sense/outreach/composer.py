@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from fertility_sense.models.evidence import EvidenceRecord
@@ -38,7 +38,7 @@ class CampaignContent:
     hashtags: list[str] = field(default_factory=list)
     target_subreddits: list[str] = field(default_factory=list)
     evidence_citations: list[str] = field(default_factory=list)
-    generated_at: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # Subreddit mapping — fertility-focused only

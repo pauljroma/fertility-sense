@@ -7,7 +7,9 @@ Items are stored as individual JSON files in the queue directory.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+import os
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -27,10 +29,22 @@ class QueueItem(BaseModel):
     risk_tier: str
     evidence_count: int
     status: str = "pending"  # pending, approved, sent, rejected
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     reviewed_at: datetime | None = None
     sent_at: datetime | None = None
     rejection_reason: str = ""
+
+
+def _atomic_write_json(path: Path, data: dict | list) -> None:
+    """Write JSON to *path* atomically via rename."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w", dir=path.parent, suffix=".tmp", delete=False
+    ) as tmp:
+        json.dump(data, tmp, indent=2, default=str)
+        tmp.flush()
+        os.fsync(tmp.fileno())
+    os.replace(tmp.name, str(path))
 
 
 class ContentQueue:
@@ -51,9 +65,7 @@ class ContentQueue:
         return self._dir / f"{item_id}.json"
 
     def _save(self, item: QueueItem) -> None:
-        self._path(item.item_id).write_text(
-            item.model_dump_json(indent=2), encoding="utf-8"
-        )
+        _atomic_write_json(self._path(item.item_id), item.model_dump(mode="json"))
 
     def _load(self, path: Path) -> QueueItem | None:
         try:
@@ -99,7 +111,7 @@ class ContentQueue:
         if item is None:
             return False
         item.status = "approved"
-        item.reviewed_at = datetime.utcnow()
+        item.reviewed_at = datetime.now(timezone.utc)
         self._save(item)
         return True
 
@@ -109,7 +121,7 @@ class ContentQueue:
         if item is None:
             return False
         item.status = "rejected"
-        item.reviewed_at = datetime.utcnow()
+        item.reviewed_at = datetime.now(timezone.utc)
         item.rejection_reason = reason
         self._save(item)
         return True
@@ -120,7 +132,7 @@ class ContentQueue:
         if item is None:
             return False
         item.status = "sent"
-        item.sent_at = datetime.utcnow()
+        item.sent_at = datetime.now(timezone.utc)
         self._save(item)
         return True
 
@@ -131,7 +143,7 @@ class ContentQueue:
 
         Returns the number of items approved.
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         count = 0
         for item in self.list_pending():
             if item.risk_tier != risk_tier:

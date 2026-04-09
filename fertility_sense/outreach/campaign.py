@@ -89,7 +89,7 @@ def generate_campaign_plan(
         if channels:
             target_channels = channels
         else:
-            target_channels = _ACTION_CHANNELS.get(signal.campaign_type.split(" ")[0].lower(), ["blog"])
+            target_channels = _ACTION_CHANNELS.get(signal.outreach_type.split(" ")[0].lower(), ["blog"])
             # Reddit comments only make sense for non-clinical topics
             if signal.risk_tier in ("red", "black") and "reddit" in target_channels:
                 target_channels = [c for c in target_channels if c != "reddit"]

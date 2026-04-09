@@ -66,5 +66,8 @@ class FertilitySenseConfig(BaseSettings):
     imap_port: int = 993
     email_from_name: str = "Fertility Sense"
 
+    # Alert recipient
+    alert_email: str = "paul@romatech.com"
+
     # CORS
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])

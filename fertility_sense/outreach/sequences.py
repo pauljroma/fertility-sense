@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import tempfile
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import yaml
@@ -52,6 +54,18 @@ class ProspectSequenceState:
 # Engine
 # ------------------------------------------------------------------
 
+def _atomic_write_json(path: Path, data: dict | list) -> None:
+    """Write JSON to *path* atomically via rename."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w", dir=path.parent, suffix=".tmp", delete=False
+    ) as tmp:
+        json.dump(data, tmp, indent=2, default=str)
+        tmp.flush()
+        os.fsync(tmp.fileno())
+    os.replace(tmp.name, str(path))
+
+
 class SequenceEngine:
     """Load YAML sequence definitions and manage prospect enrollment."""
 
@@ -81,7 +95,7 @@ class SequenceEngine:
             prospect_email=prospect_email,
             sequence_name=sequence_name,
             current_step=0,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
             status="active",
         )
         self._save_state(state)
@@ -102,7 +116,7 @@ class SequenceEngine:
         due items.  When True, state is left untouched.
         """
         due: list[dict] = []
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         for state in self._load_all_states():
             if state.status != "active":
@@ -199,8 +213,10 @@ class SequenceEngine:
                 seq = self._parse_sequence(data)
                 self._sequences[seq.name] = seq
                 logger.info("Loaded sequence: %s (%d steps)", seq.name, len(seq.steps))
-            except Exception:
-                logger.exception("Failed to load sequence from %s", path)
+            except (yaml.YAMLError, OSError, KeyError, ValueError) as exc:
+                logger.error("Failed to load sequence from %s (%s): %s", path, type(exc).__name__, exc)
+            except Exception as exc:
+                logger.error("Failed to load sequence from %s (unexpected %s): %s", path, type(exc).__name__, exc)
 
     @staticmethod
     def _parse_sequence(data: dict) -> Sequence:
@@ -245,7 +261,7 @@ class SequenceEngine:
             "last_sent_at": state.last_sent_at.isoformat() if state.last_sent_at else None,
             "status": state.status,
         }
-        path.write_text(json.dumps(data, indent=2))
+        _atomic_write_json(path, data)
 
     def _parse_state(self, path: Path) -> ProspectSequenceState:
         data = json.loads(path.read_text())
@@ -267,6 +283,8 @@ class SequenceEngine:
         for p in self._state_dir.glob("*.json"):
             try:
                 states.append(self._parse_state(p))
-            except Exception:
-                logger.warning("Skipping corrupt state file: %s", p)
+            except (json.JSONDecodeError, KeyError, OSError) as exc:
+                logger.warning("Skipping corrupt state file %s (%s): %s", p, type(exc).__name__, exc)
+            except Exception as exc:
+                logger.warning("Skipping corrupt state file %s (unexpected %s): %s", p, type(exc).__name__, exc)
         return states

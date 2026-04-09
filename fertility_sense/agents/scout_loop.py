@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import tempfile
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -15,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from fertility_sense.pipeline import Pipeline
+from fertility_sense.report import FERTILITY_STAGES
 
 logger = logging.getLogger(__name__)
 
@@ -78,15 +81,29 @@ class ScoutLoop:
         # 1. Ingest
         try:
             feed_summary = self.pipe.ingest("all")
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            logger.error("Ingestion failed (%s): %s", type(exc).__name__, exc)
+            feed_summary = {}
         except Exception as exc:
-            logger.error("Ingestion failed: %s", exc)
+            logger.error("Ingestion failed (unexpected %s): %s", type(exc).__name__, exc)
             feed_summary = {}
 
         # 2. Score (top 100 to capture broad picture)
         try:
             scores = self.pipe.score(top_n=100)
+        except (OSError, ValueError) as exc:
+            logger.error("Scoring failed (%s): %s", type(exc).__name__, exc)
+            return ScoutResult(
+                run_at=now_iso,
+                topics_scored=0,
+                feeds_ingested=feed_summary,
+                velocity_alerts=[],
+                top_scores=[],
+                status="error",
+                error=str(exc),
+            )
         except Exception as exc:
-            logger.error("Scoring failed: %s", exc)
+            logger.error("Scoring failed (unexpected %s): %s", type(exc).__name__, exc)
             return ScoutResult(
                 run_at=now_iso,
                 topics_scored=0,
@@ -97,19 +114,27 @@ class ScoutLoop:
                 error=str(exc),
             )
 
-        # 3. Load previous history
+        # 3. Filter to fertility-only stages
+        fertility_scores = []
+        for s in scores:
+            topic = self.pipe.graph.get_topic(s.topic_id)
+            if topic and topic.journey_stage in FERTILITY_STAGES:
+                fertility_scores.append(s)
+        scores = fertility_scores
+
+        # 4. Load previous history
         previous = self._load_history()
 
-        # 4. Build current map
+        # 5. Build current map
         current: dict[str, float] = {s.topic_id: s.composite_tos for s in scores}
 
-        # 5. Detect velocity changes
+        # 6. Detect velocity changes
         alerts = self._detect_velocity_changes(current, previous)
 
-        # 6. Save current as new history
+        # 7. Save current as new history
         self._save_history(current, now_iso)
 
-        # 7. Build top scores summary
+        # 8. Build top scores summary
         top_scores = [
             {
                 "topic_id": s.topic_id,
@@ -129,12 +154,14 @@ class ScoutLoop:
             top_scores=top_scores,
         )
 
-        # 8. Email alert if there are velocity alerts
+        # 9. Email alert if there are velocity alerts
         if alerts:
             try:
                 self._email_digest(result)
+            except (OSError, ConnectionError) as exc:
+                logger.warning("Failed to email scout digest (%s): %s", type(exc).__name__, exc)
             except Exception as exc:
-                logger.warning("Failed to email scout digest: %s", exc)
+                logger.warning("Failed to email scout digest (unexpected %s): %s", type(exc).__name__, exc)
 
         logger.info(
             "Scout run complete: %d topics scored, %d alerts",
@@ -156,8 +183,10 @@ class ScoutLoop:
                     result.status,
                     len(result.velocity_alerts),
                 )
+            except (OSError, ValueError, json.JSONDecodeError) as exc:
+                logger.error("Scout loop error (%s): %s", type(exc).__name__, exc, exc_info=True)
             except Exception as exc:
-                logger.error("Scout loop error: %s", exc, exc_info=True)
+                logger.error("Scout loop error (unexpected %s): %s", type(exc).__name__, exc, exc_info=True)
 
             time.sleep(interval_secs)
 
@@ -233,14 +262,15 @@ class ScoutLoop:
             )
 
         body = "\n".join(body_parts)
+        alert_to = self.pipe.config.alert_email
         email = campaign_to_email(
-            to="paul@romatech.com",
+            to=alert_to,
             subject=subject,
             body=body,
         )
         send_result = sender.send(email)
         if send_result.status == "sent":
-            logger.info("Scout alert emailed to paul@romatech.com")
+            logger.info("Scout alert emailed to %s", alert_to)
         else:
             logger.warning("Scout email failed: %s", send_result.error)
 
@@ -255,8 +285,8 @@ class ScoutLoop:
         try:
             data = json.loads(self._history_path.read_text())
             return data.get("scores", {})
-        except (json.JSONDecodeError, KeyError):
-            logger.warning("Corrupt score history — starting fresh")
+        except (json.JSONDecodeError, KeyError, OSError) as exc:
+            logger.warning("Corrupt score history (%s) — starting fresh", type(exc).__name__)
             return {}
 
     def _save_history(self, scores: dict[str, float], timestamp: str) -> None:
@@ -265,4 +295,16 @@ class ScoutLoop:
             "timestamp": timestamp,
             "scores": {k: round(v, 2) for k, v in scores.items()},
         }
-        self._history_path.write_text(json.dumps(data, indent=2))
+        _atomic_write_json(self._history_path, data)
+
+
+def _atomic_write_json(path: Path, data: dict | list) -> None:
+    """Write JSON to *path* atomically via rename."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w", dir=path.parent, suffix=".tmp", delete=False
+    ) as tmp:
+        json.dump(data, tmp, indent=2, default=str)
+        tmp.flush()
+        os.fsync(tmp.fileno())
+    os.replace(tmp.name, str(path))

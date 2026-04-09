@@ -10,7 +10,10 @@ import csv
 import hashlib
 import json
 import logging
-from datetime import datetime
+import os
+import re
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -30,8 +33,24 @@ class Prospect(BaseModel):
     sequence: str = ""  # Current sequence name
     sequence_step: int = 0
     last_contact: datetime | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     engagement_score: float = 0.0
+
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_VALID_JOURNEY_STAGES = {"pre_ttc", "trying", "treatment", "preconception", "fertility_treatment", ""}
+
+
+def _atomic_write_json(path: Path, data: dict | list) -> None:
+    """Write JSON to *path* atomically via rename."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        mode="w", dir=path.parent, suffix=".tmp", delete=False
+    ) as tmp:
+        json.dump(data, tmp, indent=2, default=str)
+        tmp.flush()
+        os.fsync(tmp.fileno())
+    os.replace(tmp.name, str(path))
 
 
 def _email_key(email: str) -> str:
@@ -59,7 +78,7 @@ class ProspectStore:
     def add(self, prospect: Prospect) -> None:
         """Add or overwrite a prospect."""
         path = self._path_for(prospect.email)
-        path.write_text(prospect.model_dump_json(indent=2))
+        _atomic_write_json(path, prospect.model_dump(mode="json"))
         logger.info("Prospect stored: %s", prospect.email)
 
     def get(self, email: str) -> Prospect | None:
@@ -105,24 +124,52 @@ class ProspectStore:
         The *tags* column is comma-separated within the field.
 
         Returns the number of prospects imported.
+        Rows with missing/invalid email or unknown journey_stage are skipped.
         """
         count = 0
+        skipped = 0
         with open(csv_path, newline="", encoding="utf-8") as fh:
             reader = csv.DictReader(fh)
-            for row in reader:
+            for row_num, row in enumerate(reader, start=2):  # row 1 is header
+                email = row.get("email", "").strip()
+
+                # Skip empty email
+                if not email:
+                    logger.warning("Row %d: skipped — empty email", row_num)
+                    skipped += 1
+                    continue
+
+                # Validate email format
+                if not _EMAIL_RE.match(email):
+                    logger.warning("Row %d: skipped — invalid email format: %s", row_num, email)
+                    skipped += 1
+                    continue
+
+                # Validate journey_stage
+                journey_stage = row.get("journey_stage", "").strip()
+                if journey_stage and journey_stage not in _VALID_JOURNEY_STAGES:
+                    logger.warning(
+                        "Row %d: skipped — unknown journey_stage '%s' (valid: %s)",
+                        row_num, journey_stage, ", ".join(sorted(_VALID_JOURNEY_STAGES - {""})),
+                    )
+                    skipped += 1
+                    continue
+
                 tags_raw = row.get("tags", "")
                 tags = [t.strip() for t in tags_raw.split(",") if t.strip()] if tags_raw else []
                 prospect = Prospect(
-                    email=row["email"].strip(),
+                    email=email,
                     name=row.get("name", "").strip(),
-                    journey_stage=row.get("journey_stage", "").strip(),
+                    journey_stage=journey_stage,
                     diagnosis=row.get("diagnosis", "").strip(),
                     source=row.get("source", "import").strip() or "import",
                     tags=tags,
-                    created_at=datetime.utcnow(),
+                    created_at=datetime.now(timezone.utc),
                 )
                 self.add(prospect)
                 count += 1
+        if skipped:
+            logger.warning("Skipped %d invalid row(s) during CSV import", skipped)
         logger.info("Imported %d prospects from %s", count, csv_path)
         return count
 

@@ -509,11 +509,10 @@ def queue() -> None:
 
 def _queue() -> "ContentQueue":
     """Lazy-create a ContentQueue instance."""
-    from pathlib import Path
-
     from fertility_sense.outreach.content_queue import ContentQueue
 
-    return ContentQueue(Path("data") / "outreach" / "queue")
+    pipe = _pipeline()
+    return ContentQueue(pipe.config.data_dir / "outreach" / "queue")
 
 
 @queue.command("list")
@@ -614,12 +613,10 @@ def lead_magnet() -> None:
 
 def _lead_magnet_gen() -> "LeadMagnetGenerator":
     """Lazy-create a LeadMagnetGenerator."""
-    from pathlib import Path
-
     from fertility_sense.outreach.lead_magnets import LeadMagnetGenerator
 
     pipe = _pipeline()
-    return LeadMagnetGenerator(pipe, Path("data") / "lead_magnets")
+    return LeadMagnetGenerator(pipe, pipe.config.data_dir / "lead_magnets")
 
 
 @lead_magnet.command("list")
