@@ -64,7 +64,14 @@ class FertilitySenseConfig(BaseSettings):
     smtp_port: int = 587
     imap_host: str = "imap.ionos.com"
     imap_port: int = 993
-    email_from_name: str = "Fertility Sense"
+    email_from_name: str = "WIN Fertility"
+
+    # WIN Fertility branding
+    company_name: str = "WIN Fertility"
+    company_tagline: str = "Best treatment at lowest cost — managed fertility benefits for employers"
+    company_website: str = "https://winfertility.com"
+    sales_email: str = "sales@winfertility.com"
+    support_email: str = "support@winfertility.com"
 
     # Alert recipient
     alert_email: str = "paul@romatech.com"

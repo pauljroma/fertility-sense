@@ -22,23 +22,31 @@ logger = logging.getLogger(__name__)
 
 
 class Prospect(BaseModel):
-    """A single outreach prospect."""
+    """A single outreach prospect (B2B — WIN Fertility)."""
 
     email: str
     name: str = ""
-    journey_stage: str = ""  # pre_ttc, trying, treatment
-    diagnosis: str = ""  # pcos, male_factor, unexplained, etc.
-    source: str = ""  # reddit, email, quiz, import
+    company: str = ""
+    company_size: str = ""  # "1-100", "100-1000", "1000-10000", "10000+"
+    industry: str = ""  # "tech", "finance", "legal", "manufacturing", "healthcare", "other"
+    buyer_type: str = ""  # "chro", "broker", "tpa", "union", "provider", "partner", "smb"
+    deal_stage: str = "cold"  # "cold", "warm", "evaluating", "negotiating", "won", "lost"
+    current_solution: str = ""  # "progyny", "carrot", "maven", "kindbody", "none", "other"
+    employee_count: int = 0
+    annual_revenue: str = ""  # rough range
+    source: str = ""
     tags: list[str] = Field(default_factory=list)
     sequence: str = ""  # Current sequence name
     sequence_step: int = 0
     last_contact: datetime | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    engagement_score: float = 0.0
+    deal_score: float = 0.0  # replaces engagement_score
+    notes: str = ""
 
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-_VALID_JOURNEY_STAGES = {"pre_ttc", "trying", "treatment", "preconception", "fertility_treatment", ""}
+_VALID_BUYER_TYPES = {"chro", "broker", "tpa", "union", "provider", "partner", "smb", ""}
+_VALID_DEAL_STAGES = {"cold", "warm", "evaluating", "negotiating", "won", "lost", ""}
 
 
 def _atomic_write_json(path: Path, data: dict | list) -> None:
@@ -98,9 +106,13 @@ class ProspectStore:
                 logger.warning("Skipping corrupt prospect file: %s", p)
         return prospects
 
-    def by_segment(self, stage: str) -> list[Prospect]:
-        """Filter prospects by journey stage."""
-        return [p for p in self.list_all() if p.journey_stage == stage]
+    def by_segment(self, buyer_type: str) -> list[Prospect]:
+        """Filter prospects by buyer type."""
+        return [p for p in self.list_all() if p.buyer_type == buyer_type]
+
+    def by_deal_stage(self, deal_stage: str) -> list[Prospect]:
+        """Filter prospects by deal stage."""
+        return [p for p in self.list_all() if p.deal_stage == deal_stage]
 
     def by_sequence(self, sequence: str) -> list[Prospect]:
         """Filter prospects by active sequence name."""
@@ -120,11 +132,11 @@ class ProspectStore:
     def import_csv(self, csv_path: Path) -> int:
         """Import prospects from a CSV file.
 
-        Expected columns: email, name, journey_stage, diagnosis, source, tags
+        Expected columns: email, name, company, buyer_type, deal_stage, source, tags
         The *tags* column is comma-separated within the field.
 
         Returns the number of prospects imported.
-        Rows with missing/invalid email or unknown journey_stage are skipped.
+        Rows with missing/invalid email or unknown buyer_type/deal_stage are skipped.
         """
         count = 0
         skipped = 0
@@ -145,12 +157,22 @@ class ProspectStore:
                     skipped += 1
                     continue
 
-                # Validate journey_stage
-                journey_stage = row.get("journey_stage", "").strip()
-                if journey_stage and journey_stage not in _VALID_JOURNEY_STAGES:
+                # Validate buyer_type
+                buyer_type = row.get("buyer_type", "").strip()
+                if buyer_type and buyer_type not in _VALID_BUYER_TYPES:
                     logger.warning(
-                        "Row %d: skipped — unknown journey_stage '%s' (valid: %s)",
-                        row_num, journey_stage, ", ".join(sorted(_VALID_JOURNEY_STAGES - {""})),
+                        "Row %d: skipped — unknown buyer_type '%s' (valid: %s)",
+                        row_num, buyer_type, ", ".join(sorted(_VALID_BUYER_TYPES - {""})),
+                    )
+                    skipped += 1
+                    continue
+
+                # Validate deal_stage
+                deal_stage = row.get("deal_stage", "").strip()
+                if deal_stage and deal_stage not in _VALID_DEAL_STAGES:
+                    logger.warning(
+                        "Row %d: skipped — unknown deal_stage '%s' (valid: %s)",
+                        row_num, deal_stage, ", ".join(sorted(_VALID_DEAL_STAGES - {""})),
                     )
                     skipped += 1
                     continue
@@ -160,8 +182,14 @@ class ProspectStore:
                 prospect = Prospect(
                     email=email,
                     name=row.get("name", "").strip(),
-                    journey_stage=journey_stage,
-                    diagnosis=row.get("diagnosis", "").strip(),
+                    company=row.get("company", "").strip(),
+                    company_size=row.get("company_size", "").strip(),
+                    industry=row.get("industry", "").strip(),
+                    buyer_type=buyer_type,
+                    deal_stage=deal_stage or "cold",
+                    current_solution=row.get("current_solution", "").strip(),
+                    employee_count=int(row.get("employee_count", "0").strip() or "0"),
+                    annual_revenue=row.get("annual_revenue", "").strip(),
                     source=row.get("source", "import").strip() or "import",
                     tags=tags,
                     created_at=datetime.now(timezone.utc),

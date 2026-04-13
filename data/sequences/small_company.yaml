@@ -1,0 +1,75 @@
+name: small_company
+description: "Outbound sequence targeting law firms, SMB HR, and small employers"
+segment: smb
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "Fertility benefits for small firms — what actually works"
+    body: |
+      Hi {first_name},
+
+      Adding fertility benefits used to be a big-company thing. Not anymore.
+
+      Small and mid-size firms — especially in {industry} — are adding fertility coverage to attract and retain talent. The challenge has always been cost and complexity: traditional fertility solutions are built for 10,000+ employee companies.
+
+      WIN Fertility built a program specifically for firms like {company}. No minimum employee count, no complex administration, and pricing that works for smaller groups.
+
+      We cover IVF, IUI, egg freezing, and fertility medications through a managed network that keeps costs predictable. Your team gets access to 900+ vetted fertility providers nationwide.
+
+      Interested in learning how this works for a firm your size?
+
+      Best,
+      {sender_name}
+
+  - step: 2
+    delay_days: 4
+    subject: "How a 200-attorney firm added fertility coverage for under $5/employee"
+    body: |
+      Hi {first_name},
+
+      A mid-size law firm came to us last year with a problem: their associates were leaving for BigLaw firms that offered fertility benefits. They assumed fertility coverage would be prohibitively expensive.
+
+      The result: WIN Fertility designed a plan that cost under $5 per employee per month. The firm now covers up to 2 IVF cycles, egg freezing, and fertility medications — all through WIN's managed network.
+
+      Associate retention improved. Lateral recruiting got easier. And the total cost was less than their annual coffee budget.
+
+      For a firm of {company}'s size, the economics are similar. Want me to model it out?
+
+      Best,
+      {sender_name}
+
+  - step: 3
+    delay_days: 9
+    subject: "WIN Fertility for SMBs: turnkey, no admin lift"
+    body: |
+      Hi {first_name},
+
+      I know small firms don't have dedicated benefits teams. That's exactly why we designed WIN for SMBs to be turnkey:
+
+      - **No admin burden.** WIN handles member enrollment, care navigation, claims processing, and provider coordination.
+      - **No network to build.** Our 900+ provider network is ready to go. Members pick a provider, WIN manages the rest.
+      - **No surprises.** Fixed PEPM pricing with no risk of runaway claims costs.
+
+      Implementation takes 2-3 weeks. Your HR team spends about 1 hour total.
+
+      This is the easiest benefit you'll ever add. Worth a 15-minute walkthrough?
+
+      Best,
+      {sender_name}
+
+  - step: 4
+    delay_days: 16
+    subject: "15-min walkthrough: fertility benefits for {company}"
+    body: |
+      Hi {first_name},
+
+      I'd like to show you exactly what a fertility benefit looks like for {company} — the plan design, the cost, and the implementation timeline.
+
+      15 minutes. I'll share a custom proposal afterward regardless of whether you move forward.
+
+      Here's my calendar: {calendar_link}
+
+      If you'd prefer, I can also send a written summary. Just reply and let me know.
+
+      Best,
+      {sender_name}

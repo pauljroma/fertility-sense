@@ -1,15 +1,16 @@
-"""Signal report — identifies people struggling with fertility and what outreach to run.
+"""Signal report — identifies pipeline opportunities for WIN Fertility B2B sales.
 
-This is a FERTILITY demand-sensing report. The audience is men and women
-who are trying to conceive, dealing with infertility, evaluating treatments,
-or optimizing their reproductive health. NOT pregnancy/postpartum.
+This is a B2B pipeline intelligence report. The audience is WIN Fertility's
+sales team targeting CHROs, brokers, SMBs, unions, TPAs, and partners.
 
 It answers:
-1. Who is struggling with fertility right now?
-2. What specific fertility problems are accelerating?
-3. Where can we reach them (Reddit, forums, search, email)?
-4. What evidence-backed content should we create and distribute?
-5. What gaps exist where people are searching but we can't help yet?
+1. Which buyer types have the strongest demand signals right now?
+2. What specific fertility benefit pain points are accelerating?
+3. Where can we reach each buyer type (LinkedIn, conferences, broker channels)?
+4. What sales content should we create and distribute?
+5. What data gaps exist where we need more market intelligence?
+
+Backward-compatible: AudienceSignal, generate_report(), format_report() still work.
 """
 
 from __future__ import annotations
@@ -42,7 +43,7 @@ _STAGE_LABELS = {
     JourneyStage.FERTILITY_TREATMENT: "Undergoing fertility treatment (IVF/IUI/ART)",
 }
 
-# Intent → outreach type
+# Intent -> outreach type
 _INTENT_CAMPAIGN = {
     TopicIntent.LEARN: "Educational outreach (blog, Reddit, social, email)",
     TopicIntent.DECIDE: "Decision-support tool (comparison, calculator, quiz)",
@@ -51,7 +52,7 @@ _INTENT_CAMPAIGN = {
     TopicIntent.COPE: "Community support + emotional outreach",
 }
 
-# Where to find this audience online
+# Where to find this audience online (legacy consumer channels)
 _STAGE_CHANNELS = {
     JourneyStage.PRECONCEPTION: {
         "subreddits": ["TryingForABaby", "WaitingForBaby", "TTC30", "TTC_PCOS"],
@@ -71,9 +72,105 @@ _STAGE_CHANNELS = {
 }
 
 
+# ======================================================================
+# B2B: Buyer pain points by topic
+# ======================================================================
+
+_BUYER_PAIN_FOR_TOPIC: dict[str, str] = {
+    "ivf": "Employees requesting IVF coverage drive 30%+ of fertility benefit spend",
+    "pcos-symptoms": "PCOS affects 1 in 10 female employees — retention risk",
+    "egg-quality": "Egg freezing demand from women 30+ — retention play",
+    "egg-freezing": "Egg freezing demand from women 30+ — retention play",
+    "fertility-clinic-selection": "Network quality complaints drive employee dissatisfaction",
+    "pregnancy-loss": "Mental health support gap — emerging RFP requirement",
+    "iui": "IUI coverage requests increasing — lower-cost alternative to IVF",
+    "fertility-supplements": "Supplement coverage questions signal employees exploring fertility options",
+    "sperm-health": "Male factor infertility underserved — differentiation opportunity",
+    "fertility-anxiety": "Mental health support is the #1 emerging RFP requirement for fertility benefits",
+    "fertility-testing": "Diagnostic coverage gaps create employee friction and support ticket volume",
+    "clomid": "Rx coverage for fertility medications — drug cost management opportunity",
+    "letrozole": "Rx coverage for fertility medications — drug cost management opportunity",
+    "fertility-diet": "Wellness and nutrition support signals employee engagement with fertility benefits",
+    "cycle-tracking": "Cycle tracking benefit demand signals pre-treatment employee engagement",
+    "irregular-periods": "Diagnostic pathway coverage gaps — early intervention reduces downstream IVF costs",
+    "ovulation": "Ovulation support needs signal employees in early fertility journey — low-cost intervention window",
+    "amh-levels": "Diagnostic testing demand — early assessment reduces downstream treatment costs",
+    "opk-testing": "OPK and monitoring coverage requests signal growing fertility awareness in workforce",
+    "bbt-charting": "Tracking tool demand signals employee engagement with fertility wellness programs",
+    "timing-intercourse": "Education and support needs at pre-treatment stage — low-cost engagement",
+    "fertile-window": "Fertility awareness demand signals workforce planning benefit gaps",
+    "tww-coping": "Two-week wait anxiety drives mental health support utilization",
+    "miscarriage-risk": "Pregnancy loss support is an emerging must-have in fertility benefit RFPs",
+    "semen-analysis": "Male factor diagnostic coverage — underserved but growing RFP requirement",
+    "hsg-test": "Diagnostic procedure coverage — standard fertility workup component",
+    "genetic-screening": "Carrier screening coverage demand increasing — PGT-A is a cost driver",
+}
+
+
+def _buyer_pain_for_topic(topic_id: str) -> str:
+    """Return the B2B buyer pain point associated with a topic."""
+    return _BUYER_PAIN_FOR_TOPIC.get(
+        topic_id,
+        f"Fertility benefit demand signal: {topic_id.replace('-', ' ')}"
+    )
+
+
+# Where to find each buyer type
+_BUYER_CHANNELS: dict[str, dict[str, list[str]]] = {
+    "chro": {
+        "linkedin": ["CHRO communities", "Benefits leadership groups"],
+        "conferences": ["SHRM Annual", "HLTH", "WorldatWork"],
+        "reports": ["AON Health Survey", "Mercer Benefits Survey"],
+        "direct": ["Direct outreach via LinkedIn Sales Navigator"],
+    },
+    "broker": {
+        "channels": ["Willis internal portal", "AON Marketplace", "Marsh network"],
+        "conferences": ["RIMS", "BenefitsPRO Broker Expo", "NAHU"],
+        "publications": ["BenefitsPRO", "Employee Benefit Adviser"],
+    },
+    "smb": {
+        "linkedin": ["HR professionals groups", "Small business owner networks"],
+        "publications": ["ALM Intelligence", "SHRM for small business"],
+        "associations": ["NAPEO", "local SHRM chapters"],
+    },
+    "union": {
+        "channels": ["Union benefits councils", "AFL-CIO benefits network"],
+        "conferences": ["IFEBP Annual Conference"],
+        "direct": ["Union benefits director outreach"],
+    },
+    "tpa": {
+        "channels": ["TPA partner directories", "SIIA membership"],
+        "conferences": ["SIIA National Conference"],
+        "direct": ["Integration partnership outreach"],
+    },
+    "partner": {
+        "linkedin": ["Private equity healthcare groups"],
+        "conferences": ["JPM Healthcare Conference", "HLTH"],
+        "direct": ["Strategic partnership development"],
+    },
+}
+
+
+def _where_to_find_buyer(buyer_type: str = "") -> dict[str, list[str]]:
+    """Return channels to reach a specific buyer type."""
+    return _BUYER_CHANNELS.get(buyer_type, {
+        "linkedin": ["Benefits leadership groups"],
+        "conferences": ["SHRM", "HLTH"],
+    })
+
+
+# ======================================================================
+# Backward-compatible AudienceSignal
+# ======================================================================
+
+
 @dataclass
 class AudienceSignal:
-    """A demand signal — people struggling with a specific fertility problem."""
+    """A demand signal — people struggling with a specific fertility problem.
+
+    Kept for backward compatibility. New code should also populate
+    BuyerSignal fields via generate_pipeline_intelligence().
+    """
     topic_id: str
     display_name: str
     who: str
@@ -90,9 +187,33 @@ class AudienceSignal:
     flags: list[str] = field(default_factory=list)
 
 
+# ======================================================================
+# B2B: BuyerSignal
+# ======================================================================
+
+
+@dataclass
+class BuyerSignal:
+    """A B2B buyer signal — a company/buyer with a fertility benefit need."""
+    topic_id: str
+    display_name: str
+    buyer_type: str  # chro, broker, smb, union, tpa, partner
+    buyer_context: str  # who they are
+    pain_point: str  # what they need solved
+    deal_stage: str  # cold, warm, evaluating, negotiating
+    sales_motion: str  # outbound, broker_enablement, rfp_response, etc.
+    pipeline_value_estimate: str  # e.g. "$50K ARR per 1000 employees"
+    demand_score: float
+    clinical_importance: float
+    evidence_count: int
+    next_action: str  # specific sales action
+    where_to_find: dict[str, list[str]]  # channels to reach this buyer type
+    flags: list[str] = field(default_factory=list)
+
+
 @dataclass
 class SignalReport:
-    """Fertility demand intelligence report."""
+    """Pipeline intelligence report (serves both legacy and B2B views)."""
     generated_at: datetime
     total_topics: int
     fertility_topics: int
@@ -101,6 +222,9 @@ class SignalReport:
     evidence_gaps: list[dict]
     summary: str
     campaign_brief: str
+    # B2B extensions (populated by generate_pipeline_intelligence)
+    buyer_signals: list[BuyerSignal] = field(default_factory=list)
+    by_buyer_type: dict[str, list[BuyerSignal]] = field(default_factory=dict)
 
 
 def _build_signal(
@@ -191,13 +315,85 @@ def _build_signal(
     )
 
 
-def generate_report(pipe: Pipeline, top_n: int = 20) -> SignalReport:
-    """Generate a fertility-focused demand signal report.
+def _build_buyer_signal(
+    topic: TopicNode, score: TopicOpportunityScore, evidence_count: int,
+    buyer_type: str = "chro",
+) -> BuyerSignal:
+    """Turn a scored fertility topic into a B2B buyer signal."""
+    from fertility_sense.outreach.composer import _BUYER_CONTEXT
 
+    pain_point = _buyer_pain_for_topic(topic.topic_id)
+    buyer_context = _BUYER_CONTEXT.get(buyer_type, "Benefits decision-maker")
+
+    # Determine sales motion based on buyer type
+    sales_motion_map = {
+        "chro": "outbound",
+        "broker": "broker_enablement",
+        "smb": "outbound",
+        "union": "rfp_response",
+        "tpa": "integration_partnership",
+        "partner": "strategic_partnership",
+    }
+    sales_motion = sales_motion_map.get(buyer_type, "outbound")
+
+    # Pipeline value estimate by buyer type
+    value_map = {
+        "chro": "$50K-500K ARR per enterprise",
+        "broker": "$200K+ ARR via book of business",
+        "smb": "$5K-25K ARR per company",
+        "union": "$100K-1M ARR per union contract",
+        "tpa": "$50K-200K ARR per TPA integration",
+        "partner": "$500K+ ARR strategic deal",
+    }
+    pipeline_value = value_map.get(buyer_type, "$25K+ ARR")
+
+    # Next action
+    if evidence_count == 0:
+        next_action = f"HOLD — need market data on {topic.display_name.lower()} before outreach"
+    elif buyer_type == "broker":
+        next_action = f"Send broker brief on {topic.display_name.lower()} — position for next RFP cycle"
+    elif buyer_type == "chro":
+        next_action = f"Send sales email + case study on {topic.display_name.lower()} — request 15-min call"
+    elif buyer_type == "union":
+        next_action = f"Prepare RFP response covering {topic.display_name.lower()} — include cost analysis"
+    else:
+        next_action = f"Create sales content: {topic.display_name.lower()} — target {buyer_type} buyers"
+
+    where = _where_to_find_buyer(buyer_type)
+
+    flags = []
+    if score.unsafe_to_serve:
+        flags.append("BLOCKED")
+    if score.escalate_to_human:
+        flags.append("NEEDS_REVIEW")
+    if evidence_count == 0:
+        flags.append("NO_EVIDENCE")
+
+    return BuyerSignal(
+        topic_id=topic.topic_id,
+        display_name=topic.display_name,
+        buyer_type=buyer_type,
+        buyer_context=buyer_context,
+        pain_point=pain_point,
+        deal_stage="cold",
+        sales_motion=sales_motion,
+        pipeline_value_estimate=pipeline_value,
+        demand_score=score.demand_score,
+        clinical_importance=score.clinical_importance,
+        evidence_count=evidence_count,
+        next_action=next_action,
+        where_to_find=where,
+        flags=flags,
+    )
+
+
+def generate_pipeline_intelligence(pipe: Pipeline, top_n: int = 20) -> SignalReport:
+    """Generate WIN Fertility pipeline intelligence report.
+
+    Produces both legacy AudienceSignals and new BuyerSignals.
     ONLY includes preconception, trying, and fertility treatment stages.
-    Pregnancy/postpartum/lactation topics are excluded.
     """
-    all_scores = pipe.score(top_n=200)  # Score all, then filter
+    all_scores = pipe.score(top_n=200)
     all_evidence = pipe.evidence_store.all_records()
 
     # Evidence count per topic
@@ -213,16 +409,29 @@ def generate_report(pipe: Pipeline, top_n: int = 20) -> SignalReport:
         if topic and topic.journey_stage in FERTILITY_STAGES:
             fertility_scores.append((s, topic))
 
-    # Build signals for top N fertility topics
+    # Build legacy audience signals for top N
     signals: list[AudienceSignal] = []
     for s, topic in fertility_scores[:top_n]:
         ec = evidence_by_topic.get(s.topic_id, 0)
         signals.append(_build_signal(topic, s, ec))
 
-    # Group by struggle type (journey stage)
+    # Build B2B buyer signals — one per topic per primary buyer type
+    buyer_signals: list[BuyerSignal] = []
+    primary_buyer_types = ["chro", "broker", "smb"]
+    for s, topic in fertility_scores[:top_n]:
+        ec = evidence_by_topic.get(s.topic_id, 0)
+        # Generate a signal for the primary buyer type (chro by default)
+        buyer_signals.append(_build_buyer_signal(topic, s, ec, buyer_type="chro"))
+
+    # Group by struggle type (journey stage) — legacy
     by_struggle: dict[str, list[AudienceSignal]] = {}
     for sig in signals:
         by_struggle.setdefault(sig.journey_stage, []).append(sig)
+
+    # Group by buyer type
+    by_buyer_type: dict[str, list[BuyerSignal]] = {}
+    for bsig in buyer_signals:
+        by_buyer_type.setdefault(bsig.buyer_type, []).append(bsig)
 
     # Evidence gaps
     evidence_gaps = [
@@ -237,24 +446,18 @@ def generate_report(pipe: Pipeline, top_n: int = 20) -> SignalReport:
         if evidence_by_topic.get(s.topic_id, 0) == 0 and topic.risk_tier != RiskTier.GREEN
     ]
 
-    # Campaign brief
+    # Pipeline brief
     actionable = [s for s in signals if "BLOCKED" not in s.flags and "NO_EVIDENCE" not in s.flags]
-    ttc = [s for s in signals if "trying" in s.journey_stage.lower()]
-    treatment = [s for s in signals if "treatment" in s.journey_stage.lower()]
-    precon = [s for s in signals if "Optimizing" in s.journey_stage]
 
-    brief_parts = [f"{len(signals)} fertility demand signals identified."]
-    if ttc:
-        brief_parts.append(f"TTC audience ({len(ttc)} signals): {', '.join(s.display_name for s in ttc[:3])}.")
-    if treatment:
-        brief_parts.append(f"Treatment audience ({len(treatment)} signals): {', '.join(s.display_name for s in treatment[:3])}.")
-    if precon:
-        brief_parts.append(f"Pre-TTC audience ({len(precon)} signals): {', '.join(s.display_name for s in precon[:3])}.")
+    brief_parts = [f"{len(signals)} pipeline opportunities identified."]
+    if buyer_signals:
+        chro_signals = [b for b in buyer_signals if b.buyer_type == "chro"]
+        brief_parts.append(f"Enterprise targets ({len(chro_signals)} signals): {', '.join(b.display_name for b in chro_signals[:3])}.")
     if evidence_gaps:
-        brief_parts.append(f"{len(evidence_gaps)} topics need evidence before outreach.")
+        brief_parts.append(f"{len(evidence_gaps)} topics need market data before outreach.")
 
     summary = (
-        f"{len(signals)} fertility signals. "
+        f"{len(signals)} pipeline signals. "
         f"{len(actionable)} ready for outreach. "
         f"{len(evidence_gaps)} need evidence."
     )
@@ -268,13 +471,25 @@ def generate_report(pipe: Pipeline, top_n: int = 20) -> SignalReport:
         evidence_gaps=evidence_gaps,
         summary=summary,
         campaign_brief=" ".join(brief_parts),
+        buyer_signals=buyer_signals,
+        by_buyer_type=by_buyer_type,
     )
+
+
+def generate_report(pipe: Pipeline, top_n: int = 20) -> SignalReport:
+    """Generate a fertility-focused demand signal report.
+
+    Backward-compatible entry point. Delegates to generate_pipeline_intelligence().
+    ONLY includes preconception, trying, and fertility treatment stages.
+    Pregnancy/postpartum/lactation topics are excluded.
+    """
+    return generate_pipeline_intelligence(pipe, top_n=top_n)
 
 
 def format_report(report: SignalReport, as_json: bool = False) -> str:
     """Format for CLI display."""
     if as_json:
-        return json.dumps({
+        data: dict = {
             "generated_at": report.generated_at.isoformat(),
             "summary": report.summary,
             "campaign_brief": report.campaign_brief,
@@ -294,21 +509,58 @@ def format_report(report: SignalReport, as_json: bool = False) -> str:
                 for s in report.audience_signals
             ],
             "evidence_gaps": report.evidence_gaps,
-        }, indent=2)
+        }
+        # Include buyer signals if present
+        if report.buyer_signals:
+            data["buyer_signals"] = [
+                {
+                    "topic": b.topic_id,
+                    "buyer_type": b.buyer_type,
+                    "buyer_context": b.buyer_context,
+                    "pain_point": b.pain_point,
+                    "deal_stage": b.deal_stage,
+                    "sales_motion": b.sales_motion,
+                    "pipeline_value": b.pipeline_value_estimate,
+                    "demand": b.demand_score,
+                    "clinical": b.clinical_importance,
+                    "evidence": b.evidence_count,
+                    "next_action": b.next_action,
+                    "where": b.where_to_find,
+                    "flags": b.flags,
+                }
+                for b in report.buyer_signals
+            ]
+        return json.dumps(data, indent=2)
 
     lines = []
     lines.append("=" * 90)
-    lines.append("FERTILITY SENSE — WHO NEEDS HELP RIGHT NOW")
+    lines.append("WIN FERTILITY — PIPELINE INTELLIGENCE")
     lines.append(f"Generated: {report.generated_at.strftime('%Y-%m-%d %H:%M UTC')}")
     lines.append(f"Fertility topics: {report.fertility_topics} of {report.total_topics} total")
     lines.append("=" * 90)
     lines.append("")
-    lines.append("CAMPAIGN BRIEF")
+    lines.append("PIPELINE BRIEF")
     lines.append(report.campaign_brief)
     lines.append("")
 
+    # B2B buyer signals section
+    if report.buyer_signals:
+        lines.append("-" * 90)
+        lines.append("PIPELINE OPPORTUNITIES — BY BUYER TYPE")
+        lines.append("-" * 90)
+        for buyer_type, bsigs in report.by_buyer_type.items():
+            lines.append(f"\n  [{buyer_type.upper()}]")
+            for b in bsigs:
+                flag_str = f" [{', '.join(b.flags)}]" if b.flags else ""
+                lines.append(f"    {b.display_name} (demand={b.demand_score:.0f}, clinical={b.clinical_importance:.0f}){flag_str}")
+                lines.append(f"      Pain Point:  {b.pain_point}")
+                lines.append(f"      Next Action: {b.next_action}")
+                lines.append(f"      Value:       {b.pipeline_value_estimate}")
+
+    # Legacy audience signals section
+    lines.append("")
     lines.append("-" * 90)
-    lines.append("PEOPLE STRUGGLING WITH FERTILITY — BY STAGE")
+    lines.append("PIPELINE OPPORTUNITIES — BY STAGE")
     lines.append("-" * 90)
     for stage, sigs in report.by_struggle.items():
         lines.append(f"\n  [{stage}]")
@@ -323,7 +575,7 @@ def format_report(report: SignalReport, as_json: bool = False) -> str:
     if report.evidence_gaps:
         lines.append("")
         lines.append("-" * 90)
-        lines.append("EVIDENCE GAPS — Cannot reach out until we have clinical backing")
+        lines.append("DATA GAPS — Need market intelligence before outreach")
         lines.append("-" * 90)
         for gap in report.evidence_gaps:
             lines.append(f"  ! {gap['display_name']} ({gap['risk_tier']}) — {gap['action']}")

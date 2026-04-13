@@ -1,0 +1,82 @@
+name: union_benefits
+description: "Outbound sequence targeting union benefits directors and trust administrators"
+segment: union
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "Fertility coverage as a member retention play"
+    body: |
+      Hi {first_name},
+
+      Union members are increasingly asking for fertility benefits. In a recent survey, 68% of workers under 40 ranked fertility coverage in their top 5 most desired benefits — ahead of dental and vision.
+
+      For unions negotiating benefits packages, fertility is a high-impact, relatively low-cost add that drives member satisfaction and retention.
+
+      WIN Fertility works with union health trusts to provide managed fertility benefits that keep costs predictable while giving members access to the best providers nationwide. Our network spans 900+ fertility clinics across all 50 states — critical for unions with geographically dispersed membership.
+
+      I'd like to share how other labor organizations are approaching this.
+
+      Best,
+      {sender_name}
+
+  - step: 2
+    delay_days: 4
+    subject: "Network quality: WIN's vetted provider network"
+    body: |
+      Hi {first_name},
+
+      When it comes to fertility benefits, network quality directly impacts costs and outcomes. Here's what WIN Fertility delivers:
+
+      **Provider vetting:** Every clinic in our network is evaluated on live birth rates, patient outcomes, cost efficiency, and compliance. We remove underperforming providers.
+
+      **Geographic coverage:** 900+ providers across all 50 states. Your members get access near home — no traveling across the country for treatment.
+
+      **Outcomes management:** WIN's care navigators guide members to the right treatment at the right time. This prevents unnecessary IVF cycles and reduces overall costs to the trust.
+
+      For union trusts, this matters because your members come from diverse geographies and you need consistent quality everywhere.
+
+      Want to see our network coverage map for your membership footprint?
+
+      Best,
+      {sender_name}
+
+  - step: 3
+    delay_days: 9
+    subject: "Cost negotiations: how WIN delivers savings to union plans"
+    body: |
+      Hi {first_name},
+
+      Union health trusts are cost-sensitive for good reason — every dollar matters when it's members' money.
+
+      Here's how WIN Fertility keeps costs down:
+
+      1. **Negotiated provider rates.** WIN contracts directly with fertility clinics for below-market pricing. The savings vs. open-network claims average 25-35%.
+
+      2. **Pharmacy management.** Fertility medications are expensive. WIN negotiates manufacturer pricing and steers to cost-effective alternatives where clinically appropriate.
+
+      3. **Clinical triage.** WIN's care navigators ensure members get the right treatment first. Redirecting even 15% of IVF candidates to less invasive options saves the trust hundreds of thousands annually.
+
+      I can model the expected savings for your trust based on membership size and demographics. No obligation.
+
+      Best,
+      {sender_name}
+
+  - step: 4
+    delay_days: 16
+    subject: "Partnership conversation: fertility benefits for your members"
+    body: |
+      Hi {first_name},
+
+      I've outlined the network, the cost model, and the member experience. The next step is a conversation about your trust's specific situation.
+
+      I'd like to understand:
+      - Your current benefits package and whether fertility is already partially covered
+      - Your membership demographics and geography
+      - Your next bargaining cycle timeline
+
+      This helps me put together a proposal that fits your trust's structure and budget.
+
+      20 minutes. Here's my calendar: {calendar_link}
+
+      Best,
+      {sender_name}

@@ -351,10 +351,11 @@ def _prospect_store() -> "ProspectStore":
 @prospects.command("add")
 @click.option("--email", required=True, help="Prospect email")
 @click.option("--name", "pname", default="", help="Prospect name")
-@click.option("--stage", default="trying", help="Journey stage: pre_ttc, trying, treatment")
-@click.option("--diagnosis", default="", help="Diagnosis (pcos, male_factor, unexplained, ...)")
+@click.option("--company", default="", help="Company name")
+@click.option("--buyer-type", default="", help="Buyer type: chro, broker, tpa, union, provider, partner, smb")
+@click.option("--stage", default="cold", help="Deal stage: cold, warm, evaluating, negotiating, won, lost")
 @click.option("--source", default="manual", help="Lead source")
-def prospects_add(email: str, pname: str, stage: str, diagnosis: str, source: str) -> None:
+def prospects_add(email: str, pname: str, company: str, buyer_type: str, stage: str, source: str) -> None:
     """Add a prospect to the database."""
     from fertility_sense.outreach.prospect_store import Prospect
 
@@ -362,31 +363,38 @@ def prospects_add(email: str, pname: str, stage: str, diagnosis: str, source: st
     prospect = Prospect(
         email=email,
         name=pname,
-        journey_stage=stage,
-        diagnosis=diagnosis,
+        company=company,
+        buyer_type=buyer_type,
+        deal_stage=stage,
         source=source,
     )
     store.add(prospect)
-    click.echo(f"Added prospect: {email} (stage={stage}, source={source})")
+    click.echo(f"Added prospect: {email} (company={company}, buyer_type={buyer_type}, deal_stage={stage})")
 
 
 @prospects.command("list")
-@click.option("--stage", default=None, help="Filter by journey stage")
-def prospects_list(stage: str | None) -> None:
+@click.option("--buyer-type", default=None, help="Filter by buyer type")
+@click.option("--stage", default=None, help="Filter by deal stage")
+def prospects_list(buyer_type: str | None, stage: str | None) -> None:
     """List prospects in the database."""
     store = _prospect_store()
-    items = store.by_segment(stage) if stage else store.list_all()
+    if buyer_type:
+        items = store.by_segment(buyer_type)
+    elif stage:
+        items = store.by_deal_stage(stage)
+    else:
+        items = store.list_all()
 
     if not items:
         click.echo("No prospects found.")
         return
 
-    click.echo(f"{'Email':<35} {'Name':<20} {'Stage':<12} {'Sequence':<18} {'Score':>6}")
-    click.echo("-" * 95)
+    click.echo(f"{'Email':<35} {'Company':<20} {'Buyer':<10} {'Deal Stage':<14} {'Sequence':<18} {'Score':>6}")
+    click.echo("-" * 107)
     for p in items:
         click.echo(
-            f"{p.email:<35} {p.name:<20} {p.journey_stage:<12} "
-            f"{p.sequence or '-':<18} {p.engagement_score:>6.1f}"
+            f"{p.email:<35} {p.company:<20} {p.buyer_type:<10} {p.deal_stage:<14} "
+            f"{p.sequence or '-':<18} {p.deal_score:>6.1f}"
         )
     click.echo(f"\nTotal: {len(items)}")
 

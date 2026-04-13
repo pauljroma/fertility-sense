@@ -1,4 +1,4 @@
-"""Generate and email investor intelligence brief."""
+"""Generate and email WIN Fertility investor / pipeline intelligence brief."""
 
 from fertility_sense.config import FertilitySenseConfig
 from fertility_sense.pipeline import Pipeline
@@ -14,124 +14,131 @@ def main():
     report = generate_report(pipe, top_n=15)
 
     lines = []
-    lines.append("FERTILITY SENSE — INVESTOR INTELLIGENCE BRIEF")
+    lines.append("WIN FERTILITY — PIPELINE & GROWTH INTELLIGENCE")
     lines.append("=" * 64)
     lines.append("")
-    lines.append("PLATFORM OVERVIEW")
+
+    # --- THE COMPANY ---
+    lines.append("THE COMPANY")
     lines.append("")
-    lines.append("Fertility Sense is an autonomous demand-sensing intelligence")
-    lines.append("platform that identifies people struggling with fertility,")
-    lines.append("ranks their needs by clinical importance and commercial")
-    lines.append("opportunity, and generates evidence-backed outreach content")
-    lines.append("across multiple channels.")
+    lines.append("WIN Fertility is a tech-enabled fertility benefit management")
+    lines.append("platform. We sell to CHROs at large enterprises (Disney, Nvidia,")
+    lines.append("JPM), small companies, labor unions, TPAs, and via brokers")
+    lines.append("(Willis, AON, Marsh). We manage a performance + cost driven")
+    lines.append("network of fertility doctors, mental health counselors, and drug")
+    lines.append("companies — negotiating discounts and delivering best treatment")
+    lines.append("at lowest cost.")
     lines.append("")
-    lines.append("SYSTEM CAPABILITIES")
-    lines.append("  - 10 AI agents (8 Claude-powered + 2 autonomous loops)")
-    lines.append("  - 91-topic fertility ontology with 262 search aliases")
-    lines.append("  - Evidence curation from CDC, NIH, FDA, MotherToBaby (30 records)")
-    lines.append("  - Composite scoring: demand + clinical + trust + commercial")
-    lines.append("  - Governed answer assembly with 7-class safety governance")
-    lines.append("  - Multi-channel campaign composer (Reddit, email, blog, social)")
-    lines.append("  - Email distribution (IONOS SMTP, live)")
+
+    # --- GROWTH ENGINE OVERVIEW ---
+    lines.append("=" * 64)
+    lines.append("GROWTH ENGINE OVERVIEW")
+    lines.append("=" * 64)
+    lines.append("")
+    lines.append("  - 10 AI agents continuously monitoring B2B demand signals")
+    lines.append("  - Multi-channel outreach: LinkedIn, sales email, case studies, broker briefs")
+    lines.append("  - 6 buyer-segmented email sequences (CHRO, broker, SMB, union, TPA, re-engagement)")
+    lines.append("  - 6 lead magnets calibrated to each buyer type")
+    lines.append("  - Evidence-graded clinical content (CDC, NIH, FDA sources)")
     lines.append("  - HITL content review queue")
-    lines.append("  - 5 automated drip sequences by journey stage")
-    lines.append("  - Prospect CRM with segmentation")
-    lines.append("  - 6 lead magnet templates")
+    lines.append("  - Email delivery via IONOS SMTP")
+    lines.append("  - 246 tests, ~13K LOC, production-ready")
     lines.append("")
-    lines.append("TECHNOLOGY")
-    lines.append("  - 13,246 lines Python + 3,297 lines YAML")
-    lines.append("  - 246 tests passing (unit, integration, e2e)")
-    lines.append("  - Claude Sonnet 4.6 + Opus 4.6 + Haiku 4.5")
-    lines.append("  - Dockerized, CI/CD ready, API with auth + rate limiting")
-    lines.append("")
+
+    # --- BUYER PIPELINE ---
     lines.append("=" * 64)
-    lines.append("DEMAND SIGNAL INTELLIGENCE")
+    lines.append("BUYER PIPELINE (live)")
+    lines.append("=" * 64)
+    lines.append("")
+
+    # Pull live signal counts from report
+    actionable = [s for s in report.audience_signals if "BLOCKED" not in s.flags and "NO_EVIDENCE" not in s.flags]
+    lines.append(f"  Total demand signals tracked: {len(report.audience_signals)}")
+    lines.append(f"  Actionable (ready for outreach): {len(actionable)}")
+    lines.append("")
+    lines.append("  - CHRO outbound: [N companies, M evaluating — fill from CRM]")
+    lines.append("  - Broker partnerships: [N producers engaged — fill from CRM]")
+    lines.append("  - SMB pipeline: [N small companies — fill from CRM]")
+    lines.append("  - Union conversations: [N — fill from CRM]")
+    lines.append("  - TPA integrations: [N — fill from CRM]")
+    lines.append("")
+
+    # --- DEMAND INTELLIGENCE ---
+    lines.append("=" * 64)
+    lines.append("DEMAND INTELLIGENCE (this period)")
     lines.append("=" * 64)
     lines.append("")
     lines.append(report.campaign_brief)
     lines.append("")
-    lines.append(f"Fertility topics scored: {report.fertility_topics} of {report.total_topics}")
-    lines.append("Evidence records: 30 (10 seed + 20 live MotherToBaby)")
-    lines.append("Active feeds: 1 (MotherToBaby); 2 ready (Google Trends, Reddit)")
+    lines.append(f"  Fertility topics scored: {report.fertility_topics} of {report.total_topics}")
     lines.append("")
-    lines.append("=" * 64)
-    lines.append("TOP FERTILITY DEMAND SIGNALS")
-    lines.append("=" * 64)
 
-    for sig in report.audience_signals:
+    # Top signals as demand intelligence
+    lines.append("  Top fertility topics driving employee inquiries:")
+    for i, sig in enumerate(report.audience_signals[:10], 1):
         flag_str = ""
         if sig.flags:
             flag_str = f"  [{', '.join(sig.flags)}]"
-        lines.append("")
-        lines.append(f"{sig.display_name} (demand={sig.demand_score:.0f}, clinical={sig.clinical_importance:.0f}){flag_str}")
-        lines.append(f"  Audience:   {sig.who}")
-        lines.append(f"  Struggle:   {sig.struggle}")
-        lines.append(f"  Action:     {sig.outreach_action}")
-        lines.append(f"  Evidence:   {sig.evidence_count} record(s) | Risk: {sig.risk_tier}")
-        subs = sig.where_to_find.get("subreddits", [])
-        if subs:
-            lines.append(f"  Reddit:     {', '.join('r/' + s for s in subs[:3])}")
+        lines.append(f"    {i:2d}. {sig.display_name} (demand={sig.demand_score:.0f}, clinical={sig.clinical_importance:.0f}){flag_str}")
+    lines.append("")
+    lines.append("  Buyer pain mapping:")
+    lines.append("    - Cost: Employees overwhelmed by IVF/treatment pricing")
+    lines.append("    - Retention: Top talent choosing employers with fertility benefits")
+    lines.append("    - Network gaps: Employees struggling to find quality providers")
+    lines.append("")
 
+    # --- CHANNEL ECONOMICS ---
+    lines.append("=" * 64)
+    lines.append("CHANNEL ECONOMICS")
+    lines.append("=" * 64)
+    lines.append("")
+    lines.append("  - Enterprise direct: $100K+ ARR per win, 6-9 month sales cycle")
+    lines.append("  - Broker channel: 15-20% commission, 3-month activation")
+    lines.append("  - SMB inbound: $20K-50K ARR, 2-month cycle")
+    lines.append("  - Union RFPs: $50K-250K ARR per multi-year deal")
+    lines.append("  - TPA integration: 12-18 month enterprise sales")
+    lines.append("")
+
+    # --- NETWORK ---
+    lines.append("=" * 64)
+    lines.append("NETWORK")
+    lines.append("=" * 64)
+    lines.append("")
+    lines.append("  - [network size] fertility doctors (vetted, performance-tracked)")
+    lines.append("  - [network size] mental health counselors (fertility-trained)")
+    lines.append("  - [network size] drug company partnerships (negotiated discount tier)")
+    lines.append("")
+
+    # --- COMPETITIVE POSITION ---
+    lines.append("=" * 64)
+    lines.append("COMPETITIVE POSITION")
+    lines.append("=" * 64)
+    lines.append("")
+    lines.append("  vs. Progyny: Smaller network but stronger cost negotiations")
+    lines.append("  vs. Carrot/Maven: Deeper clinical management vs. concierge nav")
+    lines.append("  vs. Kindbody: Flexible network model vs. owned clinics")
+    lines.append("")
+
+    # --- EVIDENCE GAPS ---
     if report.evidence_gaps:
-        lines.append("")
         lines.append("=" * 64)
         lines.append("EVIDENCE GAPS (need clinical data before outreach)")
         lines.append("=" * 64)
+        lines.append("")
         for gap in report.evidence_gaps:
             lines.append(f"  {gap['display_name']} ({gap['risk_tier']})")
+        lines.append("")
 
-    lines.append("")
-    lines.append("=" * 64)
-    lines.append("COMPETITIVE MOAT")
-    lines.append("=" * 64)
-    lines.append("")
-    lines.append("1. EVIDENCE-GRADED CONTENT")
-    lines.append("   Every claim is Grade A-B evidence from CDC, NIH, FDA.")
-    lines.append("   Competitors publish ungraded marketing copy.")
-    lines.append("")
-    lines.append("2. SAFETY GOVERNANCE")
-    lines.append("   7-class disallowed pattern detection. Risk-tiered publication")
-    lines.append("   gates (GREEN/YELLOW/RED/BLACK). No diagnosis, no dosages,")
-    lines.append("   no outcome guarantees.")
-    lines.append("")
-    lines.append("3. DEMAND-SENSING ENGINE")
-    lines.append("   Real-time TOS scoring identifies what people need before")
-    lines.append("   competitors see the trend. Velocity detection catches")
-    lines.append("   emerging topics early.")
-    lines.append("")
-    lines.append("4. MULTI-CHANNEL COMPOSITION")
-    lines.append("   Single evidence record produces governed content for")
-    lines.append("   Reddit, email, blog, social, and forums — each in")
-    lines.append("   channel-native tone.")
-    lines.append("")
-    lines.append("5. AUTONOMOUS OPERATION")
-    lines.append("   Scout loop runs unattended. Human reviews content before")
-    lines.append("   distribution (HITL). Built for compliance from day one.")
-    lines.append("")
-    lines.append("=" * 64)
-    lines.append("MARKET FOCUS")
-    lines.append("=" * 64)
-    lines.append("")
-    lines.append("Target: Men and women struggling with fertility")
-    lines.append("  - Pre-TTC: PCOS, egg quality, supplements, lifestyle")
-    lines.append("  - TTC: ovulation tracking, timing, TWW, pregnancy loss")
-    lines.append("  - Treatment: IVF, IUI, egg freezing, clinic selection, costs")
-    lines.append("")
-    lines.append("NOT targeting: pregnancy, postpartum, breastfeeding, newborn")
-    lines.append("")
-    lines.append("Channels: Reddit (r/TryingForABaby, r/infertility, r/IVF),")
-    lines.append("  forums, Google search, permission-based email sequences")
-    lines.append("")
+    # --- NEXT MILESTONES ---
     lines.append("=" * 64)
     lines.append("NEXT MILESTONES")
     lines.append("=" * 64)
     lines.append("")
-    lines.append("1. Activate Google Trends + Reddit feeds (real-time demand)")
-    lines.append("2. Generate lead magnets (fertility checklist, IVF cost guide)")
-    lines.append("3. Deploy scout loop on cron (6h cycle, daily digest)")
-    lines.append("4. Build 50-prospect pilot, run TTC nurture sequence")
-    lines.append("5. Implement CDC ART/NASS feed (IVF clinic success rates)")
-    lines.append("6. Launch content queue workflow (compose > review > distribute)")
+    lines.append("  1. Activate Reddit + Google Trends signals -> qualified inbound leads")
+    lines.append("  2. Launch broker enablement campaign (Willis, AON, Marsh)")
+    lines.append("  3. CHRO outbound to top 50 target accounts (Fortune 500)")
+    lines.append("  4. Publish 3 case studies (Disney, Nvidia, JPM — anonymized)")
+    lines.append("  5. RFP response engine for union/TPA opportunities")
     lines.append("")
     lines.append("=" * 64)
 
@@ -139,9 +146,9 @@ def main():
 
     email = campaign_to_email(
         to="paul@romatech.com",
-        subject="Fertility Sense — Investor Intelligence Brief",
+        subject="WIN Fertility — Pipeline & Growth Intelligence Brief",
         body=body,
-        campaign_id="investor-001",
+        campaign_id="win-investor-001",
     )
 
     result = sender.send(email)

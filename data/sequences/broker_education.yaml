@@ -1,0 +1,102 @@
+name: broker_education
+description: "Education sequence targeting brokers at Willis, AON, Marsh, and regional firms"
+segment: broker
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "Fertility is the fastest-growing benefit ask — here's the data"
+    body: |
+      Hi {first_name},
+
+      If you're advising employers on benefits, you've probably noticed: fertility is now a top-5 benefit request from HR leaders. Utilization is up 31% year-over-year, and employers are scrambling for solutions.
+
+      The problem is that most employers don't know how to evaluate fertility vendors. They default to the loudest brand, not the best value. That's an opportunity for brokers who can bring a differentiated solution.
+
+      WIN Fertility is the only fertility benefits manager that negotiates provider-level pricing and manages clinical quality across a 900+ provider network. We work with Disney, Nvidia, JPMorgan, and hundreds of mid-market employers.
+
+      I'd love to share the market data and how brokers are using it to win RFPs.
+
+      Best,
+      {sender_name}
+
+  - step: 2
+    delay_days: 4
+    subject: "How brokers are winning fertility RFPs in 2026"
+    body: |
+      Hi {first_name},
+
+      Three trends are shaping fertility benefit RFPs this year:
+
+      1. **Cost accountability.** Employers are done with flat-fee-per-member models that don't reduce actual claims costs. They want proof of savings.
+
+      2. **Outcomes data.** Live birth rates, time-to-pregnancy, and treatment appropriateness are now table-stakes metrics.
+
+      3. **Network quality over network size.** Employers learned the hard way that bigger networks don't mean better results.
+
+      Brokers who can speak to these three areas are winning. WIN Fertility gives you the data, the talking points, and the pricing advantage to differentiate.
+
+      Want the full RFP trends brief? Happy to send it over.
+
+      Best,
+      {sender_name}
+
+  - step: 3
+    delay_days: 9
+    subject: "WIN Fertility broker partnership: commission structure"
+    body: |
+      Hi {first_name},
+
+      Cutting straight to it — here's how the WIN Fertility broker partnership works:
+
+      **Commission:** Competitive ongoing commission on all employer contracts you bring in. No sunset clause.
+
+      **Support:** Dedicated broker success team, custom proposals for your clients, and co-branded materials.
+
+      **Differentiation:** WIN is the only solution that manages provider-level costs. Your clients get real savings, you get real retention.
+
+      We currently partner with producers at Willis, AON, Marsh, Lockton, and dozens of regional firms. The common feedback: "WIN makes us look smart to our clients."
+
+      Worth a 20-minute conversation to walk through the economics?
+
+      Best,
+      {sender_name}
+
+  - step: 4
+    delay_days: 16
+    subject: "Co-sell playbook: positioning WIN to your enterprise clients"
+    body: |
+      Hi {first_name},
+
+      We put together a broker co-sell playbook that covers:
+
+      - How to identify which clients have the biggest fertility cost problem
+      - The 5 questions to ask in a benefits review that surface the opportunity
+      - Competitive positioning against Progyny, Carrot, Maven, and Kindbody
+      - ROI modeling templates you can customize per client
+
+      This is the same playbook our top broker partners use. They tell us it's the most useful vendor resource they've received.
+
+      I'd like to walk you through it and tailor it to your book of business. 20 minutes.
+
+      Best,
+      {sender_name}
+
+  - step: 5
+    delay_days: 23
+    subject: "Let's get started — book a partner intro"
+    body: |
+      Hi {first_name},
+
+      I've shared a lot of information. The fastest way to evaluate whether WIN Fertility is a fit for your clients is a live conversation.
+
+      We'll cover:
+      - Your current book of business and where fertility fits
+      - Commission structure and partnership terms
+      - One client you could bring WIN to immediately
+
+      Here's my calendar: {calendar_link}
+
+      Even if the timing isn't right now, I'd like to get to know your practice so we're ready when a client asks about fertility.
+
+      Best,
+      {sender_name}

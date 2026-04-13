@@ -1,0 +1,98 @@
+name: chro_outbound
+description: "Outbound sequence targeting CHRO/VP Benefits at large companies"
+segment: chro
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "Your fertility benefit costs are climbing — here's why"
+    body: |
+      Hi {first_name},
+
+      Fertility benefit utilization across the Fortune 500 grew 31% last year, and the cost curve is accelerating. If {company} is like most large employers, you're seeing it in your claims data.
+
+      The challenge isn't whether to offer fertility coverage — it's how to offer it without costs spiraling. Most employers overpay because their fertility vendor has no incentive to manage the network or negotiate unit costs.
+
+      WIN Fertility manages a vetted network of 900+ fertility providers and negotiates pricing that typically saves employers 20-40% versus open-network fertility claims.
+
+      I put together a short analysis of what's driving costs in {industry} specifically. Worth a look if this is on your radar.
+
+      Best,
+      {sender_name}
+
+  - step: 2
+    delay_days: 4
+    subject: "How companies like Disney and JPM cut fertility benefit costs"
+    body: |
+      Hi {first_name},
+
+      Following up on my note about fertility benefit costs at {company}.
+
+      We recently published a case study showing how a Fortune 100 employer reduced per-cycle fertility costs by 35% while improving clinical outcomes — live birth rates went up, not down.
+
+      The key insight: network management matters more than plan design. When you steer members to high-quality, cost-efficient providers, outcomes improve and waste drops.
+
+      WIN Fertility manages this for companies like Disney, Nvidia, and JPMorgan. Happy to share the full case study if useful.
+
+      Best,
+      {sender_name}
+
+  - step: 3
+    delay_days: 9
+    subject: "3 reasons your current fertility solution is leaking money"
+    body: |
+      Hi {first_name},
+
+      After working with hundreds of employers on fertility benefits, we see the same three cost leaks repeatedly:
+
+      1. **No network management.** Open-network fertility claims mean employees go to any provider at any price. The cost difference between clinics for the same procedure can be 3x.
+
+      2. **No care navigation.** Without clinical guidance, members over-utilize expensive treatments. Proper triage can redirect 15-20% of IVF candidates to less invasive (and less expensive) paths.
+
+      3. **No pharmacy optimization.** Fertility medications are the fastest-growing line item. WIN negotiates directly with manufacturers and steers to cost-effective alternatives.
+
+      If {company} is using a solution that doesn't address all three, you're leaving significant savings on the table.
+
+      Would it be useful to benchmark {company}'s fertility spend against peers in {industry}?
+
+      Best,
+      {sender_name}
+
+  - step: 4
+    delay_days: 16
+    subject: "ROI calculator: what WIN Fertility could save {company}"
+    body: |
+      Hi {first_name},
+
+      We built an ROI calculator specifically for employers evaluating fertility benefit options. It models your expected savings based on:
+
+      - Employee count ({employee_count}) and utilization rates for {industry}
+      - Current plan design and network configuration
+      - WIN's negotiated rates vs. open-network benchmarks
+
+      For a company of {company}'s size, employers typically see $500K-$2M+ in annual savings on fertility-related claims — without reducing member access.
+
+      I'd like to run {company}'s numbers through it. Takes 15 minutes and you'll walk away with a custom savings analysis regardless of whether you work with WIN.
+
+      Worth a quick call?
+
+      Best,
+      {sender_name}
+
+  - step: 5
+    delay_days: 23
+    subject: "15-min call to walk through {company}'s numbers"
+    body: |
+      Hi {first_name},
+
+      I know fertility benefits are one of many things on your plate. I'll keep this brief.
+
+      We've helped employers across {industry} cut fertility costs 20-40% while improving outcomes. I'd like to show you what that looks like for {company} specifically.
+
+      15 minutes. No commitment. You'll get a custom benchmark report for your trouble.
+
+      Here's my calendar link to pick a time: {calendar_link}
+
+      If the timing isn't right, no worries — happy to reconnect next quarter.
+
+      Best,
+      {sender_name}

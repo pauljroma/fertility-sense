@@ -35,18 +35,18 @@ class TestProspectStore:
 
     def test_add_prospect(self, tmp_path: Path) -> None:
         store = ProspectStore(tmp_path / "prospects")
-        p = Prospect(email="alice@example.com", name="Alice", journey_stage="trying")
+        p = Prospect(email="alice@example.com", name="Alice", buyer_type="chro")
         store.add(p)
         assert store.count() == 1
 
     def test_get_prospect(self, tmp_path: Path) -> None:
         store = ProspectStore(tmp_path / "prospects")
-        p = Prospect(email="bob@example.com", name="Bob", diagnosis="pcos")
+        p = Prospect(email="bob@example.com", name="Bob", buyer_type="broker", company="AON")
         store.add(p)
         got = store.get("bob@example.com")
         assert got is not None
         assert got.name == "Bob"
-        assert got.diagnosis == "pcos"
+        assert got.buyer_type == "broker"
 
     def test_get_nonexistent_returns_none(self, tmp_path: Path) -> None:
         store = ProspectStore(tmp_path / "prospects")
@@ -60,12 +60,12 @@ class TestProspectStore:
 
     def test_by_segment_filters_correctly(self, tmp_path: Path) -> None:
         store = ProspectStore(tmp_path / "prospects")
-        store.add(Prospect(email="a@x.com", journey_stage="trying"))
-        store.add(Prospect(email="b@x.com", journey_stage="treatment"))
-        store.add(Prospect(email="c@x.com", journey_stage="trying"))
-        assert len(store.by_segment("trying")) == 2
-        assert len(store.by_segment("treatment")) == 1
-        assert len(store.by_segment("pre_ttc")) == 0
+        store.add(Prospect(email="a@x.com", buyer_type="chro"))
+        store.add(Prospect(email="b@x.com", buyer_type="broker"))
+        store.add(Prospect(email="c@x.com", buyer_type="chro"))
+        assert len(store.by_segment("chro")) == 2
+        assert len(store.by_segment("broker")) == 1
+        assert len(store.by_segment("tpa")) == 0
 
     def test_by_sequence_filters_correctly(self, tmp_path: Path) -> None:
         store = ProspectStore(tmp_path / "prospects")
@@ -78,10 +78,10 @@ class TestProspectStore:
     def test_update_prospect(self, tmp_path: Path) -> None:
         store = ProspectStore(tmp_path / "prospects")
         store.add(Prospect(email="u@x.com", name="Original"))
-        updated = store.update("u@x.com", name="Updated", engagement_score=5.0)
+        updated = store.update("u@x.com", name="Updated", deal_score=5.0)
         assert updated is not None
         assert updated.name == "Updated"
-        assert updated.engagement_score == 5.0
+        assert updated.deal_score == 5.0
         # Persisted
         reloaded = store.get("u@x.com")
         assert reloaded is not None
@@ -103,9 +103,9 @@ class TestProspectStore:
     def test_csv_import(self, tmp_path: Path) -> None:
         csv_path = tmp_path / "prospects.csv"
         csv_path.write_text(
-            "email,name,journey_stage,diagnosis,source,tags\n"
-            "a@x.com,Alice,trying,pcos,import,\"tag1,tag2\"\n"
-            "b@x.com,Bob,treatment,male_factor,quiz,\n"
+            "email,name,buyer_type,company,source,tags\n"
+            "a@x.com,Alice,chro,Disney,import,\"tag1,tag2\"\n"
+            "b@x.com,Bob,broker,AON,referral,\n"
         )
         store = ProspectStore(tmp_path / "store")
         count = store.import_csv(csv_path)
@@ -114,7 +114,7 @@ class TestProspectStore:
         alice = store.get("a@x.com")
         assert alice is not None
         assert alice.tags == ["tag1", "tag2"]
-        assert alice.diagnosis == "pcos"
+        assert alice.buyer_type == "chro"
 
     def test_csv_import_skips_invalid_emails(self, tmp_path: Path) -> None:
         """CSV rows with missing email key raise KeyError and skip."""
@@ -294,9 +294,9 @@ class TestSequenceEngine:
             state_dir = Path(td) / "state"
             engine = SequenceEngine(project_seq_dir, state_dir)
             seqs = engine.list_sequences()
-            assert len(seqs) >= 3  # At least ttc_nurture, cold_nurture, treatment_nurture
+            assert len(seqs) >= 3  # At least chro_outbound, broker_education, re_engagement
             names = {s.name for s in seqs}
-            assert "ttc_nurture" in names
+            assert "chro_outbound" in names
 
     def test_assign_prospect_to_sequence(self, tmp_path: Path) -> None:
         engine = self._make_engine(tmp_path)
@@ -623,17 +623,17 @@ class TestCampaignComposer:
         signal = _make_audience_signal()
         content = compose_campaign_content(
             signal=signal,
-            channel="blog",
+            channel="case_study",
             topic=topic,
             evidence=[],
             dispatcher=None,
         )
         assert isinstance(content, CampaignContent)
-        assert content.channel == "blog"
+        assert content.channel == "case_study"
         assert "[offline]" in content.body
         assert "Fertility Diet" in content.title
 
-    def test_compose_content_reddit_channel(self) -> None:
+    def test_compose_content_sales_email_channel(self) -> None:
         from fertility_sense.outreach.composer import compose_campaign_content
         from fertility_sense.models.topic import (
             JourneyStage, MonetizationClass, RiskTier, TopicIntent, TopicNode,
@@ -651,15 +651,15 @@ class TestCampaignComposer:
         signal = _make_audience_signal()
         content = compose_campaign_content(
             signal=signal,
-            channel="reddit",
+            channel="sales_email",
             topic=topic,
             evidence=[],
             dispatcher=None,
         )
-        assert content.channel == "reddit"
-        assert len(content.target_subreddits) > 0
+        assert content.channel == "sales_email"
+        assert "[offline]" in content.body
 
-    def test_compose_content_social_has_hashtags(self) -> None:
+    def test_compose_content_linkedin_has_hashtags(self) -> None:
         from fertility_sense.outreach.composer import compose_campaign_content
         from fertility_sense.models.topic import (
             JourneyStage, MonetizationClass, RiskTier, TopicIntent, TopicNode,
@@ -677,14 +677,14 @@ class TestCampaignComposer:
         signal = _make_audience_signal()
         content = compose_campaign_content(
             signal=signal,
-            channel="social",
+            channel="linkedin",
             topic=topic,
             evidence=[],
             dispatcher=None,
         )
-        assert content.channel == "social"
+        assert content.channel == "linkedin"
         assert len(content.hashtags) > 0
-        assert "#TTC" in content.hashtags
+        assert "#FertilityBenefits" in content.hashtags
 
     def test_queue_campaign_adds_items(self, tmp_path: Path) -> None:
         """queue_campaign should add all content pieces to a ContentQueue."""
@@ -694,18 +694,18 @@ class TestCampaignComposer:
         signal = _make_audience_signal()
         content1 = CampaignContent(
             signal=signal,
-            channel="blog",
-            title="Blog Title",
-            body="Blog body",
+            channel="case_study",
+            title="Case Study Title",
+            body="Case study body",
             cta="Read more",
             target_subreddits=[],
         )
         content2 = CampaignContent(
             signal=signal,
-            channel="email",
+            channel="sales_email",
             title="Email Title",
             body="Email body",
-            cta="Click here",
+            cta="Schedule a call",
             target_subreddits=[],
         )
         campaign = Campaign(signal=signal, content=[content1, content2])

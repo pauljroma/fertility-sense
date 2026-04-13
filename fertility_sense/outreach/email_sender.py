@@ -214,16 +214,16 @@ def campaign_to_email(
     """Convert campaign content into an EmailMessage."""
     # Build simple HTML version
     html_body = f"""<html>
-<body style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
-<div style="border-bottom: 2px solid #e8a0bf; padding-bottom: 15px; margin-bottom: 20px;">
-    <strong style="color: #7b2d5f;">Fertility Sense</strong>
+<body style="font-family: Arial, Helvetica, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+<div style="border-bottom: 3px solid #f5a623; padding-bottom: 15px; margin-bottom: 20px;">
+    <strong style="color: #1a4d8c; font-size: 18px;">WIN Fertility</strong>
 </div>
 
 {_text_to_html(body)}
 
 <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #999;">
-    <p>You're receiving this because you signed up for fertility insights from Fertility Sense.</p>
-    <p>Reply to this email with any questions — a real person reads every response.</p>
+    <p>WIN Fertility manages fertility benefits for leading employers including Disney, Nvidia, and JPM.</p>
+    <p>Reply to this email to start a conversation with our enterprise team.</p>
 </div>
 </body>
 </html>"""
@@ -248,9 +248,9 @@ def _text_to_html(text: str) -> str:
             continue
         # Handle markdown-ish headers
         if p.startswith("## "):
-            html_parts.append(f'<h2 style="color: #7b2d5f;">{p[3:]}</h2>')
+            html_parts.append(f'<h2 style="color: #1a4d8c;">{p[3:]}</h2>')
         elif p.startswith("# "):
-            html_parts.append(f'<h1 style="color: #7b2d5f;">{p[2:]}</h1>')
+            html_parts.append(f'<h1 style="color: #1a4d8c;">{p[2:]}</h1>')
         elif p.startswith("- "):
             items = p.split("\n")
             html_parts.append("<ul>" + "".join(f"<li>{i.lstrip('- ')}</li>" for i in items) + "</ul>")

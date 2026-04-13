@@ -1,0 +1,87 @@
+name: tpa_integration
+description: "Outbound sequence targeting TPA integration leads and technical buyers"
+segment: tpa
+steps:
+  - step: 1
+    delay_days: 0
+    subject: "Adding fertility carve-out to your platform: technical fit"
+    body: |
+      Hi {first_name},
+
+      As a TPA, you're getting more requests from employer clients to add fertility benefits. The question is whether to build it in-house or partner with a managed fertility vendor.
+
+      WIN Fertility is designed to integrate with TPA platforms as a fertility carve-out. We handle the clinical network, care navigation, pharmacy management, and claims adjudication — your platform remains the system of record.
+
+      Our integration model:
+      - **Eligibility:** Real-time file exchange (834/custom) or API-based verification
+      - **Claims:** WIN adjudicates fertility claims and sends encounter data back to your system
+      - **Reporting:** Consolidated reporting feed for your employer clients
+
+      We currently integrate with 40+ TPA and ASO platforms. The technical lift on your side is minimal.
+
+      Worth a conversation about how this would work with your stack?
+
+      Best,
+      {sender_name}
+
+  - step: 2
+    delay_days: 4
+    subject: "WIN API + your platform: integration spec"
+    body: |
+      Hi {first_name},
+
+      Here's a high-level view of WIN Fertility's integration architecture:
+
+      **Eligibility sync:** Daily 834 file or real-time REST API. WIN validates member eligibility at point of service. Average latency: <200ms for API calls.
+
+      **Claims data flow:** WIN processes all fertility-related claims internally, then transmits encounter records back to your system via EDI 837P/837I or flat file. Your employer reports remain complete.
+
+      **Member experience:** Members call WIN's care navigation team or use our member portal. All clinical coordination happens within WIN. Your team handles everything else.
+
+      **Reporting:** Monthly utilization, cost, and outcomes reports delivered via SFTP or API. Custom report formats available.
+
+      I can send the full integration specification document. It's 12 pages and covers every touchpoint. Want me to send it?
+
+      Best,
+      {sender_name}
+
+  - step: 3
+    delay_days: 9
+    subject: "Implementation timeline: 60-day standard"
+    body: |
+      Hi {first_name},
+
+      WIN Fertility's standard TPA integration takes 60 days from contract to live:
+
+      **Weeks 1-2:** Technical kickoff, data mapping, eligibility file spec alignment
+      **Weeks 3-4:** Test environment setup, sample file exchange, API credential provisioning
+      **Weeks 5-6:** End-to-end testing, claims flow validation, reporting verification
+      **Weeks 7-8:** Parallel run, user acceptance testing, go-live preparation
+
+      We assign a dedicated integration engineer to your account for the duration. Post-launch support is ongoing.
+
+      For TPAs that have done this before, we can compress to 30 days. The bottleneck is usually eligibility file alignment, not our side.
+
+      Ready to talk technical details?
+
+      Best,
+      {sender_name}
+
+  - step: 4
+    delay_days: 16
+    subject: "Technical kickoff call: WIN + {company}"
+    body: |
+      Hi {first_name},
+
+      I'd like to set up a technical kickoff call with our integration team. On the call:
+
+      - Your technical lead and ours walk through the integration spec
+      - We map your data formats to WIN's intake requirements
+      - We establish a timeline and assign resources on both sides
+
+      30 minutes. No commitment required — this is exploratory. Even if you don't move forward now, you'll have a clear picture of what integration looks like.
+
+      Here's my calendar: {calendar_link}
+
+      Best,
+      {sender_name}

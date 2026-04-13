@@ -2,6 +2,8 @@
 
 Takes the top demand signals and generates a complete campaign with
 content for each channel, ready for review and distribution.
+
+B2B channels: linkedin, sales_email, case_study, broker_brief, rfp_response, conference.
 """
 
 from __future__ import annotations
@@ -22,12 +24,25 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# Default channels for each action type
+# B2B buyer-type -> channel mapping
+_BUYER_CHANNELS = {
+    "chro": ["sales_email", "case_study", "linkedin"],
+    "broker": ["broker_brief", "sales_email", "conference"],
+    "smb": ["sales_email", "case_study"],
+    "union": ["rfp_response", "case_study", "sales_email"],
+    "tpa": ["sales_email", "rfp_response"],
+    "partner": ["case_study", "linkedin"],
+}
+
+# Default fallback channels when no buyer_type is available
+_DEFAULT_CHANNELS = ["sales_email", "linkedin", "case_study"]
+
+# Legacy action-type -> channel mapping (kept for backward compat)
 _ACTION_CHANNELS = {
-    "content": ["blog", "social", "reddit", "email"],
-    "tool": ["blog", "social", "email"],
-    "referral": ["reddit", "forum", "email", "social"],
-    "commerce": ["blog", "social", "email"],
+    "content": ["sales_email", "linkedin", "case_study"],
+    "tool": ["sales_email", "linkedin"],
+    "referral": ["sales_email", "case_study", "broker_brief"],
+    "commerce": ["sales_email", "linkedin", "case_study"],
     "investigate": [],  # Don't campaign on unvalidated topics
 }
 
@@ -61,10 +76,13 @@ def generate_campaign_plan(
 ) -> CampaignPlan:
     """Generate a campaign plan from the top demand signals.
 
+    Routes by signal.buyer_type if available (B2B path), otherwise
+    falls back to default B2B channels.
+
     Args:
         pipe: Pipeline instance with loaded data.
         top_n: Number of top signals to campaign on.
-        channels: Override channel list. Default: auto from action type.
+        channels: Override channel list. Default: auto from buyer type.
     """
     report = generate_report(pipe, top_n=top_n)
     dispatcher = pipe.server.dispatcher
@@ -89,10 +107,13 @@ def generate_campaign_plan(
         if channels:
             target_channels = channels
         else:
-            target_channels = _ACTION_CHANNELS.get(signal.outreach_type.split(" ")[0].lower(), ["blog"])
-            # Reddit comments only make sense for non-clinical topics
-            if signal.risk_tier in ("red", "black") and "reddit" in target_channels:
-                target_channels = [c for c in target_channels if c != "reddit"]
+            # Route by buyer_type if available on the signal
+            buyer_type = getattr(signal, "buyer_type", None) or ""
+            if buyer_type and buyer_type in _BUYER_CHANNELS:
+                target_channels = _BUYER_CHANNELS[buyer_type]
+            else:
+                # Default B2B channels for all buyer types
+                target_channels = _DEFAULT_CHANNELS
 
         # Generate content for each channel
         campaign = Campaign(signal=signal)
@@ -132,13 +153,19 @@ def queue_campaign(plan: CampaignPlan, queue: "ContentQueue") -> int:
     count = 0
     for campaign in plan.campaigns:
         for content in campaign.content:
-            # Determine target: first subreddit for reddit, otherwise generic
+            # Determine target based on channel type
             if content.channel == "reddit" and content.target_subreddits:
                 target = f"r/{content.target_subreddits[0]}"
-            elif content.channel in ("email", "direct_email"):
+            elif content.channel in ("email", "direct_email", "sales_email"):
                 target = "email-list"
-            elif content.channel == "blog":
+            elif content.channel in ("blog", "case_study"):
                 target = campaign.signal.topic_id
+            elif content.channel == "broker_brief":
+                target = "broker-channel"
+            elif content.channel == "rfp_response":
+                target = "rfp-pipeline"
+            elif content.channel == "conference":
+                target = "conference-prep"
             else:
                 target = content.channel
 
@@ -169,13 +196,14 @@ def format_campaign_plan(plan: CampaignPlan, as_json: bool = False) -> str:
                     "topic": c.signal.topic_id,
                     "display_name": c.signal.display_name,
                     "who": c.signal.who,
+                    "buyer_type": getattr(c.signal, "buyer_type", ""),
+                    "deal_stage": getattr(c.signal, "deal_stage", ""),
                     "channels": [
                         {
                             "channel": content.channel,
                             "title": content.title,
                             "body": content.body[:500],
                             "cta": content.cta,
-                            "subreddits": content.target_subreddits,
                             "hashtags": content.hashtags,
                             "citations": content.evidence_citations,
                         }
@@ -188,18 +216,25 @@ def format_campaign_plan(plan: CampaignPlan, as_json: bool = False) -> str:
 
     lines = []
     lines.append("=" * 90)
-    lines.append("FERTILITY-SENSE CAMPAIGN PLAN")
+    lines.append("WIN FERTILITY — B2B CAMPAIGN PLAN")
     lines.append(f"Generated: {plan.generated_at.strftime('%Y-%m-%d %H:%M UTC')}")
     lines.append(plan.summary)
     lines.append("=" * 90)
 
     for i, campaign in enumerate(plan.campaigns, 1):
         sig = campaign.signal
+        buyer_type = getattr(sig, "buyer_type", "")
+        deal_stage = getattr(sig, "deal_stage", "")
+
         lines.append("")
         lines.append(f"{'─' * 90}")
         lines.append(f"CAMPAIGN {i}: {sig.display_name}")
-        lines.append(f"  Audience:  {sig.who}")
-        lines.append(f"  Struggle:  {sig.struggle}")
+        lines.append(f"  Target:    {sig.who}")
+        if buyer_type:
+            lines.append(f"  Buyer:     {buyer_type}")
+        if deal_stage:
+            lines.append(f"  Stage:     {deal_stage}")
+        lines.append(f"  Pain Point: {sig.struggle}")
         lines.append(f"  Demand:    {sig.demand_score:.0f} | Clinical: {sig.clinical_importance:.0f}")
         lines.append(f"  Evidence:  {sig.evidence_count} record(s)")
         lines.append(f"  Channels:  {', '.join(campaign.channels)}")
@@ -209,8 +244,6 @@ def format_campaign_plan(plan: CampaignPlan, as_json: bool = False) -> str:
             lines.append(f"  [{content.channel.upper()}]")
             if content.title:
                 lines.append(f"  Title: {content.title}")
-            if content.target_subreddits and content.channel == "reddit":
-                lines.append(f"  Subreddits: {', '.join('r/' + s for s in content.target_subreddits)}")
             if content.hashtags:
                 lines.append(f"  Tags: {' '.join(content.hashtags)}")
 

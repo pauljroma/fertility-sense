@@ -157,7 +157,8 @@ class TestProspectSequenceAssignment:
         prospect = Prospect(
             email="integration@test.com",
             name="Integration Test User",
-            journey_stage="trying",
+            buyer_type="chro",
+            deal_stage="evaluating",
             source="test",
         )
         store.add(prospect)

@@ -1,49 +1,57 @@
 name: re_engagement
-description: "Win back prospects who have gone inactive"
+description: "Re-engagement sequence for stale deals and inactive prospects"
 segment: all
 steps:
   - step: 1
     delay_days: 0
-    subject: "We noticed you've been quiet — totally okay"
+    subject: "What's new at WIN Fertility since we last talked"
     body: |
-      Hi {name},
+      Hi {first_name},
 
-      We haven't heard from you in a while, and that's completely fine. Fertility journeys don't follow a straight line.
+      It's been a while since we connected, and a lot has changed at WIN Fertility. A few highlights:
 
-      Maybe you're taking a break. Maybe things have changed. Maybe you just got busy.
+      - **Network expansion:** We added 150+ new providers in Q1, bringing our network to 900+ fertility clinics nationwide
+      - **New cost data:** Our latest employer benchmark report shows 28% average savings vs. open-network fertility claims
+      - **Client wins:** Several major employers in {industry} joined WIN this year
 
-      Either way, we wanted to check in — not to sell you anything, but because we genuinely care about how you're doing.
+      I know timing is everything. If fertility benefits weren't a priority last time we spoke, they may be now — utilization is up 31% year-over-year and we're seeing more RFPs than ever.
 
-      If you want to stay connected, no action needed. If you'd rather not hear from us, just hit reply and say "unsubscribe."
+      Worth a fresh look?
 
-      {cta}
+      Best,
+      {sender_name}
 
   - step: 2
     delay_days: 7
-    subject: "3 things that changed since we last talked"
+    subject: "New proof point: employer savings data you haven't seen"
     body: |
-      Hi {name},
+      Hi {first_name},
 
-      A few updates since you last engaged with us:
+      We just released our 2026 Employer Fertility Benchmark Report. Key findings:
 
-      {personalized_insight}
+      - Average employer spends $14,200 per fertility treatment cycle (open network)
+      - WIN-managed employers average $9,100 per cycle — 36% lower
+      - Live birth rates for WIN members exceed the national average by 12%
+      - Member satisfaction: 94% NPS across all WIN-managed plans
 
-      We keep building tools and resources because people keep telling us they help. If any of this is relevant to where you are now, we'd love to have you back.
+      These numbers are based on 50,000+ treatment cycles across our employer client base, including Disney, Nvidia, and JPMorgan.
 
-      {cta}
+      I can share the full report and benchmark {company} against your industry peers. No strings attached.
+
+      Best,
+      {sender_name}
 
   - step: 3
     delay_days: 14
-    subject: "Last note from us (unless you want more)"
+    subject: "Worth a 10-min reconnect?"
     body: |
-      Hi {name},
+      Hi {first_name},
 
-      This is the last email in this series. We don't want to be noise in your inbox.
+      I'll keep this short. If fertility benefits are anywhere on {company}'s radar for this year, I'd love 10 minutes to share what's changed and why it might be worth revisiting.
 
-      If you'd like to stay on our list, just click below and we'll keep sending you evidence-backed fertility insights:
+      If the timing still isn't right, no hard feelings. I'll check back next quarter.
 
-      {cta}
+      Here's my calendar if you'd like to pick a time: {calendar_link}
 
-      If not, we'll stop emailing. No hard feelings.
-
-      Whatever your path looks like right now, we're rooting for you.
+      Best,
+      {sender_name}
