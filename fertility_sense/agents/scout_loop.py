@@ -205,9 +205,11 @@ class ScoutLoop:
         if not previous:
             return alerts  # First run — nothing to compare
 
-        all_topics = set(current) | set(previous)
-        for tid in all_topics:
-            cur = current.get(tid, 0.0)
+        # Only compare topics in CURRENT set (fertility-only).
+        # Ignore topics that existed in old history but aren't in current —
+        # those are pregnancy/postpartum topics that got filtered out.
+        for tid in current:
+            cur = current[tid]
             prev = previous.get(tid, 0.0)
             delta = cur - prev
 
