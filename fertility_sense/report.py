@@ -45,7 +45,7 @@ _STAGE_LABELS = {
 
 # Intent -> outreach type
 _INTENT_CAMPAIGN = {
-    TopicIntent.LEARN: "Educational outreach (blog, Reddit, social, email)",
+    TopicIntent.LEARN: "Educational outreach (blog, social, email)",
     TopicIntent.DECIDE: "Decision-support tool (comparison, calculator, quiz)",
     TopicIntent.ACT: "Direct action (clinic referral, product rec, booking)",
     TopicIntent.MONITOR: "Tracking tool or check-in sequence",
@@ -569,7 +569,8 @@ def format_report(report: SignalReport, as_json: bool = False) -> str:
             lines.append(f"    {s.display_name} (demand={s.demand_score:.0f}, clinical={s.clinical_importance:.0f}){flag_str}")
             lines.append(f"      Struggle: {s.struggle}")
             lines.append(f"      Action:   {s.outreach_action}")
-            if s.where_to_find.get("subreddits"):
+            # Only show consumer channels (Reddit) when no B2B buyer signals are available
+            if not report.buyer_signals and s.where_to_find.get("subreddits"):
                 lines.append(f"      Reddit:   {', '.join('r/' + sub for sub in s.where_to_find['subreddits'][:3])}")
 
     if report.evidence_gaps:

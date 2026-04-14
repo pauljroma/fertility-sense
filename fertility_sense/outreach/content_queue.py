@@ -21,11 +21,11 @@ class QueueItem(BaseModel):
     """A single piece of content awaiting review."""
 
     item_id: str = Field(default_factory=lambda: str(uuid.uuid4())[:8])
-    channel: str  # reddit, email, blog, social, forum, direct_email
+    channel: str  # sales_email, broker_brief, linkedin, case_study, rfp_response, conference, email
     topic_id: str
     title: str
     body: str
-    target: str  # subreddit name, email address, blog slug, etc.
+    target: str  # email-list, broker-channel, rfp-pipeline, topic slug, etc.
     risk_tier: str
     evidence_count: int
     status: str = "pending"  # pending, approved, sent, rejected

@@ -258,10 +258,10 @@ class DigestGenerator:
 
         if digest_type == "weekly":
             body = self.weekly_digest()
-            subject = f"Fertility Sense — Weekly Digest ({datetime.now(timezone.utc).strftime('%Y-%m-%d')})"
+            subject = f"WIN Fertility — Weekly Digest ({datetime.now(timezone.utc).strftime('%Y-%m-%d')})"
         else:
             body = self.daily_digest()
-            subject = f"Fertility Sense — Daily Digest ({datetime.now(timezone.utc).strftime('%Y-%m-%d')})"
+            subject = f"WIN Fertility — Daily Digest ({datetime.now(timezone.utc).strftime('%Y-%m-%d')})"
 
         config = self.pipe.config
         sender = EmailSender(config)

@@ -154,9 +154,7 @@ def queue_campaign(plan: CampaignPlan, queue: "ContentQueue") -> int:
     for campaign in plan.campaigns:
         for content in campaign.content:
             # Determine target based on channel type
-            if content.channel == "reddit" and content.target_subreddits:
-                target = f"r/{content.target_subreddits[0]}"
-            elif content.channel in ("email", "direct_email", "sales_email"):
+            if content.channel in ("email", "direct_email", "sales_email"):
                 target = "email-list"
             elif content.channel in ("blog", "case_study"):
                 target = campaign.signal.topic_id

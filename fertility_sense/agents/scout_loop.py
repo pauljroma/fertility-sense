@@ -304,9 +304,9 @@ class ScoutLoop:
             logger.warning("SMTP connection failed — skipping scout email")
             return
 
-        subject = f"Fertility Sense Scout Alert — {len(result.velocity_alerts)} velocity change(s)"
+        subject = f"WIN Fertility Scout Alert — {len(result.velocity_alerts)} velocity change(s)"
         body_parts = [
-            "Fertility Sense — Scout Alert",
+            "WIN Fertility — Scout Alert",
             f"Run at: {result.run_at}",
             f"Topics scored: {result.topics_scored}",
             f"Feeds ingested: {json.dumps(result.feeds_ingested)}",

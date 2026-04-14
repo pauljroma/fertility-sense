@@ -2,7 +2,7 @@
 
 Supports:
 - Single email sends
-- Batch sends with rate limiting
+- Batch sends with rate limiting (persistent token bucket)
 - HTML + plain text multipart
 - IMAP inbox checking for replies/engagement
 """
@@ -10,22 +10,79 @@ Supports:
 from __future__ import annotations
 
 import imaplib
+import json
 import logging
 import smtplib
 import time
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from pathlib import Path
 from typing import Any
 
 from fertility_sense.config import FertilitySenseConfig
 
 logger = logging.getLogger(__name__)
 
-# Rate limit: max 10 emails per minute to avoid IONOS throttling
+# Legacy constants kept for backward compatibility
 _MAX_EMAILS_PER_MINUTE = 10
 _DELAY_BETWEEN_SENDS = 6.0  # seconds
+
+
+class TokenBucketRateLimiter:
+    """Persistent token bucket rate limiter for SMTP sends."""
+
+    def __init__(self, state_path: Path, max_per_hour: int = 20, refill_interval: float = 180.0):
+        self._path = state_path
+        self._max = max_per_hour
+        self._refill_interval = refill_interval  # seconds between token refill
+        self._load()
+
+    def _load(self):
+        """Load state from disk."""
+        if self._path.exists():
+            data = json.loads(self._path.read_text())
+            self._tokens = data.get("tokens", self._max)
+            self._last_refill = data.get("last_refill", time.monotonic())
+        else:
+            self._tokens = self._max
+            self._last_refill = time.monotonic()
+
+    def _save(self):
+        """Persist state to disk."""
+        self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._path.write_text(json.dumps({
+            "tokens": self._tokens,
+            "last_refill": self._last_refill,
+            "last_save": datetime.now(timezone.utc).isoformat(),
+        }))
+
+    def _refill(self):
+        """Add tokens based on time elapsed."""
+        now = time.monotonic()
+        elapsed = now - self._last_refill
+        new_tokens = int(elapsed / self._refill_interval)
+        if new_tokens > 0:
+            self._tokens = min(self._max, self._tokens + new_tokens)
+            self._last_refill = now
+            self._save()
+
+    def acquire(self) -> bool:
+        """Try to acquire a send token. Returns False if rate limited."""
+        self._refill()
+        if self._tokens > 0:
+            self._tokens -= 1
+            self._save()
+            return True
+        return False
+
+    def wait_time(self) -> float:
+        """Seconds until next token available."""
+        self._refill()
+        if self._tokens > 0:
+            return 0.0
+        return self._refill_interval
 
 
 @dataclass
@@ -69,6 +126,11 @@ class EmailSender:
         self._config = config
         self._send_count = 0
         self._last_send_time = 0.0
+        self._rate_limiter = TokenBucketRateLimiter(
+            state_path=config.data_dir / "outreach" / "rate_limit_state.json",
+            max_per_hour=config.smtp_rate_limit_per_hour,
+            refill_interval=3600.0 / config.smtp_rate_limit_per_hour,
+        )
         self._validate_config()
 
     def _validate_config(self) -> None:
@@ -97,7 +159,14 @@ class EmailSender:
 
     def send(self, message: EmailMessage) -> SendResult:
         """Send a single email via SMTP."""
-        self._rate_limit()
+        # Token bucket rate limiting — wait if no tokens available
+        if not self._rate_limiter.acquire():
+            wait = self._rate_limiter.wait_time()
+            logger.info("Rate limited — waiting %.1fs for next token", wait)
+            time.sleep(wait)
+            # Retry acquire after waiting
+            if not self._rate_limiter.acquire():
+                logger.warning("Rate limit still exceeded after wait — sending anyway")
 
         msg = self._build_mime(message)
         try:

@@ -109,8 +109,8 @@ class SequenceEngine:
             - prospect_email
             - sequence_name
             - step_number
-            - subject  (rendered template with raw placeholders)
-            - body     (rendered template with raw placeholders)
+            - subject  (rendered with prospect data)
+            - body     (rendered with prospect data)
 
         When *dry_run* is False the state is advanced after collecting
         due items.  When True, state is left untouched.
@@ -140,12 +140,15 @@ class SequenceEngine:
             due_at = anchor + timedelta(days=step.delay_days)
 
             if now >= due_at:
+                # Look up prospect to get personalization data
+                prospect = self._get_prospect(state.prospect_email)
+
                 due.append({
                     "prospect_email": state.prospect_email,
                     "sequence_name": state.sequence_name,
                     "step_number": step.step_number,
-                    "subject": step.subject_template,
-                    "body": step.body_template,
+                    "subject": self._render_template(step.subject_template, prospect),
+                    "body": self._render_template(step.body_template, prospect),
                 })
                 if not dry_run:
                     state.current_step = next_step_num
@@ -195,6 +198,45 @@ class SequenceEngine:
             "total_enrolled": len(states),
             "by_sequence": by_seq,
         }
+
+    # ------------------------------------------------------------------
+    # Template personalization
+    # ------------------------------------------------------------------
+
+    def _get_prospect(self, email: str):
+        """Load prospect data for template personalization."""
+        try:
+            from fertility_sense.outreach.prospect_store import ProspectStore
+            store = ProspectStore(self._state_dir.parent / "prospects")
+            return store.get(email)
+        except Exception:
+            logger.debug("Could not load prospect for %s", email)
+            return None
+
+    def _render_template(self, template: str, prospect) -> str:
+        """Render email template with prospect data.
+
+        If *prospect* is None, placeholders are left as-is (graceful fallback).
+        """
+        if prospect is None:
+            return template
+
+        subs = {
+            "first_name": prospect.name.split()[0] if prospect.name else "there",
+            "name": prospect.name or "there",
+            "company": prospect.company or "your company",
+            "industry": prospect.industry or "your industry",
+            "employee_count": str(prospect.employee_count) if prospect.employee_count else "your",
+            "buyer_type": prospect.buyer_type or "benefits leader",
+            "sender_name": "WIN Fertility Team",
+            "calendar_link": "https://winfertility.com/schedule",
+            "current_solution": prospect.current_solution or "current approach",
+        }
+
+        result = template
+        for key, value in subs.items():
+            result = result.replace("{" + key + "}", value)
+        return result
 
     # ------------------------------------------------------------------
     # YAML loading

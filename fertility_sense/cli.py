@@ -165,7 +165,7 @@ def report(top: int, as_json: bool) -> None:
 
 @main.command()
 @click.option("--top", default=5, type=int, help="Top N signals to campaign on")
-@click.option("--channel", multiple=True, help="Channels (reddit, blog, email, social, forum)")
+@click.option("--channel", multiple=True, help="Channels (sales_email, linkedin, case_study, broker_brief, rfp_response, conference)")
 @click.option("--json-output", "as_json", is_flag=True, help="Output as JSON")
 def campaign(top: int, channel: tuple[str, ...], as_json: bool) -> None:
     """Generate multi-channel campaign content from demand signals."""
@@ -200,7 +200,7 @@ def send_email(to: str, top: int, subject: str | None) -> None:
     plan = generate_campaign_plan(pipe, top_n=top, channels=["email"])
 
     body_parts = [
-        "Fertility Sense — Demand Signal Report\n",
+        "WIN Fertility — Demand Signal Report\n",
         f"{plan.total_content_pieces} campaign emails from top {top} demand signals.\n",
     ]
     for i, camp in enumerate(plan.campaigns, 1):
@@ -212,7 +212,7 @@ def send_email(to: str, top: int, subject: str | None) -> None:
             body_parts.append(content.body)
         body_parts.append("")
 
-    subj = subject or f"Fertility Sense — Top {top} Campaign Signals"
+    subj = subject or f"WIN Fertility — Top {top} Campaign Signals"
     email = campaign_to_email(to=to, subject=subj, body="\n".join(body_parts))
     result = sender.send(email)
 
@@ -507,23 +507,66 @@ def sequence_assign(email: str, seq_name: str) -> None:
 
 
 @sequence.command("run")
-@click.option("--dry-run", is_flag=True, help="Preview without advancing state")
+@click.option("--dry-run", is_flag=True, help="Preview without sending")
 def sequence_run(dry_run: bool) -> None:
     """Run due sequence emails."""
-    engine = _sequence_engine()
+    from fertility_sense.outreach.sequences import SequenceEngine
+
+    pipe = _pipeline()
+    engine = SequenceEngine(
+        sequences_dir=pipe.config.data_dir / "sequences",
+        state_dir=pipe.config.data_dir / "outreach" / "sequence_state",
+    )
     due = engine.run_due(dry_run=dry_run)
 
-    mode = "DRY RUN" if dry_run else "LIVE"
-    click.echo(f"=== Sequence Run ({mode}) — {len(due)} email(s) due ===")
-
-    for item in due:
-        click.echo(
-            f"  [{item['sequence_name']}] Step {item['step_number']} -> {item['prospect_email']}"
-        )
-        click.echo(f"    Subject: {item['subject']}")
-
     if not due:
-        click.echo("  No emails due at this time.")
+        click.echo("No emails due.")
+        return
+
+    if dry_run:
+        click.echo(f"=== Sequence Run (DRY RUN) — {len(due)} email(s) due ===")
+        for item in due:
+            click.echo(f"  [{item['sequence_name']}] Step {item['step_number']} -> {item['prospect_email']}")
+            click.echo(f"    Subject: {item['subject']}")
+        return
+
+    # ACTUALLY SEND
+    from fertility_sense.outreach.email_sender import EmailSender, campaign_to_email
+
+    config = pipe.config
+    if not config.email_address:
+        click.echo("Error: email credentials not configured. Set FERTILITY_SENSE_EMAIL_ADDRESS in .env")
+        return
+
+    sender = EmailSender(config)
+    click.echo(f"Sending {len(due)} sequence email(s)...")
+
+    sent = 0
+    failed = 0
+    for item in due:
+        email = campaign_to_email(
+            to=item["prospect_email"],
+            subject=item["subject"],
+            body=item["body"],
+            topic_id=item.get("sequence_name", ""),
+        )
+        result = sender.send(email)
+        if result.status == "sent":
+            click.echo(f"  Sent to {item['prospect_email']}: {item['subject']}")
+            # Log activity
+            from fertility_sense.outreach.prospect_store import ProspectStore
+            store = ProspectStore(config.data_dir / "outreach" / "prospects")
+            store.log_activity(
+                item["prospect_email"],
+                "email_sent",
+                f"Sequence {item['sequence_name']} step {item['step_number']}: {item['subject']}",
+            )
+            sent += 1
+        else:
+            click.echo(f"  Failed {item['prospect_email']}: {result.error}")
+            failed += 1
+
+    click.echo(f"\nDone: {sent} sent, {failed} failed.")
 
 
 @sequence.command("status")
@@ -614,17 +657,47 @@ def queue_reject(item_id: str, reason: str) -> None:
 @queue.command("send")
 @click.argument("item_id")
 def queue_send(item_id: str) -> None:
-    """Mark an approved item as sent."""
-    q = _queue()
+    """Send an approved queue item (emails are sent via SMTP; other channels are marked sent)."""
+    from fertility_sense.outreach.content_queue import ContentQueue
+
+    pipe = _pipeline()
+    q = ContentQueue(pipe.config.data_dir / "outreach" / "queue")
     item = q.get(item_id)
-    if item is None:
-        click.echo(f"Item not found: {item_id}")
+
+    if not item:
+        click.echo(f"Item {item_id} not found.")
         return
-    if item.status != "approved":
-        click.echo(f"Item must be approved before sending (current: {item.status})")
+    if item.status not in ("approved", "pending"):
+        click.echo(f"Item {item_id} is {item.status} — can only send approved/pending items.")
         return
-    q.mark_sent(item_id)
-    click.echo(f"Marked sent: {item_id}")
+
+    # For email channels, actually send
+    if item.channel in ("sales_email", "broker_brief", "email"):
+        from fertility_sense.outreach.email_sender import EmailSender, campaign_to_email
+
+        config = pipe.config
+        if not config.email_address:
+            click.echo("Error: email credentials not configured.")
+            return
+
+        sender = EmailSender(config)
+        target = item.target or config.alert_email
+        email = campaign_to_email(
+            to=target,
+            subject=item.title or f"WIN Fertility: {item.topic_id}",
+            body=item.body,
+        )
+        result = sender.send(email)
+
+        if result.status == "sent":
+            q.mark_sent(item_id)
+            click.echo(f"Sent to {target} and marked sent.")
+        else:
+            click.echo(f"Send failed: {result.error}")
+    else:
+        # Non-email channels (linkedin, case_study, etc.) — just mark sent (manual distribution)
+        q.mark_sent(item_id)
+        click.echo(f"Marked sent: {item_id} (channel={item.channel} — distribute manually)")
 
 
 @queue.command("auto-approve")

@@ -1,4 +1,4 @@
-.PHONY: test-smoke test-unit test-integration test-property test-e2e test-coverage lint typecheck build docker-build docker-run docker-test
+.PHONY: test-smoke test-unit test-integration test-property test-e2e test-coverage lint typecheck build docker-build docker-run docker-test install-schedules uninstall-schedules
 
 # Test tiers (fast → slow)
 test-smoke:          ## <200ms — 5-test heartbeat, pre-commit gate
@@ -40,3 +40,22 @@ docker-run:          ## run with docker-compose
 
 docker-test:         ## run smoke tests inside Docker
 	docker run fertility-sense python -m pytest -m smoke
+
+# Scheduling (macOS launchd)
+install-schedules:   ## Install launchd schedules (macOS)
+	mkdir -p data/logs
+	cp deployments/com.winfertility.scout.plist ~/Library/LaunchAgents/
+	cp deployments/com.winfertility.digest-daily.plist ~/Library/LaunchAgents/
+	cp deployments/com.winfertility.digest-weekly.plist ~/Library/LaunchAgents/
+	cp deployments/com.winfertility.sequence-run.plist ~/Library/LaunchAgents/
+	launchctl load ~/Library/LaunchAgents/com.winfertility.scout.plist
+	launchctl load ~/Library/LaunchAgents/com.winfertility.digest-daily.plist
+	launchctl load ~/Library/LaunchAgents/com.winfertility.digest-weekly.plist
+	launchctl load ~/Library/LaunchAgents/com.winfertility.sequence-run.plist
+
+uninstall-schedules: ## Remove launchd schedules
+	-launchctl unload ~/Library/LaunchAgents/com.winfertility.scout.plist
+	-launchctl unload ~/Library/LaunchAgents/com.winfertility.digest-daily.plist
+	-launchctl unload ~/Library/LaunchAgents/com.winfertility.digest-weekly.plist
+	-launchctl unload ~/Library/LaunchAgents/com.winfertility.sequence-run.plist
+	-rm ~/Library/LaunchAgents/com.winfertility.*.plist
