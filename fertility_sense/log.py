@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import sys
 from contextvars import ContextVar
+from pathlib import Path
 
 import structlog
 
@@ -31,12 +32,15 @@ def _add_context_vars(
 def setup_logging(
     level: str = "INFO",
     json_output: bool = True,
+    log_dir: Path | None = None,
 ) -> structlog.BoundLogger:
     """Configure structlog with JSON (production) or console (dev) rendering.
 
     Args:
         level: Log level string (DEBUG, INFO, WARNING, ERROR, CRITICAL).
         json_output: If True, render as JSON lines; otherwise use coloured console.
+        log_dir: If provided, also write JSON logs to ``log_dir/operations.jsonl``.
+                 Defaults to ``data/logs/`` relative to the working directory.
 
     Returns:
         A bound structlog logger.
@@ -83,5 +87,19 @@ def setup_logging(
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(formatter)
     root_logger.addHandler(handler)
+
+    # Persistent file handler — always JSON, writes to data/logs/operations.jsonl
+    if log_dir is None:
+        log_dir = Path("data/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    json_formatter = structlog.stdlib.ProcessorFormatter(
+        processors=[
+            structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+            structlog.processors.JSONRenderer(),
+        ],
+    )
+    file_handler = logging.FileHandler(log_dir / "operations.jsonl")
+    file_handler.setFormatter(json_formatter)
+    root_logger.addHandler(file_handler)
 
     return structlog.get_logger("fertility_sense")

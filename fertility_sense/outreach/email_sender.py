@@ -22,8 +22,20 @@ from pathlib import Path
 from typing import Any
 
 from fertility_sense.config import FertilitySenseConfig
+from fertility_sense.outreach.send_audit import SendAuditEntry, SendAuditLog
 
 logger = logging.getLogger(__name__)
+
+# Module-level audit log — lazily initialised per sender instance
+_audit_log: SendAuditLog | None = None
+
+
+def _get_audit_log(data_dir: Path) -> SendAuditLog:
+    """Return (and cache) the singleton audit log."""
+    global _audit_log  # noqa: PLW0603
+    if _audit_log is None:
+        _audit_log = SendAuditLog(data_dir / "outreach" / "send_audit.jsonl")
+    return _audit_log
 
 # Legacy constants kept for backward compatibility
 _MAX_EMAILS_PER_MINUTE = 10
@@ -157,8 +169,13 @@ class EmailSender:
             logger.error("SMTP connection test failed: %s", e)
             return False
 
-    def send(self, message: EmailMessage) -> SendResult:
-        """Send a single email via SMTP."""
+    def send(self, message: EmailMessage, *, channel: str = "manual") -> SendResult:
+        """Send a single email via SMTP.
+
+        Args:
+            message: The email to send.
+            channel: Audit channel tag ("sequence", "campaign", "digest", "manual").
+        """
         # Token bucket rate limiting — wait if no tokens available
         if not self._rate_limiter.acquire():
             wait = self._rate_limiter.wait_time()
@@ -178,7 +195,7 @@ class EmailSender:
                 smtp.send_message(msg)
 
             logger.info("Email sent to %s: %s", message.to, message.subject)
-            return SendResult(
+            result = SendResult(
                 to=message.to,
                 subject=message.subject,
                 status="sent",
@@ -186,12 +203,37 @@ class EmailSender:
             )
         except Exception as e:
             logger.error("Failed to send email to %s: %s", message.to, e)
-            return SendResult(
+            result = SendResult(
                 to=message.to,
                 subject=message.subject,
                 status="failed",
                 error=str(e),
             )
+
+        # Record to immutable audit log
+        self._record_audit(message, result, channel)
+        return result
+
+    def _record_audit(
+        self, message: EmailMessage, result: SendResult, channel: str
+    ) -> None:
+        """Write a send attempt to the audit log (best-effort)."""
+        try:
+            audit = _get_audit_log(self._config.data_dir)
+            audit.record(
+                SendAuditEntry(
+                    timestamp=datetime.now(timezone.utc).isoformat(),
+                    recipient=result.to,
+                    subject=result.subject,
+                    channel=channel,
+                    status=result.status,
+                    campaign_id=message.campaign_id,
+                    error=result.error or "",
+                    message_id=result.message_id or "",
+                )
+            )
+        except Exception:
+            logger.warning("Failed to write audit log entry", exc_info=True)
 
     def send_batch(self, messages: list[EmailMessage]) -> list[SendResult]:
         """Send multiple emails with rate limiting."""

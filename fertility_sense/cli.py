@@ -17,11 +17,23 @@ def main() -> None:
 
 
 def _pipeline() -> "Pipeline":
-    """Lazy-create a Pipeline instance."""
+    """Lazy-create a Pipeline instance with startup validation."""
+    import logging
+
     from fertility_sense.config import FertilitySenseConfig
     from fertility_sense.pipeline import Pipeline
 
-    return Pipeline(FertilitySenseConfig())
+    config = FertilitySenseConfig()
+    warnings = config.validate_at_startup()
+    logger_ = logging.getLogger("fertility_sense.cli")
+    for w in warnings:
+        if "FAILED" in w or "will fail" in w:
+            logger_.warning(w)
+            click.echo(f"  WARN: {w}", err=True)
+        else:
+            logger_.info(w)
+
+    return Pipeline(config)
 
 
 @main.command()

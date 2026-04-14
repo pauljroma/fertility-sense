@@ -65,6 +65,7 @@ class FertilitySenseConfig(BaseSettings):
     imap_host: str = "imap.ionos.com"
     imap_port: int = 993
     email_from_name: str = "WIN Fertility"
+    smtp_rate_limit_per_hour: int = 20
 
     # WIN Fertility branding
     company_name: str = "WIN Fertility"
@@ -78,3 +79,31 @@ class FertilitySenseConfig(BaseSettings):
 
     # CORS
     cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+
+    def validate_at_startup(self) -> list[str]:
+        """Validate config at startup. Returns list of warnings."""
+        warnings: list[str] = []
+
+        if not self.email_address:
+            warnings.append("EMAIL: No email address configured -- email sends will fail")
+        if not self.email_password:
+            warnings.append("EMAIL: No email password -- email sends will fail")
+        if not self.anthropic_api_key:
+            warnings.append("CLAUDE: No API key -- agents will run in offline mode")
+        if self.smtp_rate_limit_per_hour > 30:
+            warnings.append(f"EMAIL: Rate limit {self.smtp_rate_limit_per_hour}/hr may exceed IONOS limits")
+
+        # Test SMTP if credentials present
+        if self.email_address and self.email_password:
+            try:
+                import smtplib
+
+                with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=10) as smtp:
+                    smtp.ehlo()
+                    smtp.starttls()
+                    smtp.login(self.email_address, self.email_password)
+                warnings.append("EMAIL: SMTP connection verified OK")
+            except Exception as e:
+                warnings.append(f"EMAIL: SMTP connection FAILED -- {e}")
+
+        return warnings

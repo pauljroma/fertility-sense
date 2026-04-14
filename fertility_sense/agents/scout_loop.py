@@ -79,6 +79,19 @@ class ScoutLoop:
         now_iso = datetime.now(timezone.utc).isoformat()
         logger.info("Scout run starting at %s", now_iso)
 
+        # Step 0: Check for bounces/unsubscribes before processing
+        try:
+            from fertility_sense.outreach.bounce_handler import BounceHandler
+            bh = BounceHandler(self.pipe.config)
+            bounce_result = bh.check_inbox_for_bounces()
+            if bounce_result["unsubscribes"]:
+                count = bh.process_unsubscribes(bounce_result["unsubscribes"])
+                logger.info("Processed %d unsubscribes", count)
+            if bounce_result["bounces"]:
+                logger.info("Detected %d bounces", len(bounce_result["bounces"]))
+        except Exception:
+            pass  # Bounce handling is best-effort
+
         # 1. Ingest
         try:
             feed_summary = self.pipe.ingest("all")
@@ -379,12 +392,23 @@ class ScoutLoop:
             return {}
 
     def _save_history(self, scores: dict[str, float], timestamp: str) -> None:
-        """Save current score snapshot to disk."""
+        """Save current score snapshot to disk.
+
+        Writes two files:
+        - ``score_history.json`` -- overwritten each run for quick delta comparison.
+        - ``score_history.jsonl`` -- append-only log for historical tracking.
+        """
         data = {
             "timestamp": timestamp,
             "scores": {k: round(v, 2) for k, v in scores.items()},
         }
         _atomic_write_json(self._history_path, data)
+
+        # Append to JSONL for historical tracking
+        jsonl_path = self._history_path.with_suffix(".jsonl")
+        jsonl_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(jsonl_path, "a") as f:
+            f.write(json.dumps(data, default=str) + "\n")
 
 
 def _atomic_write_json(path: Path, data: dict | list) -> None:
