@@ -85,6 +85,49 @@ class DigestGenerator:
         else:
             lines.append("  No previous data — first run.")
 
+        # --- Regulatory signals ---
+        lines.append("")
+        lines.append("REGULATORY SIGNALS")
+        lines.append("-" * 40)
+        try:
+            from fertility_sense.feeds.state_mandates import (
+                STATE_MANDATES,
+                states_with_ivf_mandate,
+            )
+
+            total_mandates = len(STATE_MANDATES)
+            ivf_states = states_with_ivf_mandate()
+            lines.append(f"  {total_mandates} states with fertility coverage mandates")
+            lines.append(f"  {len(ivf_states)} states with IVF mandate: {', '.join(ivf_states)}")
+            key_states = [s for s in ["CA", "NY", "IL", "NJ", "MA"] if s in ivf_states]
+            if key_states:
+                lines.append(
+                    f"  Key states for WIN: {', '.join(key_states)} "
+                    f"(large employer base + mandate)"
+                )
+        except ImportError:
+            lines.append("  State mandate feed not available.")
+
+        # --- Competitive landscape ---
+        lines.append("")
+        lines.append("COMPETITIVE LANDSCAPE")
+        lines.append("-" * 40)
+        try:
+            from fertility_sense.feeds.competitor_news import COMPETITORS
+
+            for _key, comp in COMPETITORS.items():
+                name = comp["name"]
+                revenue = comp["est_revenue"]
+                clients = comp["est_clients"]
+                positioning = comp["win_positioning"]
+                short_pos = positioning.split(" — ")[0] if " — " in positioning else positioning
+                if len(short_pos) > 80:
+                    short_pos = short_pos[:77] + "..."
+                lines.append(f"  {name}: {revenue}, {clients}")
+                lines.append(f"    WIN positioning: {short_pos}")
+        except ImportError:
+            lines.append("  Competitor intel feed not available.")
+
         # --- Evidence store count ---
         lines.append("")
         lines.append("EVIDENCE STORE")
@@ -100,6 +143,14 @@ class DigestGenerator:
         lines.append(f"  Pending:  {queue_status['pending']}")
         lines.append(f"  Approved: {queue_status['approved']}")
         lines.append(f"  Sent:     {queue_status['sent']}")
+
+        # --- Deal pipeline ---
+        lines.append("")
+        lines.append("DEAL PIPELINE")
+        lines.append("-" * 40)
+        pipeline_text = self._pipeline_digest()
+        for line in pipeline_text.splitlines():
+            lines.append(f"  {line}")
 
         lines.append("")
         lines.append("=" * 70)
@@ -167,6 +218,14 @@ class DigestGenerator:
                 )
         else:
             lines.append("  No evidence gaps.")
+
+        # --- Deal pipeline ---
+        lines.append("")
+        lines.append("DEAL PIPELINE")
+        lines.append("-" * 50)
+        pipeline_text = self._pipeline_digest()
+        for line in pipeline_text.splitlines():
+            lines.append(f"  {line}")
 
         # --- Week-over-week TOS trends ---
         lines.append("")
@@ -248,6 +307,19 @@ class DigestGenerator:
             return data.get("scores", {})
         except (json.JSONDecodeError, KeyError):
             return {}
+
+    def _pipeline_digest(self) -> str:
+        """Generate compact pipeline summary for digest inclusion."""
+        try:
+            from fertility_sense.outreach.deal_pipeline import DealPipeline
+            from fertility_sense.outreach.prospect_store import ProspectStore
+
+            store = ProspectStore(self.pipe.config.data_dir / "outreach" / "prospects")
+            dp = DealPipeline(store)
+            return dp.pipeline_digest_section()
+        except Exception as exc:
+            logger.warning("Failed to generate pipeline digest: %s", exc)
+            return "Pipeline data unavailable."
 
     def _check_queue_status(self) -> dict[str, int]:
         """Count items in the content queue by status."""

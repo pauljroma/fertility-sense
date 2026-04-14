@@ -742,3 +742,230 @@ class TestCampaignComposer:
         items = queue.list_all()
         assert len(items) == 1
         assert items[0].target == "r/TryingForABaby"
+
+
+# ======================================================================
+# Activity Logging Tests
+# ======================================================================
+
+
+@pytest.mark.unit
+class TestActivityLogging:
+    """Tests for activity tracking on ProspectStore."""
+
+    def test_log_activity(self, tmp_path: Path) -> None:
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(email="a@x.com", name="Alice"))
+        activity = store.log_activity("a@x.com", "email_sent", "Sent step 1")
+        assert activity is not None
+        assert activity.action == "email_sent"
+
+        p = store.get("a@x.com")
+        assert p is not None
+        assert len(p.activities) == 1
+        assert p.activities[0]["action"] == "email_sent"
+
+    def test_log_activity_nonexistent_returns_none(self, tmp_path: Path) -> None:
+        store = ProspectStore(tmp_path / "prospects")
+        assert store.log_activity("ghost@x.com", "email_sent", "nope") is None
+
+    def test_get_activities(self, tmp_path: Path) -> None:
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(email="a@x.com"))
+        store.log_activity("a@x.com", "email_sent", "Step 1")
+        store.log_activity("a@x.com", "replied", "Got reply")
+        activities = store.get_activities("a@x.com")
+        assert len(activities) == 2
+
+    def test_get_activities_since(self, tmp_path: Path) -> None:
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(email="a@x.com"))
+        store.log_activity("a@x.com", "email_sent", "Old one")
+        # All activities are recent, so filtering by a past date returns all
+        since = datetime.now(timezone.utc) - timedelta(hours=1)
+        activities = store.get_activities("a@x.com", since=since)
+        assert len(activities) == 1
+
+    def test_get_activities_nonexistent_returns_empty(self, tmp_path: Path) -> None:
+        store = ProspectStore(tmp_path / "prospects")
+        assert store.get_activities("ghost@x.com") == []
+
+    def test_stale_prospects(self, tmp_path: Path) -> None:
+        store = ProspectStore(tmp_path / "prospects")
+        # Create a prospect with created_at 60 days ago and no activities
+        old = Prospect(
+            email="old@x.com",
+            created_at=datetime.now(timezone.utc) - timedelta(days=60),
+        )
+        store.add(old)
+        # Create a fresh prospect
+        store.add(Prospect(email="fresh@x.com"))
+        stale = store.stale_prospects(days=30)
+        assert len(stale) == 1
+        assert stale[0].email == "old@x.com"
+
+    def test_stale_prospects_excludes_won_lost(self, tmp_path: Path) -> None:
+        store = ProspectStore(tmp_path / "prospects")
+        old_won = Prospect(
+            email="won@x.com",
+            deal_stage="won",
+            created_at=datetime.now(timezone.utc) - timedelta(days=60),
+        )
+        store.add(old_won)
+        assert len(store.stale_prospects(days=30)) == 0
+
+    def test_log_activity_updates_last_contact(self, tmp_path: Path) -> None:
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(email="a@x.com"))
+        store.log_activity("a@x.com", "email_sent", "Test")
+        p = store.get("a@x.com")
+        assert p is not None
+        assert p.last_contact is not None
+
+
+# ======================================================================
+# Deal Pipeline Tests
+# ======================================================================
+
+
+@pytest.mark.unit
+class TestDealPipeline:
+    """Tests for DealPipeline — analytics and stage management."""
+
+    def _store_with_data(self, tmp_path: Path) -> ProspectStore:
+        from fertility_sense.outreach.prospect_store import ProspectStore, Prospect
+
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(email="chro@big.com", company="BigCo", buyer_type="chro",
+                           company_size="10000+", deal_stage="evaluating"))
+        store.add(Prospect(email="broker@aon.com", company="AON", buyer_type="broker",
+                           deal_stage="warm"))
+        store.add(Prospect(email="hr@small.com", company="SmallCo", buyer_type="smb",
+                           deal_stage="cold"))
+        store.add(Prospect(email="won@acme.com", company="Acme", buyer_type="chro",
+                           company_size="1000-10000", deal_stage="won"))
+        return store
+
+    def test_pipeline_summary(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = self._store_with_data(tmp_path)
+        dp = DealPipeline(store)
+        summary = dp.pipeline_summary()
+
+        assert summary["cold"]["count"] == 1
+        assert summary["warm"]["count"] == 1
+        assert summary["evaluating"]["count"] == 1
+        assert summary["won"]["count"] == 1
+        assert summary["total"]["count"] == 4
+
+    def test_pipeline_by_buyer_type(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = self._store_with_data(tmp_path)
+        dp = DealPipeline(store)
+        by_buyer = dp.pipeline_by_buyer_type()
+
+        assert by_buyer["chro"]["count"] == 2
+        assert by_buyer["broker"]["count"] == 1
+        assert by_buyer["smb"]["count"] == 1
+
+    def test_deal_score(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = self._store_with_data(tmp_path)
+        dp = DealPipeline(store)
+
+        p = store.get("chro@big.com")
+        score = dp.deal_score(p)
+        # evaluating = 35 base + 10 size bonus for 10000+ = 45
+        assert score == 45.0
+
+    def test_deal_score_with_recent_activity(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = self._store_with_data(tmp_path)
+        store.log_activity("hr@small.com", "email_sent", "Sent intro")
+        dp = DealPipeline(store)
+
+        p = store.get("hr@small.com")
+        score = dp.deal_score(p)
+        # cold = 5 base + 15 recency bonus (within 7d) + 0 size bonus = 20
+        assert score == 20.0
+
+    def test_auto_advance_cold_to_warm(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(email="cold@x.com", deal_stage="cold"))
+        store.log_activity("cold@x.com", "email_opened", "Opened intro email")
+
+        dp = DealPipeline(store)
+        changes = dp.auto_advance_stages()
+
+        assert len(changes) >= 1
+        updated = store.get("cold@x.com")
+        assert updated.deal_stage == "warm"
+
+    def test_auto_advance_warm_to_evaluating(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(email="warm@x.com", deal_stage="warm"))
+        store.log_activity("warm@x.com", "meeting_booked", "Demo scheduled")
+
+        dp = DealPipeline(store)
+        changes = dp.auto_advance_stages()
+
+        assert len(changes) >= 1
+        updated = store.get("warm@x.com")
+        assert updated.deal_stage == "evaluating"
+
+    def test_auto_advance_skips_won_lost(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(email="won@x.com", deal_stage="won"))
+        store.add(Prospect(email="lost@x.com", deal_stage="lost"))
+
+        dp = DealPipeline(store)
+        changes = dp.auto_advance_stages()
+        assert len(changes) == 0
+
+    def test_format_pipeline_report(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = self._store_with_data(tmp_path)
+        dp = DealPipeline(store)
+        report = dp.format_pipeline_report()
+
+        assert "WIN FERTILITY" in report
+        assert "DEAL PIPELINE" in report
+        assert "TOTAL" in report
+        assert "BY BUYER TYPE" in report
+
+    def test_pipeline_digest_section(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = self._store_with_data(tmp_path)
+        dp = DealPipeline(store)
+        section = dp.pipeline_digest_section()
+
+        assert "Weighted pipeline:" in section
+        assert "Stale deals" in section
+
+    def test_stale_deals(self, tmp_path: Path) -> None:
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+        store = ProspectStore(tmp_path / "prospects")
+        store.add(Prospect(
+            email="old@x.com",
+            deal_stage="warm",
+            created_at=datetime.now(timezone.utc) - timedelta(days=60),
+        ))
+        store.add(Prospect(email="fresh@x.com", deal_stage="warm"))
+
+        dp = DealPipeline(store)
+        stale = dp.stale_deals(days=30)
+        assert len(stale) == 1
+        assert stale[0].email == "old@x.com"

@@ -43,6 +43,7 @@ class ScoutResult:
     feeds_ingested: dict[str, int]
     velocity_alerts: list[VelocityAlert]
     top_scores: list[dict[str, Any]]
+    b2b_feed_health: dict[str, Any] = field(default_factory=dict)
     status: str = "ok"
     error: str | None = None
 
@@ -146,12 +147,16 @@ class ScoutLoop:
             for s in scores[:20]
         ]
 
+        # 8b. Collect B2B feed health and pipeline metrics
+        b2b_health = self._collect_b2b_health()
+
         result = ScoutResult(
             run_at=now_iso,
             topics_scored=len(scores),
             feeds_ingested=feed_summary,
             velocity_alerts=alerts,
             top_scores=top_scores,
+            b2b_feed_health=b2b_health,
         )
 
         # 9. Email alert if there are velocity alerts
@@ -189,6 +194,66 @@ class ScoutLoop:
                 logger.error("Scout loop error (unexpected %s): %s", type(exc).__name__, exc, exc_info=True)
 
             time.sleep(interval_secs)
+
+    # ------------------------------------------------------------------
+    # B2B feed health
+    # ------------------------------------------------------------------
+
+    def _collect_b2b_health(self) -> dict[str, Any]:
+        """Collect health metrics for B2B signal feeds (state mandates, competitor intel)."""
+        health: dict[str, Any] = {}
+
+        # State mandate feed health
+        try:
+            sm_feed = self.pipe.registry.get("state_mandates")
+            sm_health = sm_feed.health()
+            from fertility_sense.feeds.state_mandates import (
+                STATE_MANDATES,
+                states_with_ivf_mandate,
+            )
+
+            health["state_mandates"] = {
+                "status": "OK" if not sm_health.is_stale else "STALE",
+                "records_ingested": sm_health.records_ingested,
+                "total_mandate_states": len(STATE_MANDATES),
+                "ivf_mandate_states": len(states_with_ivf_mandate()),
+            }
+        except KeyError:
+            health["state_mandates"] = {"status": "NOT_REGISTERED"}
+
+        # Competitor intel feed health
+        try:
+            ci_feed = self.pipe.registry.get("competitor_intel")
+            ci_health = ci_feed.health()
+            from fertility_sense.feeds.competitor_news import COMPETITORS
+
+            health["competitor_intel"] = {
+                "status": "OK" if not ci_health.is_stale else "STALE",
+                "records_ingested": ci_health.records_ingested,
+                "competitors_tracked": len(COMPETITORS),
+            }
+        except KeyError:
+            health["competitor_intel"] = {"status": "NOT_REGISTERED"}
+
+        # Pipeline metrics (if deal_pipeline module exists)
+        try:
+            from fertility_sense.outreach.prospect_store import ProspectStore
+
+            store = ProspectStore(self.pipe.config.data_dir / "outreach" / "prospects")
+            all_prospects = store.list_all()
+            health["pipeline"] = {
+                "total_prospects": len(all_prospects),
+                "by_stage": {},
+            }
+            for p in all_prospects:
+                stage = getattr(p, "deal_stage", "unknown")
+                health["pipeline"]["by_stage"][stage] = (
+                    health["pipeline"]["by_stage"].get(stage, 0) + 1
+                )
+        except (ImportError, OSError, Exception):
+            health["pipeline"] = {"status": "unavailable"}
+
+        return health
 
     # ------------------------------------------------------------------
     # Internal
@@ -262,6 +327,28 @@ class ScoutLoop:
             body_parts.append(
                 f"  #{s['rank']} {s['topic_id']}: TOS={s['composite_tos']}"
             )
+
+        # B2B feed health
+        if result.b2b_feed_health:
+            body_parts.extend(["", "B2B FEED HEALTH", "-" * 50])
+            sm = result.b2b_feed_health.get("state_mandates", {})
+            if sm:
+                body_parts.append(
+                    f"  State Mandates: {sm.get('status', 'N/A')} — "
+                    f"{sm.get('total_mandate_states', 0)} mandate states, "
+                    f"{sm.get('ivf_mandate_states', 0)} with IVF"
+                )
+            ci = result.b2b_feed_health.get("competitor_intel", {})
+            if ci:
+                body_parts.append(
+                    f"  Competitor Intel: {ci.get('status', 'N/A')} — "
+                    f"{ci.get('competitors_tracked', 0)} competitors tracked"
+                )
+            pipeline = result.b2b_feed_health.get("pipeline", {})
+            if pipeline and pipeline.get("total_prospects") is not None:
+                body_parts.append(
+                    f"  Pipeline: {pipeline.get('total_prospects', 0)} prospects"
+                )
 
         body = "\n".join(body_parts)
         alert_to = self.pipe.config.alert_email

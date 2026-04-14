@@ -30,6 +30,15 @@ TAG_AGENT_MAP: dict[str, str] = {
     "feeds": "ops-monitor",
     "pipeline": "ops-monitor",
     "alerting": "ops-monitor",
+    "rfp": "rfp-responder",
+    "parsing": "rfp-responder",
+    "drafting": "rfp-responder",
+    "review": "rfp-responder",
+    "competitive": "competitive-intel",
+    "pricing": "competitive-intel",
+    "deals": "deal-manager",
+    "advancement": "deal-manager",
+    "sequences": "deal-manager",
 }
 
 # Keyword → agent for natural language routing
@@ -65,6 +74,17 @@ KEYWORD_AGENT_MAP: dict[str, str] = {
     "status": "ops-monitor",
     "freshness": "ops-monitor",
     "stale": "ops-monitor",
+    "rfp": "rfp-responder",
+    "proposal": "rfp-responder",
+    "competitor": "competitive-intel",
+    "progyny": "competitive-intel",
+    "carrot": "competitive-intel",
+    "maven": "competitive-intel",
+    "kindbody": "competitive-intel",
+    "battle card": "competitive-intel",
+    "deal": "deal-manager",
+    "prospect": "deal-manager",
+    "pipeline stage": "deal-manager",
 }
 
 

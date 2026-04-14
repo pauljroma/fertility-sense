@@ -332,12 +332,8 @@ def digest(daily: bool, weekly: bool, to: str) -> None:
 
 
 # ------------------------------------------------------------------
-# Prospect management
+# Prospect management & pipeline
 # ------------------------------------------------------------------
-
-@main.group()
-def prospects() -> None:
-    """Manage prospect database."""
 
 
 def _prospect_store() -> "ProspectStore":
@@ -346,6 +342,51 @@ def _prospect_store() -> "ProspectStore":
 
     cfg = FertilitySenseConfig()
     return ProspectStore(cfg.data_dir / "outreach" / "prospects")
+
+
+@main.command("pipeline-report")
+@click.option("--email-to", default=None, help="Email the report to this address")
+def pipeline_report(email_to: str | None) -> None:
+    """Show deal pipeline summary, stale deals, and recent activity."""
+    from fertility_sense.outreach.deal_pipeline import DealPipeline
+
+    store = _prospect_store()
+    dp = DealPipeline(store)
+
+    # Auto-advance stages first.
+    changes = dp.auto_advance_stages()
+    if changes:
+        click.echo("=== Stage Changes ===")
+        for c in changes:
+            click.echo(f"  {c}")
+        click.echo()
+
+    report_text = dp.format_pipeline_report()
+    click.echo(report_text)
+
+    if email_to:
+        from fertility_sense.config import FertilitySenseConfig
+        from fertility_sense.outreach.email_sender import EmailSender, campaign_to_email
+
+        config = FertilitySenseConfig()
+        sender = EmailSender(config)
+        if not sender.test_connection():
+            click.echo("SMTP connection failed. Check email credentials in .env")
+            return
+        from datetime import datetime, timezone
+
+        subject = f"WIN Fertility Pipeline Report ({datetime.now(timezone.utc).strftime('%Y-%m-%d')})"
+        email = campaign_to_email(to=email_to, subject=subject, body=report_text)
+        result = sender.send(email)
+        if result.status == "sent":
+            click.echo(f"Report sent to {email_to}")
+        else:
+            click.echo(f"Failed to send: {result.error}")
+
+
+@main.group()
+def prospects() -> None:
+    """Manage prospect database."""
 
 
 @prospects.command("add")

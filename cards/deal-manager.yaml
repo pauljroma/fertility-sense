@@ -1,0 +1,29 @@
+agent: deal-manager
+version: 0.1.0
+
+what_it_does:
+  - Check deal pipeline state and stage distribution
+  - Auto-advance deal stages based on triggering events
+  - Trigger email sequences for prospects based on stage and persona
+  - Detect and alert on stale deals exceeding stage thresholds
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense status --agents"
+  secondary:
+    type: a2a
+    endpoint: "http://127.0.0.1:9300"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: pipeline-check-v1
+      pipeline_check: { accuracy: 0.0, n: 0 }
+    - prompt: stale-alert-v1
+      stale_detection: { accuracy: 0.0, n: 0 }
+
+tier: haiku
+role: executor
+fallback_agent: ops-monitor

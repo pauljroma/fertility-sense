@@ -1,0 +1,31 @@
+agent: rfp-responder
+version: 0.1.0
+
+what_it_does:
+  - Parse RFP requirements and classify as mandatory/optional
+  - Score WIN Fertility's fit against each requirement
+  - Draft compliant response sections with evidence citations
+  - Review responses for compliance and completeness
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense ingest --agent rfp-responder"
+  secondary:
+    type: a2a
+    endpoint: "http://127.0.0.1:9300"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: rfp-parse-v1
+      requirement_extraction: { accuracy: 0.0, n: 0 }
+    - prompt: rfp-score-v1
+      fit_scoring: { accuracy: 0.0, n: 0 }
+    - prompt: rfp-draft-v1
+      response_drafting: { accuracy: 0.0, n: 0 }
+
+tier: sonnet
+role: analyst
+fallback_agent: answer-assembler

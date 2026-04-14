@@ -91,6 +91,13 @@ class Pipeline:
 
         self.registry.register(MotherToBabyFeed())
 
+        # B2B signal feeds (always registered — no external dependencies)
+        from fertility_sense.feeds.state_mandates import StateMandateFeed
+        from fertility_sense.feeds.competitor_news import CompetitorIntelFeed
+
+        self.registry.register(StateMandateFeed())
+        self.registry.register(CompetitorIntelFeed())
+
         # Google Trends (requires pytrends)
         try:
             from fertility_sense.feeds.google_trends import GoogleTrendsFeed

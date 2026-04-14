@@ -13,12 +13,24 @@ import logging
 import os
 import re
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+from dataclasses import dataclass, field
 
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class Activity:
+    """A single activity log entry for a prospect."""
+
+    timestamp: str  # ISO format
+    action: str  # "email_sent", "email_opened", "replied", "meeting_booked", "note_added", "stage_changed"
+    detail: str  # e.g. "Sent chro_outbound step 2", "Deal moved cold->warm"
+    actor: str = "system"  # "system", "agent:deal-manager", "manual"
 
 
 class Prospect(BaseModel):
@@ -42,6 +54,7 @@ class Prospect(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     deal_score: float = 0.0  # replaces engagement_score
     notes: str = ""
+    activities: list[dict] = Field(default_factory=list)  # Activity log
 
 
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -204,6 +217,73 @@ class ProspectStore:
     def count(self) -> int:
         """Total number of stored prospects."""
         return len(list(self._dir.glob("*.json")))
+
+    # ------------------------------------------------------------------
+    # Activity tracking
+    # ------------------------------------------------------------------
+
+    def log_activity(
+        self,
+        email: str,
+        action: str,
+        detail: str,
+        actor: str = "system",
+    ) -> Activity | None:
+        """Append an activity to a prospect's log and save.
+
+        Returns the Activity or None if the prospect doesn't exist.
+        """
+        prospect = self.get(email)
+        if prospect is None:
+            return None
+        activity = Activity(
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            action=action,
+            detail=detail,
+            actor=actor,
+        )
+        prospect.activities.append(
+            {"timestamp": activity.timestamp, "action": activity.action,
+             "detail": activity.detail, "actor": activity.actor}
+        )
+        prospect.last_contact = datetime.now(timezone.utc)
+        self.add(prospect)
+        logger.info("Activity logged for %s: %s — %s", email, action, detail)
+        return activity
+
+    def get_activities(
+        self, email: str, since: datetime | None = None
+    ) -> list[dict]:
+        """Return activities for a prospect, optionally filtered by date."""
+        prospect = self.get(email)
+        if prospect is None:
+            return []
+        if since is None:
+            return list(prospect.activities)
+        cutoff = since.isoformat()
+        return [a for a in prospect.activities if a.get("timestamp", "") >= cutoff]
+
+    def stale_prospects(self, days: int = 30) -> list[Prospect]:
+        """Return prospects with no activity in *days* days."""
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        stale: list[Prospect] = []
+        for p in self.list_all():
+            if p.deal_stage in ("won", "lost"):
+                continue
+            if p.activities:
+                last_ts = max(a.get("timestamp", "") for a in p.activities)
+                try:
+                    last_dt = datetime.fromisoformat(last_ts)
+                except (ValueError, TypeError):
+                    last_dt = p.created_at
+            else:
+                last_dt = p.created_at
+            # Ensure timezone-aware comparison
+            if last_dt.tzinfo is None:
+                last_dt = last_dt.replace(tzinfo=timezone.utc)
+            if last_dt < cutoff:
+                stale.append(p)
+        return stale
 
     # ------------------------------------------------------------------
     # Internal

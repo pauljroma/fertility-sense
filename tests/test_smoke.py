@@ -29,9 +29,12 @@ def test_import_agents():
     """Agent registry loads."""
     from fertility_sense.nemoclaw.agents import ALL_AGENTS, AGENT_MAP
 
-    assert len(ALL_AGENTS) == 8
+    assert len(ALL_AGENTS) == 11
     assert "demand-scout" in AGENT_MAP
     assert "answer-assembler" in AGENT_MAP
+    assert "rfp-responder" in AGENT_MAP
+    assert "competitive-intel" in AGENT_MAP
+    assert "deal-manager" in AGENT_MAP
 
 
 @pytest.mark.smoke

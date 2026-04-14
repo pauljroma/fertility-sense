@@ -15,12 +15,13 @@ from fertility_sense.nemoclaw.router import route_to_agent
 
 @pytest.mark.unit
 def test_all_agents_registered():
-    assert len(ALL_AGENTS) == 8
+    assert len(ALL_AGENTS) == 11
     names = {a.name for a in ALL_AGENTS}
     expected = {
         "demand-scout", "evidence-curator", "safety-sentinel",
         "ontology-keeper", "signal-ranker", "answer-assembler",
         "product-translator", "ops-monitor",
+        "rfp-responder", "competitive-intel", "deal-manager",
     }
     assert names == expected
 

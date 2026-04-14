@@ -1,0 +1,29 @@
+agent: competitive-intel
+version: 0.1.0
+
+what_it_does:
+  - Monitor competitor moves — funding, hires, client wins/losses, pricing
+  - Generate competitor comparison matrices and battle cards
+  - Analyze and track competitor pricing trends
+  - Generate win/loss analysis reports from deal outcomes
+
+interface:
+  primary:
+    type: cli
+    command: "fertility-sense ingest --agent competitive-intel"
+  secondary:
+    type: a2a
+    endpoint: "http://127.0.0.1:9300"
+
+performance:
+  overall_accuracy: 0.0
+  success_rate: 0.0
+  by_task_and_prompt:
+    - prompt: competitor-monitor-v1
+      competitor_tracking: { accuracy: 0.0, n: 0 }
+    - prompt: comparison-doc-v1
+      battle_card_generation: { accuracy: 0.0, n: 0 }
+
+tier: sonnet
+role: analyst
+fallback_agent: evidence-curator
