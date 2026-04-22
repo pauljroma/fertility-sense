@@ -225,6 +225,217 @@ def create_app(config: FertilitySenseConfig | None = None) -> FastAPI:
             ],
         }
 
+    # ------------------------------------------------------------------
+    # Prospects CRUD
+    # ------------------------------------------------------------------
+
+    @application.get("/prospects")
+    def list_prospects(
+        buyer_type: str | None = Query(default=None),
+        stage: str | None = Query(default=None),
+    ) -> list[dict]:
+        """List all prospects, optionally filtered by buyer_type and/or stage."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.prospect_store import ProspectStore
+
+        store = ProspectStore(pipe.config.data_dir / "outreach" / "prospects")
+        prospects = store.list_all()
+        if buyer_type:
+            prospects = [p for p in prospects if p.buyer_type == buyer_type]
+        if stage:
+            prospects = [p for p in prospects if p.deal_stage == stage]
+        return [p.model_dump(mode="json") for p in prospects]
+
+    @application.post("/prospects", status_code=201)
+    def create_prospect(data: dict) -> dict:
+        """Create a new prospect."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.prospect_store import Prospect, ProspectStore
+
+        store = ProspectStore(pipe.config.data_dir / "outreach" / "prospects")
+        if "email" not in data:
+            raise HTTPException(status_code=422, detail="Field 'email' is required")
+        existing = store.get(data["email"])
+        if existing is not None:
+            raise HTTPException(
+                status_code=409, detail=f"Prospect with email '{data['email']}' already exists"
+            )
+        prospect = Prospect.model_validate(data)
+        store.add(prospect)
+        return prospect.model_dump(mode="json")
+
+    @application.patch("/prospects/{email}")
+    def update_prospect(email: str, data: dict) -> dict:
+        """Update prospect fields by email."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.prospect_store import ProspectStore
+
+        store = ProspectStore(pipe.config.data_dir / "outreach" / "prospects")
+        updated = store.update(email, **data)
+        if updated is None:
+            raise HTTPException(status_code=404, detail=f"Prospect '{email}' not found")
+        return updated.model_dump(mode="json")
+
+    # ------------------------------------------------------------------
+    # Pipeline Summary
+    # ------------------------------------------------------------------
+
+    @application.get("/pipeline/summary")
+    def pipeline_summary() -> dict:
+        """Pipeline KPIs: total value, deals by stage, weighted value."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+        from fertility_sense.outreach.prospect_store import ProspectStore
+
+        store = ProspectStore(pipe.config.data_dir / "outreach" / "prospects")
+        dp = DealPipeline(store)
+        return dp.pipeline_summary()
+
+    @application.get("/pipeline/stale")
+    def pipeline_stale(days: int = Query(default=30, ge=1)) -> list[dict]:
+        """Stale deals — prospects with no activity in N days."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+        from fertility_sense.outreach.prospect_store import ProspectStore
+
+        store = ProspectStore(pipe.config.data_dir / "outreach" / "prospects")
+        dp = DealPipeline(store)
+        stale = dp.stale_deals(days=days)
+        return [p.model_dump(mode="json") for p in stale]
+
+    # ------------------------------------------------------------------
+    # Sequences Status
+    # ------------------------------------------------------------------
+
+    @application.get("/sequences/status")
+    def sequences_status() -> dict:
+        """Email sequence enrollment and performance."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.sequences import SequenceEngine
+
+        engine = SequenceEngine(
+            sequences_dir=pipe.config.base_dir / "data" / "sequences",
+            state_dir=pipe.config.data_dir / "outreach" / "sequence_state",
+        )
+        return engine.status()
+
+    # ------------------------------------------------------------------
+    # Queue Summary
+    # ------------------------------------------------------------------
+
+    @application.get("/queue/summary")
+    def queue_summary() -> dict:
+        """Content queue status and item list."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.content_queue import ContentQueue
+
+        q = ContentQueue(pipe.config.data_dir / "outreach" / "queue")
+        items = q.list_all()
+        summary = q.summary()
+        return {
+            "summary": summary,
+            "items": [item.model_dump(mode="json") for item in items],
+        }
+
+    @application.patch("/queue/{item_id}/approve")
+    def approve_queue_item(item_id: str) -> dict:
+        """Approve a content queue item."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.content_queue import ContentQueue
+
+        q = ContentQueue(pipe.config.data_dir / "outreach" / "queue")
+        ok = q.approve(item_id)
+        if not ok:
+            raise HTTPException(status_code=404, detail=f"Queue item '{item_id}' not found")
+        item = q.get(item_id)
+        return item.model_dump(mode="json") if item else {"item_id": item_id, "status": "approved"}
+
+    @application.patch("/queue/{item_id}/reject")
+    def reject_queue_item(item_id: str, reason: str = Query(default="")) -> dict:
+        """Reject a content queue item."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.content_queue import ContentQueue
+
+        q = ContentQueue(pipe.config.data_dir / "outreach" / "queue")
+        ok = q.reject(item_id, reason=reason)
+        if not ok:
+            raise HTTPException(status_code=404, detail=f"Queue item '{item_id}' not found")
+        item = q.get(item_id)
+        return item.model_dump(mode="json") if item else {"item_id": item_id, "status": "rejected"}
+
+    # ------------------------------------------------------------------
+    # Competitive Intel
+    # ------------------------------------------------------------------
+
+    @application.get("/competitive")
+    def competitive_landscape() -> dict:
+        """Competitor data with WIN positioning."""
+        from fertility_sense.feeds.competitor_news import COMPETITORS, win_vs_competitor
+
+        return {
+            "competitors": [
+                {**v, "key": k, "win_positioning": win_vs_competitor(k)}
+                for k, v in COMPETITORS.items()
+            ]
+        }
+
+    # ------------------------------------------------------------------
+    # Regulatory Signals
+    # ------------------------------------------------------------------
+
+    @application.get("/regulatory")
+    def regulatory_signals() -> dict:
+        """State mandate summary for fertility treatment coverage."""
+        from fertility_sense.feeds.state_mandates import STATE_MANDATES, states_with_ivf_mandate
+
+        ivf_states = states_with_ivf_mandate()
+        return {
+            "total_mandate_states": len(STATE_MANDATES),
+            "ivf_mandate_states": len(ivf_states),
+            "ivf_states": ivf_states,
+            "mandates": STATE_MANDATES,
+        }
+
+    # ------------------------------------------------------------------
+    # Executive Summary (aggregated dashboard)
+    # ------------------------------------------------------------------
+
+    @application.get("/executive/summary")
+    def executive_summary() -> dict:
+        """Executive dashboard: pipeline KPIs + stale deals + competitive + regulatory."""
+        pipe = _get_pipeline()
+        from fertility_sense.outreach.deal_pipeline import DealPipeline
+        from fertility_sense.outreach.prospect_store import ProspectStore
+        from fertility_sense.feeds.competitor_news import COMPETITORS
+        from fertility_sense.feeds.state_mandates import STATE_MANDATES, states_with_ivf_mandate
+
+        store = ProspectStore(pipe.config.data_dir / "outreach" / "prospects")
+        dp = DealPipeline(store)
+
+        summary = dp.pipeline_summary()
+        stale = dp.stale_deals(days=30)
+        ivf_states = states_with_ivf_mandate()
+
+        return {
+            "pipeline": {
+                "total_deals": summary.get("total", {}).get("count", 0),
+                "total_value": summary.get("total", {}).get("value", 0),
+                "weighted_value": summary.get("total", {}).get("weighted", 0),
+                "by_stage": {
+                    k: v for k, v in summary.items() if k != "total"
+                },
+            },
+            "stale_deals": len(stale),
+            "competitive": {
+                "tracked_competitors": len(COMPETITORS),
+                "names": [v["name"] for v in COMPETITORS.values()],
+            },
+            "regulatory": {
+                "total_mandate_states": len(STATE_MANDATES),
+                "ivf_mandate_states": len(ivf_states),
+            },
+        }
+
     return application
 
 
