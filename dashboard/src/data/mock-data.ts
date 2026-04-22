@@ -386,15 +386,104 @@ export const executiveKPIs: ExecutiveKPI[] = [
   { label: "Active Sequences", value: "4" },
 ];
 
+export interface ActionStep {
+  step: string;
+  status: "pending" | "done" | "overdue";
+}
+
 export interface ActionItem {
   title: string;
   detail: string;
+  priority: "high" | "medium" | "low";
+  type: "followup" | "sequence" | "regulatory" | "competitive" | "new_prospect";
+  prospect?: {
+    name: string;
+    company: string;
+    email: string;
+    buyerType: string;
+    dealStage: string;
+    dealValue: string;
+    daysSilent?: number;
+    currentSequence?: string;
+    sequenceStep?: number;
+  };
+  context: string;
+  steps: ActionStep[];
+  timeline: string;
+  impact: string;
 }
 
 export const weeklyActions: ActionItem[] = [
-  { title: "Follow up with Disney", detail: "Evaluating stage, 12 days silent" },
-  { title: "Send broker_education step 3 to AON", detail: "Sequence step overdue by 2 days" },
-  { title: "New CO mandate", detail: "Prospect 15 companies in state" },
+  {
+    title: "Follow up with Disney",
+    detail: "Evaluating stage, 12 days silent — $500K deal at risk",
+    priority: "high",
+    type: "followup",
+    prospect: {
+      name: "Jane Smith",
+      company: "Disney",
+      email: "jane.smith@disney.com",
+      buyerType: "CHRO",
+      dealStage: "Evaluating",
+      dealValue: "$500K ARR",
+      daysSilent: 12,
+      currentSequence: "chro_outbound",
+      sequenceStep: 3,
+    },
+    context: "Jane downloaded the ROI calculator 3 weeks ago and had a 30-min intro call. She requested a case study for media/entertainment companies. We sent chro_outbound step 3 but no response in 12 days. Disney has 180K employees and currently uses no managed fertility benefit — massive greenfield opportunity.",
+    steps: [
+      { step: "Send personalized follow-up referencing media industry case study", status: "pending" },
+      { step: "Connect Jane with WIN's client success lead for Disney-scale reference", status: "pending" },
+      { step: "Prepare custom ROI model for 180K employee base", status: "done" },
+      { step: "Schedule 15-min check-in call (suggest Thu/Fri)", status: "pending" },
+      { step: "If no response by Friday, escalate to VP of Sales for executive intro", status: "pending" },
+    ],
+    timeline: "Action needed by Friday — deal goes stale at 14 days",
+    impact: "$500K ARR at risk. Disney would be WIN's largest client and flagship reference.",
+  },
+  {
+    title: "Send broker_education step 3 to AON",
+    detail: "Sequence step overdue by 2 days — broker channel activation",
+    priority: "high",
+    type: "sequence",
+    prospect: {
+      name: "Michael Torres",
+      company: "AON",
+      email: "michael.torres@aon.com",
+      buyerType: "Broker",
+      dealStage: "Warm",
+      dealValue: "$200K+ (channel)",
+      daysSilent: 5,
+      currentSequence: "broker_education",
+      sequenceStep: 2,
+    },
+    context: "Michael is a senior producer at AON's health & benefits practice. He opened emails 1 and 2 (both within 2 hours of send). Step 3 covers WIN's commission structure and co-sell playbook. AON has 150+ enterprise clients who could be referred to WIN — this is a channel multiplier, not just one deal.",
+    steps: [
+      { step: "Send broker_education step 3 (commission structure + co-sell playbook)", status: "overdue" },
+      { step: "Include link to broker partner portal (when ready)", status: "pending" },
+      { step: "Propose 30-min call to walk through first co-sell target", status: "pending" },
+      { step: "Identify 3 AON clients in mandate states (CA, NY, IL) as co-sell candidates", status: "pending" },
+    ],
+    timeline: "Send today — Michael has shown high engagement (opened both prior emails)",
+    impact: "$200K+ direct, but AON channel could drive $2M+ in referred deals over 12 months.",
+  },
+  {
+    title: "New Colorado mandate — prospect 15 companies",
+    detail: "HB 22-1008 creates window for employers with 100+ employees in CO",
+    priority: "medium",
+    type: "regulatory",
+    context: "Colorado's Building Families Act (HB 22-1008) mandates fertility coverage including IVF for employers with 100+ employees. This creates a compliance trigger: employers in CO who don't yet have a managed fertility benefit need one. Our state mandate feed identified 15 Fortune 1000 companies headquartered or with major operations in CO.",
+    steps: [
+      { step: "Pull list of 15 target companies from CO employer database", status: "done" },
+      { step: "Cross-reference against existing WIN clients (exclude current)", status: "pending" },
+      { step: "Check which are already using Progyny/Carrot/Maven (competitive intel)", status: "pending" },
+      { step: "Create CO-specific outreach email (reference HB 22-1008 compliance deadline)", status: "pending" },
+      { step: "Add qualified prospects to pipeline and assign chro_outbound sequence", status: "pending" },
+      { step: "Brief AON/Willis producers in CO region for co-sell", status: "pending" },
+    ],
+    timeline: "Complete prospecting by end of week — compliance deadline creates urgency",
+    impact: "15 prospects × $100K avg = $1.5M potential pipeline from one regulatory trigger.",
+  },
 ];
 
 export interface CompetitiveAlert {
