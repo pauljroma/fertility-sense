@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Search,
   Radio,
+  Database,
   Swords,
   Send,
   Mail,
@@ -46,6 +47,7 @@ const NAV_SECTIONS: NavSection[] = [
     icon: Search,
     items: [
       { id: "signals", label: "Signals", icon: Radio },
+      { id: "intelligence", label: "Intelligence", icon: Database },
       { id: "competitive", label: "Competitive", icon: Swords },
     ],
   },

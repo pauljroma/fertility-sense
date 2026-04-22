@@ -11,6 +11,7 @@ import { CompetitiveView } from "@/components/competitive/competitive-view";
 import { SequencesView } from "@/components/sequences/sequences-view";
 import { QueueView } from "@/components/queue/queue-view";
 import { AgentsView } from "@/components/agents/agents-view";
+import { IntelligenceView } from "@/components/intelligence/intelligence-view";
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("executive");
@@ -27,6 +28,7 @@ export default function DashboardPage() {
           {activeTab === "competitive" && <CompetitiveView />}
           {activeTab === "sequences" && <SequencesView />}
           {activeTab === "queue" && <QueueView />}
+          {activeTab === "intelligence" && <IntelligenceView />}
           {activeTab === "agents" && <AgentsView />}
         </div>
       </main>

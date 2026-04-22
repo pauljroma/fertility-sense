@@ -606,3 +606,94 @@ export const queueItems: QueueItem[] = [
     createdAt: "2026-04-07T11:00:00Z",
   },
 ];
+
+// ─── Intelligence / Feeds ────────────────────────────────────────────
+
+export interface FeedSource {
+  source: string;
+  recordCount: number;
+  topicsCovered: number;
+  grades: Record<string, number>;
+  latestDate: string | null;
+  type: "evidence" | "regulatory" | "intelligence" | "demand";
+}
+
+export const feedSources: FeedSource[] = [
+  { source: "mother_to_baby", recordCount: 20, topicsCovered: 26, grades: { D: 20 }, latestDate: "2026-04-09", type: "evidence" },
+  { source: "state_mandates", recordCount: 20, topicsCovered: 3, grades: { B: 20 }, latestDate: "2026-04-09", type: "regulatory" },
+  { source: "nih_nichd", recordCount: 5, topicsCovered: 11, grades: { A: 1, B: 3, C: 1 }, latestDate: "2024-02-01", type: "evidence" },
+  { source: "competitor_intel", recordCount: 4, topicsCovered: 3, grades: { C: 4 }, latestDate: "2026-04-09", type: "intelligence" },
+  { source: "cdc_art", recordCount: 1, topicsCovered: 2, grades: { A: 1 }, latestDate: "2024-10-01", type: "evidence" },
+  { source: "cdc_prams", recordCount: 1, topicsCovered: 2, grades: { A: 1 }, latestDate: "2024-06-15", type: "evidence" },
+  { source: "acog", recordCount: 1, topicsCovered: 2, grades: { B: 1 }, latestDate: null, type: "evidence" },
+  { source: "cochrane", recordCount: 1, topicsCovered: 3, grades: { C: 1 }, latestDate: null, type: "evidence" },
+  { source: "mothertobaby", recordCount: 1, topicsCovered: 1, grades: { B: 1 }, latestDate: null, type: "evidence" },
+];
+
+export const gradeDistribution = [
+  { grade: "A", count: 3, color: "#10b981" },
+  { grade: "B", count: 25, color: "#3b82f6" },
+  { grade: "C", count: 6, color: "#f5a623" },
+  { grade: "D", count: 20, color: "#94a3b8" },
+];
+
+export interface TopicCoverage {
+  topicId: string;
+  displayName: string;
+  riskTier: string;
+  evidenceCount: number;
+}
+
+export const coveredTopics: TopicCoverage[] = [
+  { topicId: "medication-pregnancy-safety", displayName: "Medication Safety", riskTier: "red", evidenceCount: 8 },
+  { topicId: "ivf", displayName: "IVF", riskTier: "yellow", evidenceCount: 5 },
+  { topicId: "pcos-symptoms", displayName: "PCOS Symptoms", riskTier: "yellow", evidenceCount: 4 },
+  { topicId: "prenatal-vitamins", displayName: "Prenatal Vitamins", riskTier: "yellow", evidenceCount: 4 },
+  { topicId: "egg-quality", displayName: "Egg Quality", riskTier: "yellow", evidenceCount: 3 },
+  { topicId: "fertility-supplements", displayName: "Fertility Supplements", riskTier: "green", evidenceCount: 3 },
+  { topicId: "postpartum-depression", displayName: "Postpartum Depression", riskTier: "yellow", evidenceCount: 3 },
+  { topicId: "fertility-diet", displayName: "Fertility Diet", riskTier: "green", evidenceCount: 2 },
+  { topicId: "miscarriage-risk", displayName: "Miscarriage Risk", riskTier: "yellow", evidenceCount: 2 },
+  { topicId: "breastfeeding-problems", displayName: "Breastfeeding", riskTier: "green", evidenceCount: 2 },
+];
+
+export const uncoveredTopics: TopicCoverage[] = [
+  { topicId: "iui", displayName: "IUI", riskTier: "yellow", evidenceCount: 0 },
+  { topicId: "egg-freezing", displayName: "Egg Freezing", riskTier: "yellow", evidenceCount: 0 },
+  { topicId: "donor-eggs-sperm", displayName: "Donor Eggs & Sperm", riskTier: "yellow", evidenceCount: 0 },
+  { topicId: "surrogacy", displayName: "Surrogacy", riskTier: "red", evidenceCount: 0 },
+  { topicId: "clomid", displayName: "Clomid", riskTier: "red", evidenceCount: 0 },
+  { topicId: "letrozole", displayName: "Letrozole", riskTier: "red", evidenceCount: 0 },
+  { topicId: "semen-analysis", displayName: "Semen Analysis", riskTier: "yellow", evidenceCount: 0 },
+  { topicId: "hsg-test", displayName: "HSG Test", riskTier: "yellow", evidenceCount: 0 },
+  { topicId: "fertility-anxiety", displayName: "Fertility Anxiety", riskTier: "green", evidenceCount: 0 },
+  { topicId: "sperm-health", displayName: "Sperm Health", riskTier: "yellow", evidenceCount: 0 },
+];
+
+export interface EvidenceRecord {
+  evidenceId: string;
+  title: string;
+  source: string;
+  grade: string;
+  topics: string[];
+  publicationDate: string | null;
+  keyFindings: string[];
+  url: string;
+}
+
+export const sampleEvidence: EvidenceRecord[] = [
+  { evidenceId: "seed-003", title: "CDC ART National Summary Report", source: "cdc_art", grade: "A", topics: ["ivf", "fertility-clinic-selection"], publicationDate: "2024-10-01", keyFindings: ["Live birth rate 31.7% for patients under 35", "Cumulative rate 51.3% including frozen transfers"], url: "https://www.cdc.gov/art/reports/" },
+  { evidenceId: "seed-001", title: "Folic Acid Supplementation and NTD Prevention", source: "cdc_prams", grade: "A", topics: ["prenatal-vitamins", "fertility-supplements"], publicationDate: "2024-06-15", keyFindings: ["0.4-0.8 mg/day reduces NTD risk by 50-70%"], url: "https://www.cdc.gov/prams/" },
+  { evidenceId: "seed-005", title: "Screening and Treatment of PPD", source: "nih_nichd", grade: "A", topics: ["postpartum-depression"], publicationDate: "2024-02-01", keyFindings: ["CBT reduces PPD symptoms by 50-60%"], url: "https://pubmed.ncbi.nlm.nih.gov/" },
+  { evidenceId: "comp-001", title: "Progyny Market Position Analysis", source: "competitor_intel", grade: "C", topics: ["ivf", "fertility-clinic-selection"], publicationDate: "2026-04-09", keyFindings: ["$1.1B revenue", "400+ employer clients", "Network managed model"], url: "" },
+  { evidenceId: "mandate-ca", title: "California SB 729 Fertility Mandate", source: "state_mandates", grade: "B", topics: ["fertility-insurance"], publicationDate: "2024-01-01", keyFindings: ["Comprehensive IVF coverage required for insured employers"], url: "" },
+];
+
+export const intelligenceSummary = {
+  totalRecords: 54,
+  sourcesActive: 9,
+  topicCoveragePct: 57,
+  topicsCovered: 52,
+  topicsTotal: 91,
+  feedsRegistered: 3,
+};
