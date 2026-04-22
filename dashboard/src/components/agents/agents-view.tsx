@@ -1,7 +1,8 @@
 "use client";
 
 import { Card, Badge, SectionHeading, ProgressBar } from "@/components/ui";
-import { agentStatuses } from "@/data/mock-data";
+import { agentStatuses, type AgentStatus } from "@/data/mock-data";
+import { useApi } from "@/lib/hooks/use-api";
 
 const statusVariant: Record<string, "emerald" | "blue" | "red"> = {
   running: "emerald",
@@ -10,12 +11,24 @@ const statusVariant: Record<string, "emerald" | "blue" | "red"> = {
 };
 
 export function AgentsView() {
+  // Proof-of-concept: try live API first, fall back to mock data
+  const { data: liveAgents, loading, error } = useApi<AgentStatus[]>("/api/agents", 30000);
+  const agents = liveAgents ?? agentStatuses;
+
   return (
     <div className="space-y-6">
-      <SectionHeading>Agent Fleet</SectionHeading>
+      <div className="flex items-center justify-between">
+        <SectionHeading className="mb-0">Agent Fleet</SectionHeading>
+        {!loading && !error && liveAgents && (
+          <Badge variant="emerald">Live</Badge>
+        )}
+        {!loading && error && (
+          <Badge variant="slate">Mock data</Badge>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {agentStatuses.map((agent) => (
+        {agents.map((agent) => (
           <Card key={agent.name} padding="lg">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-slate-200">{agent.name}</h3>

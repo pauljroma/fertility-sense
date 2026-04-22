@@ -353,3 +353,167 @@ export const agentStatuses: AgentStatus[] = [
   { name: "Digest Builder", status: "idle", lastRun: "2026-04-08T07:00:00Z", nextRun: "2026-04-09T07:00:00Z", runsToday: 1, successRate: 100, description: "Compiles daily and weekly intelligence digests" },
   { name: "Pipeline Scorer", status: "idle", lastRun: "2026-04-08T06:30:00Z", nextRun: "2026-04-08T12:30:00Z", runsToday: 2, successRate: 100, description: "Recalculates deal scores based on latest signals" },
 ];
+
+// ─── Executive View ──────────────────────────────────────────────────
+
+export interface ExecutiveFocus {
+  headline: string;
+  badges: { label: string; variant: "amber" | "blue" | "emerald" | "purple" }[];
+}
+
+export const executiveFocus: ExecutiveFocus = {
+  headline: "5 stale deals worth $420K need attention this week",
+  badges: [
+    { label: "3 RFPs due", variant: "amber" },
+    { label: "$1.2M weighted pipeline", variant: "blue" },
+    { label: "2 new mandates", variant: "emerald" },
+  ],
+};
+
+export interface ExecutiveKPI {
+  label: string;
+  value: string;
+  trend?: number;
+  target?: string;
+}
+
+export const executiveKPIs: ExecutiveKPI[] = [
+  { label: "Total Pipeline", value: "$2.7M", trend: 12 },
+  { label: "Win Rate", value: "28%", target: "35%" },
+  { label: "Avg Cycle", value: "45 days", trend: -5 },
+  { label: "Emails Sent (7d)", value: "47", trend: 22 },
+  { label: "Meetings Booked (7d)", value: "3" },
+  { label: "Active Sequences", value: "4" },
+];
+
+export interface ActionItem {
+  title: string;
+  detail: string;
+}
+
+export const weeklyActions: ActionItem[] = [
+  { title: "Follow up with Disney", detail: "Evaluating stage, 12 days silent" },
+  { title: "Send broker_education step 3 to AON", detail: "Sequence step overdue by 2 days" },
+  { title: "New CO mandate", detail: "Prospect 15 companies in state" },
+];
+
+export interface CompetitiveAlert {
+  text: string;
+}
+
+export const competitiveAlerts: CompetitiveAlert[] = [
+  { text: "Progyny Q1 earnings next week" },
+  { text: "Carrot expanding to EMEA" },
+  { text: "Kindbody opened 3 new clinics in TX" },
+  { text: "Maven Clinic IPO filing expected Q2" },
+];
+
+// ─── Queue HITL Items ───────────────────────────────────────────────
+
+export type QueueItemStatus = "pending" | "approved" | "sent" | "rejected";
+export type QueueChannel = "sales_email" | "linkedin" | "case_study" | "blog" | "social";
+
+export interface QueueItem {
+  id: string;
+  title: string;
+  body: string;
+  channel: QueueChannel;
+  evidenceCount: number;
+  riskTier: "low" | "medium" | "high";
+  status: QueueItemStatus;
+  rejectReason?: string;
+  targetCompany: string;
+  createdAt: string;
+}
+
+export const queueItems: QueueItem[] = [
+  {
+    id: "q1",
+    title: "Cold outreach to Acme Corp CHRO",
+    body: "Hi Sarah, I noticed Acme Corp recently posted 3 fertility-related benefit roles on LinkedIn. With 4,200 employees, companies your size typically see 22% reduction in turnover after adding fertility benefits. I'd love to share how WIN Fertility can help...",
+    channel: "sales_email",
+    evidenceCount: 4,
+    riskTier: "low",
+    status: "pending",
+    targetCompany: "Acme Corp",
+    createdAt: "2026-04-08T08:30:00Z",
+  },
+  {
+    id: "q2",
+    title: "LinkedIn connection request to David Chen",
+    body: "Hi David, as a Benefits Broker at TechForward, you're likely fielding more fertility benefit questions from clients. Our broker partnership program offers white-labeled resources and co-selling support...",
+    channel: "linkedin",
+    evidenceCount: 2,
+    riskTier: "low",
+    status: "pending",
+    targetCompany: "TechForward Inc",
+    createdAt: "2026-04-08T08:15:00Z",
+  },
+  {
+    id: "q3",
+    title: "Case study: Pacific Manufacturing ROI analysis",
+    body: "Pacific Manufacturing (3,100 EEs) saw a 31% reduction in fertility-related medical claims and 18% improvement in employee retention after implementing WIN Fertility benefits. Total first-year ROI: 2.4x...",
+    channel: "case_study",
+    evidenceCount: 7,
+    riskTier: "medium",
+    status: "approved",
+    targetCompany: "Pacific Manufacturing",
+    createdAt: "2026-04-07T14:00:00Z",
+  },
+  {
+    id: "q4",
+    title: "Blog: Why Egg Freezing Is the New 401(k) Match",
+    body: "In 2026, egg freezing benefits have moved from Silicon Valley perk to mainstream expectation. Here are 5 data points that show why forward-thinking employers are adding egg freezing to their benefits package...",
+    channel: "blog",
+    evidenceCount: 5,
+    riskTier: "low",
+    status: "sent",
+    targetCompany: "General",
+    createdAt: "2026-04-07T10:00:00Z",
+  },
+  {
+    id: "q5",
+    title: "Follow-up email to Midwest Teachers Union",
+    body: "Hi James, following up on our conversation about fertility benefits for union members. I've attached the playbook showing how 12 unions successfully negotiated fertility coverage in their 2025 contracts...",
+    channel: "sales_email",
+    evidenceCount: 3,
+    riskTier: "medium",
+    status: "pending",
+    targetCompany: "Midwest Teachers Union",
+    createdAt: "2026-04-08T07:45:00Z",
+  },
+  {
+    id: "q6",
+    title: "Social post: 3 fertility stats for CFOs",
+    body: "Did you know? 1) Companies with fertility benefits see 22% lower turnover. 2) The average IVF cycle costs $23K out-of-pocket. 3) Fertility benefits have a 3.2x ROI in the first year. #FertilityBenefits #HR",
+    channel: "social",
+    evidenceCount: 3,
+    riskTier: "low",
+    status: "rejected",
+    rejectReason: "Stats need updated sources for Q2 2026",
+    targetCompany: "General",
+    createdAt: "2026-04-06T16:00:00Z",
+  },
+  {
+    id: "q7",
+    title: "Re-engagement email to Summit Corp",
+    body: "Hi there, it's been a while since we connected about fertility benefits for Summit Corp. Since then, 3 things have changed: Colorado's new mandate (HB 26-1187), your competitor added fertility benefits, and our pricing model now includes...",
+    channel: "sales_email",
+    evidenceCount: 4,
+    riskTier: "high",
+    status: "pending",
+    targetCompany: "Summit Corp",
+    createdAt: "2026-04-08T09:00:00Z",
+  },
+  {
+    id: "q8",
+    title: "LinkedIn thought leadership post",
+    body: "The fertility benefits landscape is shifting fast. In the last 30 days: 4 new state mandates introduced, Progyny expanded surrogacy coverage, and employer demand signals are up 47% on Google Trends. Here's what smart HR leaders are doing about it...",
+    channel: "linkedin",
+    evidenceCount: 6,
+    riskTier: "low",
+    status: "approved",
+    targetCompany: "General",
+    createdAt: "2026-04-07T11:00:00Z",
+  },
+];
