@@ -1,4 +1,4 @@
-.PHONY: test-smoke test-unit test-integration test-property test-e2e test-coverage lint typecheck build docker-build docker-run docker-test install-schedules uninstall-schedules
+.PHONY: test-smoke test-unit test-integration test-property test-e2e test-coverage lint typecheck build docker-build docker-run docker-test install-schedules uninstall-schedules dashboard-dev dashboard-build
 
 # Test tiers (fast → slow)
 test-smoke:          ## <200ms — 5-test heartbeat, pre-commit gate
@@ -59,3 +59,10 @@ uninstall-schedules: ## Remove launchd schedules
 	-launchctl unload ~/Library/LaunchAgents/com.winfertility.digest-weekly.plist
 	-launchctl unload ~/Library/LaunchAgents/com.winfertility.sequence-run.plist
 	-rm ~/Library/LaunchAgents/com.winfertility.*.plist
+
+# Dashboard
+dashboard-dev:     ## Start dashboard dev server
+	cd dashboard && npm run dev
+
+dashboard-build:   ## Build dashboard
+	cd dashboard && npm run build
