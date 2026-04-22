@@ -364,6 +364,166 @@ def create_app(config: FertilitySenseConfig | None = None) -> FastAPI:
         return item.model_dump(mode="json") if item else {"item_id": item_id, "status": "rejected"}
 
     # ------------------------------------------------------------------
+    # Intelligence (Feeds & Intelligence Dashboard)
+    # ------------------------------------------------------------------
+
+    @application.get("/intelligence/summary")
+    def intelligence_summary() -> dict:
+        """Aggregated intelligence stats for the dashboard."""
+        pipe = _get_pipeline()
+        records = pipe.evidence_store.all_records()
+        all_topics = pipe.graph.all_topics()
+
+        # Grade distribution
+        grade_dist: dict[str, int] = {}
+        for r in records:
+            grade_dist[r.grade.value] = grade_dist.get(r.grade.value, 0) + 1
+
+        # By source
+        by_source: dict[str, dict] = {}
+        for r in records:
+            if r.source_feed not in by_source:
+                by_source[r.source_feed] = {"count": 0, "topics": set()}
+            by_source[r.source_feed]["count"] += 1
+            by_source[r.source_feed]["topics"].update(r.topics)
+
+        source_breakdown = [
+            {"source": src, "records": info["count"], "topics_covered": len(info["topics"])}
+            for src, info in sorted(by_source.items(), key=lambda x: -x[1]["count"])
+        ]
+
+        # Topic coverage
+        covered: set[str] = set()
+        for r in records:
+            covered.update(r.topics)
+
+        return {
+            "total_records": len(records),
+            "sources_active": len(by_source),
+            "topic_coverage_pct": round(len(covered) / len(all_topics) * 100, 1) if all_topics else 0,
+            "topics_covered": len(covered),
+            "topics_total": len(all_topics),
+            "grade_distribution": grade_dist,
+            "source_breakdown": source_breakdown,
+            "feeds_registered": len(pipe.registry),
+        }
+
+    @application.get("/intelligence/coverage")
+    def intelligence_coverage() -> dict:
+        """Covered vs uncovered topics with evidence counts."""
+        pipe = _get_pipeline()
+        records = pipe.evidence_store.all_records()
+        all_topics = pipe.graph.all_topics()
+
+        # Count evidence per topic
+        evidence_by_topic: dict[str, int] = {}
+        for r in records:
+            for tid in r.topics:
+                evidence_by_topic[tid] = evidence_by_topic.get(tid, 0) + 1
+
+        covered = []
+        uncovered = []
+        for t in all_topics:
+            count = evidence_by_topic.get(t.topic_id, 0)
+            entry = {
+                "topic_id": t.topic_id,
+                "display_name": t.display_name,
+                "risk_tier": t.risk_tier.value,
+                "journey_stage": t.journey_stage.value,
+                "evidence_count": count,
+            }
+            if count > 0:
+                covered.append(entry)
+            else:
+                uncovered.append(entry)
+
+        # Sort covered by count desc, uncovered by risk tier (red first)
+        covered.sort(key=lambda x: -x["evidence_count"])
+        risk_order = {"red": 0, "yellow": 1, "green": 2, "black": 3}
+        uncovered.sort(key=lambda x: risk_order.get(x["risk_tier"], 99))
+
+        return {
+            "coverage_pct": round(len(covered) / len(all_topics) * 100, 1) if all_topics else 0,
+            "covered": covered,
+            "uncovered": uncovered,
+        }
+
+    @application.get("/intelligence/by-source")
+    def intelligence_by_source() -> dict:
+        """Per-source breakdown of ingested evidence."""
+        pipe = _get_pipeline()
+        records = pipe.evidence_store.all_records()
+
+        by_source: dict[str, dict] = {}
+        for r in records:
+            if r.source_feed not in by_source:
+                by_source[r.source_feed] = {
+                    "source": r.source_feed,
+                    "record_count": 0,
+                    "grades": {},
+                    "topics": set(),
+                    "latest_date": None,
+                }
+            info = by_source[r.source_feed]
+            info["record_count"] += 1
+            info["grades"][r.grade.value] = info["grades"].get(r.grade.value, 0) + 1
+            info["topics"].update(r.topics)
+            if r.publication_date:
+                if info["latest_date"] is None or r.publication_date > info["latest_date"]:
+                    info["latest_date"] = r.publication_date
+
+        result = []
+        for info in sorted(by_source.values(), key=lambda x: -x["record_count"]):
+            result.append({
+                "source": info["source"],
+                "record_count": info["record_count"],
+                "grades": info["grades"],
+                "topics_covered": len(info["topics"]),
+                "topic_ids": sorted(info["topics"]),
+                "latest_date": str(info["latest_date"]) if info["latest_date"] else None,
+            })
+        return {"sources": result}
+
+    @application.get("/intelligence/evidence")
+    def intelligence_evidence(
+        topic: str | None = Query(default=None),
+        source: str | None = Query(default=None),
+        grade: str | None = Query(default=None),
+        limit: int = Query(default=50, ge=1, le=200),
+    ) -> dict:
+        """Filterable evidence records."""
+        pipe = _get_pipeline()
+        records = pipe.evidence_store.all_records()
+
+        if topic:
+            records = [r for r in records if topic in r.topics]
+        if source:
+            records = [r for r in records if r.source_feed == source]
+        if grade:
+            records = [r for r in records if r.grade.value == grade.upper()]
+
+        records.sort(key=lambda r: r.ingested_at, reverse=True)
+
+        return {
+            "total": len(records),
+            "records": [
+                {
+                    "evidence_id": r.evidence_id,
+                    "title": r.title,
+                    "source_feed": r.source_feed,
+                    "grade": r.grade.value,
+                    "topics": r.topics,
+                    "publication_date": str(r.publication_date) if r.publication_date else None,
+                    "key_findings": r.key_findings,
+                    "url": r.url,
+                    "sample_size": r.sample_size,
+                    "limitations": r.limitations,
+                }
+                for r in records[:limit]
+            ],
+        }
+
+    # ------------------------------------------------------------------
     # Competitive Intel
     # ------------------------------------------------------------------
 
